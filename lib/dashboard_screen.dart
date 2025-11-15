@@ -39,7 +39,7 @@ class DashboardScreen extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const HistoryScreen()),
+                MaterialPageRoute(builder: (context) => HistoryScreen()),
               );
             },
           ),
