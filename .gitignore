@@ -1,0 +1,43 @@
+# Miscellaneous
+.DS_Store
+.idea
+.vscode
+*.iml
+*.ipr
+*.iws
+
+# Logs and databases
+*.log
+
+# Flutter/Dart packages
+.packages
+.dart_tool/
+
+# Flutter build output
+build/
+
+# Generated plugin registrant
+/ios/Runner/GeneratedPluginRegistrant.*
+/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
+/linux/flutter/generated_plugin_registrant.h
+/linux/flutter/generated_plugin_registrant.cc
+/macos/Flutter/GeneratedPluginRegistrant.swift
+/windows/flutter/generated_plugin_registrant.h
+/windows/flutter/generated_plugin_registrant.cc
+/web/flutter_bootstrap.js
+
+# Android
+android/key.properties
+android/local.properties
+android/.gradle
+android/app/build
+
+# iOS
+ios/Pods/
+ios/Podfile.lock
+ios/.symlinks/
+ios/Flutter/App.framework
+ios/Flutter/engine
+ios/Flutter/flutter_assets/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
