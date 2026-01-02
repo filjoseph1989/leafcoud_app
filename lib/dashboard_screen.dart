@@ -5,7 +5,7 @@ class DashboardScreen extends StatelessWidget {
   final Map<String, dynamic> data = {
     "timestamp": "2025-11-16T10:30:01Z",
     "plant_id": "bucket_1_lettuce",
-    "lettuce_image_url": "https://www.gardeningknowhow.com/wp-content/uploads/2021/05/lettuce-with-brown-edges.jpg",
+    "lettuce_image_url": "https://grobrix.com/wp-content/uploads/2024/03/Olmetie-Seedling.jpg",
     "sensors": {
       "ec": 790.5,
       "ph": 6.4,
