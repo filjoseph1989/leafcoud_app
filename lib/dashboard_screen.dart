@@ -1,31 +1,47 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_leafcloud_app/history_screen.dart';
 
-class DashboardScreen extends StatelessWidget {
-  final Map<String, dynamic> data = {
-    "timestamp": "2025-11-16T10:30:01Z",
-    "plant_id": "bucket_1_lettuce",
-    "lettuce_image_url": "https://grobrix.com/wp-content/uploads/2024/03/Olmetie-Seedling.jpg",
-    "sensors": {
-      "ec": 790.5,
-      "ph": 6.4,
-      "temp_c": 25.1
-    },
-    "predictions": {
-      "n_ppm": 139.4,
-      "p_ppm": 46.5,
-      "k_ppm": 185.8
-    },
-    "status": {
-      "n_status": "low",
-      "p_status": "ok",
-      "k_status": "ok",
-      "overall_status": "warning"
-    },
-    "recommendation": "Nitrogen is low. Consider adding 10ml of 'Grow' solution."
-  };
+class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({super.key});
 
-  DashboardScreen({super.key});
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  Map<String, dynamic>? data;
+  bool isLoading = true;
+  String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    try {
+      final response = await http.get(Uri.parse('http://127.0.0.1:8000/api/v1/readings/latest'));
+      if (response.statusCode == 200) {
+        setState(() {
+          data = json.decode(response.body);
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          errorMessage = 'Failed to load data: ${response.statusCode}';
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Error: $e';
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,23 +61,27 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            _buildHeader(),
-            const SizedBox(height: 24),
-            _buildRecommendationCard(),
-            const SizedBox(height: 24),
-            _buildStatusGrid(),
-            const SizedBox(height: 24),
-            _buildSensorReadings(),
-            const SizedBox(height: 24),
-            _buildNutrientPredictions(),
-          ],
-        ),
-      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : errorMessage != null
+              ? Center(child: Text(errorMessage!))
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      _buildHeader(),
+                      const SizedBox(height: 24),
+                      _buildRecommendationCard(),
+                      const SizedBox(height: 24),
+                      _buildStatusGrid(),
+                      const SizedBox(height: 24),
+                      _buildSensorReadings(),
+                      const SizedBox(height: 24),
+                      _buildNutrientPredictions(),
+                    ],
+                  ),
+                ),
     );
   }
 
@@ -70,12 +90,12 @@ class DashboardScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Plant: ${data['plant_id']}',
+          'Plant: ${data!['plant_id']}',
           style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
         Text(
-          'Last updated: ${data['timestamp']}',
+          'Last updated: ${data!['timestamp']}',
           style: const TextStyle(fontSize: 16, color: Colors.grey),
         ),
         const SizedBox(height: 16),
@@ -83,7 +103,7 @@ class DashboardScreen extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12.0),
             child: Image.network(
-              data['lettuce_image_url'],
+              data!['lettuce_image_url'],
               height: 200,
               width: double.infinity,
               fit: BoxFit.cover,
@@ -117,7 +137,7 @@ class DashboardScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              data['recommendation'],
+              data!['recommendation'],
               style: const TextStyle(fontSize: 16),
             ),
           ],
@@ -127,7 +147,7 @@ class DashboardScreen extends StatelessWidget {
   }
 
   Widget _buildStatusGrid() {
-    final status = data['status'] as Map<String, dynamic>;
+    final status = data!['status'] as Map<String, dynamic>;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -150,7 +170,7 @@ class DashboardScreen extends StatelessWidget {
   }
 
   Widget _buildSensorReadings() {
-    final sensors = data['sensors'] as Map<String, dynamic>;
+    final sensors = data!['sensors'] as Map<String, dynamic>;
     return _buildInfoCard(
       title: 'Live Sensor Data',
       icon: Icons.sensors,
@@ -163,7 +183,7 @@ class DashboardScreen extends StatelessWidget {
   }
 
   Widget _buildNutrientPredictions() {
-    final predictions = data['predictions'] as Map<String, dynamic>;
+    final predictions = data!['predictions'] as Map<String, dynamic>;
     return _buildInfoCard(
       title: 'NPK Predictions (ppm)',
       icon: Icons.science,
