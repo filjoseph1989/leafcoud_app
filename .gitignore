@@ -12,3 +12,4 @@ build/
 *.log
 context/
 docs
+GEMINI.md

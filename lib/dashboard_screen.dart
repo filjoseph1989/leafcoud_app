@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:flutter_leafcloud_app/history_screen.dart';
+import 'package:flutter_leafcloud_app/alerts_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -55,6 +57,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
         foregroundColor: Colors.white,
         actions: [
           IconButton(
+            icon: const Icon(Icons.notifications),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AlertsScreen()),
+              );
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.history),
             onPressed: () {
               Navigator.push(
@@ -96,6 +107,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildHeader() {
     final String? relativeImageUrl = data!['image_url'];
     final String? fullImageUrl = relativeImageUrl != null ? 'http://127.0.0.1:8000/$relativeImageUrl' : null;
+    
+    String formattedDate = 'Unknown';
+    if (data!['timestamp'] != null) {
+      try {
+        final DateTime parsedDate = DateTime.parse(data!['timestamp']);
+        formattedDate = DateFormat.yMMMd().add_jm().format(parsedDate);
+      } catch (e) {
+        formattedDate = data!['timestamp'];
+      }
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,7 +127,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Last updated: ${data!['timestamp'] ?? 'Unknown'}',
+          'Last updated: $formattedDate',
           style: const TextStyle(fontSize: 16, color: Colors.grey),
         ),
         const SizedBox(height: 16),
