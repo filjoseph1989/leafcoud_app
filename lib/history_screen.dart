@@ -1,55 +1,49 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-class HistoryScreen extends StatelessWidget {
-  HistoryScreen({super.key});
+class HistoryScreen extends StatefulWidget {
+  const HistoryScreen({super.key});
 
-  final List<Map<String, dynamic>> historyData = [
-    {
-      "timestamp": "2025-11-15T10:00:00Z",
-      "n_ppm": 120.0,
-      "p_ppm": 40.0,
-      "k_ppm": 160.0,
-      "ec": 750.0,
-      "ph": 6.2,
-      "temp_c": 24.5
-    },
-    {
-      "timestamp": "2025-11-15T12:00:00Z",
-      "n_ppm": 125.0,
-      "p_ppm": 42.0,
-      "k_ppm": 165.0,
-      "ec": 760.0,
-      "ph": 6.3,
-      "temp_c": 24.8
-    },
-    {
-      "timestamp": "2025-11-15T14:00:00Z",
-      "n_ppm": 130.0,
-      "p_ppm": 45.0,
-      "k_ppm": 170.0,
-      "ec": 770.0,
-      "ph": 6.4,
-      "temp_c": 25.0
-    },
-    {
-      "timestamp": "2025-11-15T16:00:00Z",
-      "n_ppm": 135.0,
-      "p_ppm": 47.0,
-      "k_ppm": 175.0,
-      "ec": 780.0,
-      "ph": 6.5,
-      "temp_c": 25.2
-    },
-    {
-      "timestamp": "2025-11-15T18:00:00Z",
-      "n_ppm": 140.0,
-      "p_ppm": 48.0,
-      "k_ppm": 180.0,
-      "ec": 790.0,
-      "ph": 6.6,
-      "temp_c": 25.5
+  @override
+  State<HistoryScreen> createState() => _HistoryScreenState();
+}
+
+class _HistoryScreenState extends State<HistoryScreen> {
+  List<Map<String, dynamic>> historyData = [];
+  bool isLoading = true;
+  String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchHistory();
+  }
+
+  Future<void> fetchHistory() async {
+    try {
+      // Endpoint per docs/leafcloud_experiment_setup_10.md
+      final response = await http.get(Uri.parse('http://127.0.0.1:8000/app/history/?limit=30'));
+      
+      if (response.statusCode == 200) {
+        final List<dynamic> rawData = json.decode(response.body);
+        setState(() {
+          historyData = rawData.map((item) => item as Map<String, dynamic>).toList();
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          errorMessage = 'Failed to load history: ${response.statusCode}';
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Error: $e';
+        isLoading = false;
+      });
     }
-  ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,36 +51,59 @@ class HistoryScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('History'),
         backgroundColor: Colors.green[700],
+        foregroundColor: Colors.white,
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(8.0),
-        itemCount: historyData.length,
-        itemBuilder: (context, index) {
-          final entry = historyData[index];
-          return Card(
-            margin: const EdgeInsets.symmetric(vertical: 8.0),
-            elevation: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Timestamp: ${entry['timestamp']}',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  const SizedBox(height: 8),
-                  Text('N: ${entry['n_ppm']} ppm'),
-                  Text('P: ${entry['p_ppm']} ppm'),
-                  Text('K: ${entry['k_ppm']} ppm'),
-                  Text('EC: ${entry['ec']} µS/cm'),
-                  Text('pH: ${entry['ph']}'),
-                  Text('Temp: ${entry['temp_c']} °C'),
-                ],
-              ),
-            ),
-          );
-        },
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : errorMessage != null
+              ? Center(child: Text(errorMessage!))
+              : historyData.isEmpty
+                  ? const Center(child: Text('No history available'))
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(8.0),
+                      itemCount: historyData.length,
+                      itemBuilder: (context, index) {
+                        final entry = historyData[index];
+                        // Parsing values from API keys (n_ppm, p_ppm, k_ppm)
+                        // Note: Dashboard uses 'Nitrogen', but history API uses 'n_ppm' per docs
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 8.0),
+                          elevation: 2,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Timestamp: ${entry['timestamp']}',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                                const SizedBox(height: 8),
+                                _buildDataRow('Nitrogen', '${entry['n_ppm']?.toStringAsFixed(1) ?? 'N/A'} ppm'),
+                                _buildDataRow('Phosphorus', '${entry['p_ppm']?.toStringAsFixed(1) ?? 'N/A'} ppm'),
+                                _buildDataRow('Potassium', '${entry['k_ppm']?.toStringAsFixed(1) ?? 'N/A'} ppm'),
+                                const Divider(),
+                                _buildDataRow('EC', '${entry['ec']?.toStringAsFixed(2) ?? 'N/A'} mS/cm'),
+                                _buildDataRow('pH', '${entry['ph']?.toStringAsFixed(2) ?? 'N/A'}'),
+                                _buildDataRow('Temp', '${entry['temp']?.toStringAsFixed(1) ?? 'N/A'} °C'),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+    );
+  }
+
+  Widget _buildDataRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+          Text(value),
+        ],
       ),
     );
   }
