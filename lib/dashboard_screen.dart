@@ -94,6 +94,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildHeader() {
+    final String? relativeImageUrl = data!['image_url'];
+    final String? fullImageUrl = relativeImageUrl != null ? 'http://127.0.0.1:8000/$relativeImageUrl' : null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -108,26 +111,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         const SizedBox(height: 16),
         Center(
-          child: Container(
-            height: 200,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.green[50],
-              borderRadius: BorderRadius.circular(12.0),
-              border: Border.all(color: Colors.green[100]!),
-            ),
-            child: const Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.eco, size: 80, color: Colors.green),
-                SizedBox(height: 8),
-                Text("Live Image Stream", style: TextStyle(color: Colors.green)),
-                // TODO: Add image support when API includes image_url
-              ],
-            ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12.0),
+            child: fullImageUrl != null
+                ? Image.network(
+                    fullImageUrl,
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => _buildImagePlaceholder("Error loading image"),
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        height: 200,
+                        color: Colors.green[50],
+                        child: const Center(child: CircularProgressIndicator()),
+                      );
+                    },
+                  )
+                : _buildImagePlaceholder("No image available"),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildImagePlaceholder(String message) {
+    return Container(
+      height: 200,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.green[50],
+        borderRadius: BorderRadius.circular(12.0),
+        border: Border.all(color: Colors.green[100]!),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.eco, size: 80, color: Colors.green),
+          const SizedBox(height: 8),
+          Text(message, style: const TextStyle(color: Colors.green)),
+        ],
+      ),
     );
   }
 
