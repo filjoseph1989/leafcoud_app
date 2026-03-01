@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:flutter_leafcloud_app/history_screen.dart';
 import 'package:flutter_leafcloud_app/alerts_screen.dart';
+import 'package:flutter_leafcloud_app/widgets/video_feed_widget.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -105,8 +106,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildHeader() {
-    final String? relativeImageUrl = data!['image_url'];
-    final String? fullImageUrl = relativeImageUrl != null ? 'http://127.0.0.1:8000/$relativeImageUrl' : null;
+    const String videoUrl = 'http://localhost:8000/video_feed';
     
     String formattedDate = 'Unknown';
     if (data!['timestamp'] != null) {
@@ -131,27 +131,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           style: const TextStyle(fontSize: 16, color: Colors.grey),
         ),
         const SizedBox(height: 16),
-        Center(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12.0),
-            child: fullImageUrl != null
-                ? Image.network(
-                    fullImageUrl,
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => _buildImagePlaceholder("Error loading image"),
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        height: 200,
-                        color: Colors.green[50],
-                        child: const Center(child: CircularProgressIndicator()),
-                      );
-                    },
-                  )
-                : _buildImagePlaceholder("No image available"),
-          ),
+        const SizedBox(
+          height: 200,
+          width: double.infinity,
+          child: VideoFeedWidget(url: videoUrl),
         ),
       ],
     );
