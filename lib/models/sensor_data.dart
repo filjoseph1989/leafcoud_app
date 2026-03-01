@@ -19,13 +19,17 @@ class SensorData {
 
   factory SensorData.fromJson(Map<String, dynamic> json) {
     return SensorData(
-      timestamp: DateTime.parse(json['timestamp'] as String),
-      plantId: json['plant_id'] as String?,
-      lettuceImageUrl: json['lettuce_image_url'] as String?,
-      sensors: json['sensors'] as Map<String, dynamic>?,
-      predictions: (json['predictions'] ?? json['npk_levels']) as Map<String, dynamic>?,
+      timestamp: json['timestamp'] != null 
+          ? DateTime.parse(json['timestamp'].toString()) 
+          : DateTime.now(),
+      plantId: json['plant_id']?.toString(),
+      lettuceImageUrl: json['lettuce_image_url']?.toString(),
+      sensors: json['sensors'] is Map<String, dynamic> ? json['sensors'] : null,
+      predictions: (json['predictions'] ?? json['npk_levels']) is Map<String, dynamic> 
+          ? (json['predictions'] ?? json['npk_levels']) 
+          : null,
       status: json['status'],
-      recommendation: json['recommendation'] as String?,
+      recommendation: json['recommendation']?.toString(),
     );
   }
 
