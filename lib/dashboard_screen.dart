@@ -26,13 +26,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('LeafCloud Dashboard'),
+        title: const Text('LeafCloud Dashboard', style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.green[700],
         foregroundColor: Colors.white,
+        elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications),
+            icon: const Icon(Icons.notifications_none),
             onPressed: () {
               Navigator.push(
                 context,
@@ -53,122 +55,175 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: Consumer<SensorDataNotifier>(
         builder: (context, notifier, child) {
-          if (notifier.isLoading && notifier.data == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (notifier.errorMessage != null && notifier.data == null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(notifier.errorMessage!, style: const TextStyle(color: Colors.red)),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => notifier.fetchSensorData(),
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          final data = notifier.data;
-          if (data == null) {
-            return const Center(child: Text('No data available'));
-          }
-
-          return RefreshIndicator(
-            onRefresh: () => notifier.fetchSensorData(),
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  _buildHeader(data),
-                  const SizedBox(height: 24),
-                  _buildRecommendationCard(data),
-                  const SizedBox(height: 24),
-                  _buildStatusCard(data),
-                  const SizedBox(height: 24),
-                  _buildSensorReadings(data),
-                  const SizedBox(height: 24),
-                  _buildNutrientPredictions(data),
-                ],
-              ),
-            ),
+          return AnimatedSwitcher(
+            duration: const Duration(milliseconds: 500),
+            child: _buildBody(notifier),
           );
         },
       ),
     );
   }
 
+  Widget _buildBody(SensorDataNotifier notifier) {
+    if (notifier.isLoading && notifier.data == null) {
+      return const Center(key: ValueKey('loading'), child: CircularProgressIndicator());
+    }
+
+    if (notifier.errorMessage != null && notifier.data == null) {
+      return Center(
+        key: const ValueKey('error'),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 60, color: Colors.red),
+              const SizedBox(height: 16),
+              Text(
+                'Connection Failed',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                notifier.errorMessage!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.refresh),
+                onPressed: () => notifier.fetchSensorData(),
+                label: const Text('Retry Connection'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green[700],
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final data = notifier.data;
+    if (data == null) {
+      return const Center(key: ValueKey('no-data'), child: Text('No data available'));
+    }
+
+    return RefreshIndicator(
+      key: const ValueKey('content'),
+      onRefresh: () => notifier.fetchSensorData(),
+      color: Colors.green[700],
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            _buildHeader(data),
+            const SizedBox(height: 24),
+            _buildRecommendationCard(data),
+            const SizedBox(height: 24),
+            _buildStatusCard(data),
+            const SizedBox(height: 24),
+            _buildSensorReadings(data),
+            const SizedBox(height: 24),
+            _buildNutrientPredictions(data),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildHeader(SensorData data) {
     const String videoUrl = 'http://192.168.1.7:8000/video_feed';
-    
     String formattedDate = DateFormat.yMMMd().add_jm().format(data.timestamp);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Live Monitor',
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Live Monitor',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            if (context.watch<SensorDataNotifier>().isLoading)
+              const SizedBox(
+                height: 16,
+                width: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+          ],
         ),
         const SizedBox(height: 4),
         Text(
-          'Last updated: $formattedDate',
-          style: const TextStyle(fontSize: 16, color: Colors.grey),
+          'Last sync: $formattedDate',
+          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
         ),
         const SizedBox(height: 16),
-        const SizedBox(
-          height: 200,
-          width: double.infinity,
-          child: VideoFeedWidget(url: videoUrl),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(20),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: const ClipRRect(
+            borderRadius: BorderRadius.all(Radius.circular(16)),
+            child: SizedBox(
+              height: 220,
+              width: double.infinity,
+              child: VideoFeedWidget(url: videoUrl),
+            ),
+          ),
         ),
       ],
     );
   }
 
   Widget _buildRecommendationCard(SensorData data) {
-    final recommendation = data.recommendation ?? 'No recommendation available';
+    final recommendation = data.recommendation ?? 'Everything looks great!';
     final statusData = data.status;
-    Color color = Colors.orange;
+    Color themeColor = Colors.orange;
 
     if (statusData is String && statusData == "Optimal") {
-      color = Colors.green;
+      themeColor = Colors.green;
     } else if (statusData is Map && statusData['overall_status'] == "Optimal") {
-      color = Colors.green;
+      themeColor = Colors.green;
     }
 
     return Card(
-      elevation: 2,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Container(
-        decoration: BoxDecoration(
-          color: color.withAlpha(25),
-          borderRadius: BorderRadius.circular(12),
-        ),
+      elevation: 0,
+      color: themeColor.withAlpha(15),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: themeColor.withAlpha(40)),
+      ),
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Icon(Icons.lightbulb, color: color),
+                Icon(Icons.lightbulb_outline, color: themeColor),
                 const SizedBox(width: 8),
                 Text(
                   'Recommendation',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: themeColor),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Text(
               recommendation,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              style: TextStyle(fontSize: 16, height: 1.4, color: Colors.grey[800]),
             ),
           ],
         ),
@@ -189,45 +244,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
       isOptimal = statusText == "Optimal";
     }
     
-    return Card(
-      elevation: 2,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Container(
-        decoration: BoxDecoration(
-          color: isOptimal ? Colors.green[50] : Colors.orange[50],
-          borderRadius: BorderRadius.circular(12),
-        ),
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            Icon(
-              isOptimal ? Icons.check_circle : Icons.warning,
-              color: isOptimal ? Colors.green : Colors.orange,
-              size: 32,
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(10),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isOptimal ? Colors.green[50] : Colors.orange[50],
+              shape: BoxShape.circle,
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'System Status',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    statusText,
-                    style: TextStyle(
-                      fontSize: 20, 
-                      color: isOptimal ? Colors.green[800] : Colors.orange[800],
-                      fontWeight: FontWeight.w500
-                    ),
-                  ),
-                ],
-              ),
+            child: Icon(
+              isOptimal ? Icons.check_circle_outline : Icons.warning_amber_rounded,
+              color: isOptimal ? Colors.green[700] : Colors.orange[700],
+              size: 28,
             ),
-          ],
-        ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'System Health',
+                  style: TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w500),
+                ),
+                Text(
+                  statusText,
+                  style: TextStyle(
+                    fontSize: 22, 
+                    color: isOptimal ? Colors.green[800] : Colors.orange[800],
+                    fontWeight: FontWeight.bold
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.chevron_right, color: Colors.grey[400]),
+        ],
       ),
     );
   }
@@ -236,13 +301,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final sensors = data.sensors;
     if (sensors == null) return const SizedBox.shrink();
 
-    return _buildInfoCard(
-      title: 'Live Sensor Data',
-      icon: Icons.sensors,
+    return _buildInfoSection(
+      title: 'Environment Metrics',
+      icon: Icons.thermostat_outlined,
       children: [
-        _buildInfoRow('EC', '${sensors['ec'] ?? 'N/A'} mS/cm'),
-        _buildInfoRow('pH', '${sensors['ph'] ?? 'N/A'}'),
-        _buildInfoRow('Temperature', '${sensors['temp_c'] ?? sensors['temp'] ?? 'N/A'} °C'),
+        _buildGridMetric('EC', '${sensors['ec'] ?? 'N/A'}', 'mS/cm', Icons.bolt),
+        _buildGridMetric('pH', '${sensors['ph'] ?? 'N/A'}', '', Icons.opacity),
+        _buildGridMetric('Temp', '${sensors['temp_c'] ?? sensors['temp'] ?? 'N/A'}', '°C', Icons.device_thermostat),
       ],
     );
   }
@@ -251,42 +316,88 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final levels = data.predictions;
     if (levels == null) return const SizedBox.shrink();
 
-    return _buildInfoCard(
-      title: 'NPK Predictions (ppm)',
-      icon: Icons.science,
+    return _buildInfoSection(
+      title: 'Nutrient Analysis',
+      icon: Icons.science_outlined,
       children: [
-        _buildInfoRow('Nitrogen (N)', '${levels['n_ppm'] ?? levels['Nitrogen'] ?? 'N/A'}'),
-        _buildInfoRow('Phosphorus (P)', '${levels['p_ppm'] ?? levels['Phosphorus'] ?? 'N/A'}'),
-        _buildInfoRow('Potassium (K)', '${levels['k_ppm'] ?? levels['Potassium'] ?? 'N/A'}'),
+        _buildGridMetric('Nitrogen', '${levels['n_ppm'] ?? levels['Nitrogen'] ?? 'N/A'}', 'ppm', Icons.nature),
+        _buildGridMetric('Phosphorus', '${levels['p_ppm'] ?? levels['Phosphorus'] ?? 'N/A'}', 'ppm', Icons.grass),
+        _buildGridMetric('Potassium', '${levels['k_ppm'] ?? levels['Potassium'] ?? 'N/A'}', 'ppm', Icons.local_florist),
       ],
     );
   }
 
-  Widget _buildInfoCard({required String title, required IconData icon, required List<Widget> children}) {
+  Widget _buildInfoSection({required String title, required IconData icon, required List<Widget> children}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Icon(icon, color: Colors.green[700]),
-            const SizedBox(width: 8),
-            Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          ],
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          child: Row(
+            children: [
+              Icon(icon, color: Colors.green[700], size: 22),
+              const SizedBox(width: 8),
+              Text(
+                title, 
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+              ),
+            ],
+          ),
         ),
-        const Divider(height: 20, thickness: 1),
-        ...children,
+        const SizedBox(height: 12),
+        GridView.count(
+          crossAxisCount: 3,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 0.85,
+          children: children,
+        ),
       ],
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildGridMetric(String label, String value, String unit, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-          Text(value, style: const TextStyle(fontSize: 16)),
+          Icon(icon, size: 20, color: Colors.green[600]),
+          const SizedBox(height: 8),
+          FittedBox(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  value,
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                if (unit.isNotEmpty) ...[
+                  const SizedBox(width: 2),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 2.0),
+                    child: Text(
+                      unit,
+                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(fontSize: 11, color: Colors.grey[600], fontWeight: FontWeight.w500),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
