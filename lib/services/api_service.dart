@@ -9,12 +9,12 @@ class ApiService {
   ApiService({required this.client, required this.baseUrl});
 
   Future<SensorData> fetchSensorData() async {
-    final response = await client.post(Uri.parse('$baseUrl/iot/sensor_data/'));
+    final response = await client.get(Uri.parse('$baseUrl/app/latest_status/'));
 
     if (response.statusCode == 200) {
       return SensorData.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception('Failed to load sensor data');
+      throw Exception('Failed to load sensor data: ${response.statusCode}');
     }
   }
 }

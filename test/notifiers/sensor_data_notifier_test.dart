@@ -26,11 +26,9 @@ void main() {
 
     test('fetchSensorData updates data on success', () async {
       final mockData = SensorData(
-        temperature: 25.0,
-        ec: 1.5,
-        ph: 6.8,
-        status: 'ok',
         timestamp: DateTime.parse('2026-03-01T10:00:00Z'),
+        sensors: {'ec': 1.5, 'ph': 6.8, 'temp_c': 25.0},
+        status: 'ok',
       );
 
       when(mockApiService.fetchSensorData()).thenAnswer((_) async => mockData);
@@ -57,11 +55,9 @@ void main() {
 
     test('startPolling calls fetchSensorData periodically', () async {
       final mockData = SensorData(
-        temperature: 25.0,
-        ec: 1.5,
-        ph: 6.8,
-        status: 'ok',
         timestamp: DateTime.now(),
+        sensors: {'ec': 1.5, 'ph': 6.8, 'temp_c': 25.0},
+        status: 'ok',
       );
 
       when(mockApiService.fetchSensorData()).thenAnswer((_) async => mockData);
@@ -72,7 +68,6 @@ void main() {
       
       notifier.stopPolling();
       
-      // Initial call + periodic calls (approx 2 more in 250ms)
       verify(mockApiService.fetchSensorData()).called(greaterThanOrEqualTo(2));
     });
   });

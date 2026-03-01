@@ -1,10 +1,11 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_leafcloud_app/history_screen.dart';
 import 'package:flutter_leafcloud_app/alerts_screen.dart';
 import 'package:flutter_leafcloud_app/widgets/video_feed_widget.dart';
+import 'package:flutter_leafcloud_app/notifiers/sensor_data_notifier.dart';
+import 'package:flutter_leafcloud_app/models/sensor_data.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -14,39 +15,12 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  Map<String, dynamic>? data;
-  bool isLoading = true;
-  String? errorMessage;
-
   @override
   void initState() {
     super.initState();
-    fetchData();
-  }
-
-  Future<void> fetchData() async {
-    try {
-      // Updated endpoint per Phase 2 Spec (AppBuilding.pdf)
-      // Note: Using 127.0.0.1. For Android Emulator use 10.0.2.2
-      final response = await http.get(Uri.parse('http://192.168.1.7:8000/app/latest_status/'));
-      
-      if (response.statusCode == 200) {
-        setState(() {
-          data = json.decode(response.body);
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          errorMessage = 'Failed to load data: ${response.statusCode}';
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        errorMessage = 'Error: $e';
-        isLoading = false;
-      });
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<SensorDataNotifier>().startPolling(interval: const Duration(seconds: 10));
+    });
   }
 
   @override
@@ -77,46 +51,63 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : errorMessage != null
-              ? Center(child: Text(errorMessage!))
-              : RefreshIndicator(
-                  onRefresh: fetchData,
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        _buildHeader(),
-                        const SizedBox(height: 24),
-                        _buildRecommendationCard(),
-                        const SizedBox(height: 24),
-                        _buildStatusCard(),
-                        const SizedBox(height: 24),
-                        _buildSensorReadings(),
-                        const SizedBox(height: 24),
-                        _buildNutrientPredictions(),
-                      ],
-                    ),
+      body: Consumer<SensorDataNotifier>(
+        builder: (context, notifier, child) {
+          if (notifier.isLoading && notifier.data == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (notifier.errorMessage != null && notifier.data == null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(notifier.errorMessage!, style: const TextStyle(color: Colors.red)),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => notifier.fetchSensorData(),
+                    child: const Text('Retry'),
                   ),
-                ),
+                ],
+              ),
+            );
+          }
+
+          final data = notifier.data;
+          if (data == null) {
+            return const Center(child: Text('No data available'));
+          }
+
+          return RefreshIndicator(
+            onRefresh: () => notifier.fetchSensorData(),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  _buildHeader(data),
+                  const SizedBox(height: 24),
+                  _buildRecommendationCard(data),
+                  const SizedBox(height: 24),
+                  _buildStatusCard(data),
+                  const SizedBox(height: 24),
+                  _buildSensorReadings(data),
+                  const SizedBox(height: 24),
+                  _buildNutrientPredictions(data),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(SensorData data) {
     const String videoUrl = 'http://192.168.1.7:8000/video_feed';
     
-    String formattedDate = 'Unknown';
-    if (data!['timestamp'] != null) {
-      try {
-        final DateTime parsedDate = DateTime.parse(data!['timestamp']);
-        formattedDate = DateFormat.yMMMd().add_jm().format(parsedDate);
-      } catch (e) {
-        formattedDate = data!['timestamp'];
-      }
-    }
+    String formattedDate = DateFormat.yMMMd().add_jm().format(data.timestamp);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,29 +131,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildImagePlaceholder(String message) {
-    return Container(
-      height: 200,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.green[50],
-        borderRadius: BorderRadius.circular(12.0),
-        border: Border.all(color: Colors.green[100]!),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.eco, size: 80, color: Colors.green),
-          const SizedBox(height: 8),
-          Text(message, style: const TextStyle(color: Colors.green)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRecommendationCard() {
-    final recommendation = data?['recommendation'] as String? ?? 'No recommendation available';
-    final statusData = data?['status'];
+  Widget _buildRecommendationCard(SensorData data) {
+    final recommendation = data.recommendation ?? 'No recommendation available';
+    final statusData = data.status;
     Color color = Colors.orange;
 
     if (statusData is String && statusData == "Optimal") {
@@ -205,8 +176,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildStatusCard() {
-    final statusData = data?['status'];
+  Widget _buildStatusCard(SensorData data) {
+    final statusData = data.status;
     String statusText = "Unknown";
     bool isOptimal = false;
 
@@ -261,8 +232,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildSensorReadings() {
-    final sensors = data?['sensors'] as Map<String, dynamic>?;
+  Widget _buildSensorReadings(SensorData data) {
+    final sensors = data.sensors;
     if (sensors == null) return const SizedBox.shrink();
 
     return _buildInfoCard(
@@ -276,9 +247,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildNutrientPredictions() {
-    // Check for 'predictions' (documented) or 'npk_levels' (legacy)
-    final levels = (data?['predictions'] ?? data?['npk_levels']) as Map<String, dynamic>?;
+  Widget _buildNutrientPredictions(SensorData data) {
+    final levels = data.predictions;
     if (levels == null) return const SizedBox.shrink();
 
     return _buildInfoCard(
