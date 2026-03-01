@@ -28,7 +28,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     try {
       // Updated endpoint per Phase 2 Spec (AppBuilding.pdf)
       // Note: Using 127.0.0.1. For Android Emulator use 10.0.2.2
-      final response = await http.get(Uri.parse('http://127.0.0.1:8000/app/latest_status/'));
+      final response = await http.get(Uri.parse('http://10.0.2.2:8000/app/latest_status/'));
       
       if (response.statusCode == 200) {
         setState(() {
@@ -106,7 +106,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildHeader() {
-    const String videoUrl = 'http://localhost:8000/video_feed';
+    const String videoUrl = 'http://10.0.2.2:8000/video_feed';
     
     String formattedDate = 'Unknown';
     if (data!['timestamp'] != null) {
