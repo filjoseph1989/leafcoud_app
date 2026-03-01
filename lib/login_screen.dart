@@ -24,7 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/auth/login'),
+        Uri.parse('http://192.168.1.7:8000/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'email': _emailController.text,
@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       } else {
         setState(() {
-          _errorMessage = 'Invalid credentials';
+          _errorMessage = 'Error ${response.statusCode}: ${response.body}';
           _isLoading = false;
         });
       }
