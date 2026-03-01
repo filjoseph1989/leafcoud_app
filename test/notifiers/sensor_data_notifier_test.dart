@@ -54,5 +54,26 @@ void main() {
       expect(notifier.data, isNull);
       expect(notifier.errorMessage, contains('Exception: Failed to load data'));
     });
+
+    test('startPolling calls fetchSensorData periodically', () async {
+      final mockData = SensorData(
+        temperature: 25.0,
+        ec: 1.5,
+        ph: 6.8,
+        status: 'ok',
+        timestamp: DateTime.now(),
+      );
+
+      when(mockApiService.fetchSensorData()).thenAnswer((_) async => mockData);
+
+      notifier.startPolling(interval: const Duration(milliseconds: 100));
+      
+      await Future.delayed(const Duration(milliseconds: 250));
+      
+      notifier.stopPolling();
+      
+      // Initial call + periodic calls (approx 2 more in 250ms)
+      verify(mockApiService.fetchSensorData()).called(greaterThanOrEqualTo(2));
+    });
   });
 }
