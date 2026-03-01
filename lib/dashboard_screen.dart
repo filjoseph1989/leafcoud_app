@@ -28,7 +28,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     try {
       // Updated endpoint per Phase 2 Spec (AppBuilding.pdf)
       // Note: Using 127.0.0.1. For Android Emulator use 10.0.2.2
-      final response = await http.get(Uri.parse('http://10.0.2.2:8000/app/latest_status/'));
+      final response = await http.get(Uri.parse('http://192.168.1.7:8000/app/latest_status/'));
       
       if (response.statusCode == 200) {
         setState(() {
@@ -106,7 +106,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildHeader() {
-    const String videoUrl = 'http://10.0.2.2:8000/video_feed';
+    const String videoUrl = 'http://192.168.1.7:8000/video_feed';
     
     String formattedDate = 'Unknown';
     if (data!['timestamp'] != null) {
@@ -161,9 +161,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildRecommendationCard() {
-    final status = data!['status'] as String? ?? "Unknown";
-    final isOptimal = status == "Optimal";
-    final color = isOptimal ? Colors.green : Colors.orange;
+    final recommendation = data?['recommendation'] as String? ?? 'No recommendation available';
+    final statusData = data?['status'];
+    Color color = Colors.orange;
+
+    if (statusData is String && statusData == "Optimal") {
+      color = Colors.green;
+    } else if (statusData is Map && statusData['overall_status'] == "Optimal") {
+      color = Colors.green;
+    }
 
     return Card(
       elevation: 2,
@@ -171,7 +177,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.green[50],
+          color: color.withAlpha(25),
           borderRadius: BorderRadius.circular(12),
         ),
         padding: const EdgeInsets.all(16.0),
@@ -190,7 +196,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              data!['recommendation'] ?? 'No recommendation available',
+              recommendation,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
           ],
@@ -200,8 +206,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildStatusCard() {
-    final status = data!['status'] as String? ?? "Unknown";
-    final isOptimal = status == "Optimal";
+    final statusData = data?['status'];
+    String statusText = "Unknown";
+    bool isOptimal = false;
+
+    if (statusData is String) {
+      statusText = statusData;
+      isOptimal = statusText == "Optimal";
+    } else if (statusData is Map) {
+      statusText = statusData['overall_status']?.toString() ?? "Unknown";
+      isOptimal = statusText == "Optimal";
+    }
     
     return Card(
       elevation: 2,
@@ -209,7 +224,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.green[50],
+          color: isOptimal ? Colors.green[50] : Colors.orange[50],
           borderRadius: BorderRadius.circular(12),
         ),
         padding: const EdgeInsets.all(16.0),
@@ -230,7 +245,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    status,
+                    statusText,
                     style: TextStyle(
                       fontSize: 20, 
                       color: isOptimal ? Colors.green[800] : Colors.orange[800],
@@ -247,27 +262,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildSensorReadings() {
-    final sensors = data!['sensors'] as Map<String, dynamic>;
+    final sensors = data?['sensors'] as Map<String, dynamic>?;
+    if (sensors == null) return const SizedBox.shrink();
+
     return _buildInfoCard(
       title: 'Live Sensor Data',
       icon: Icons.sensors,
       children: [
-        _buildInfoRow('EC', '${sensors['ec']} mS/cm'),
-        _buildInfoRow('pH', '${sensors['ph']}'),
-        _buildInfoRow('Temperature', '${sensors['temp']} °C'),
+        _buildInfoRow('EC', '${sensors['ec'] ?? 'N/A'} mS/cm'),
+        _buildInfoRow('pH', '${sensors['ph'] ?? 'N/A'}'),
+        _buildInfoRow('Temperature', '${sensors['temp_c'] ?? sensors['temp'] ?? 'N/A'} °C'),
       ],
     );
   }
 
   Widget _buildNutrientPredictions() {
-    final levels = data!['npk_levels'] as Map<String, dynamic>;
+    // Check for 'predictions' (documented) or 'npk_levels' (legacy)
+    final levels = (data?['predictions'] ?? data?['npk_levels']) as Map<String, dynamic>?;
+    if (levels == null) return const SizedBox.shrink();
+
     return _buildInfoCard(
       title: 'NPK Predictions (ppm)',
       icon: Icons.science,
       children: [
-        _buildInfoRow('Nitrogen (N)', '${levels['Nitrogen']}'),
-        _buildInfoRow('Phosphorus (P)', '${levels['Phosphorus']}'),
-        _buildInfoRow('Potassium (K)', '${levels['Potassium']}'),
+        _buildInfoRow('Nitrogen (N)', '${levels['n_ppm'] ?? levels['Nitrogen'] ?? 'N/A'}'),
+        _buildInfoRow('Phosphorus (P)', '${levels['p_ppm'] ?? levels['Phosphorus'] ?? 'N/A'}'),
+        _buildInfoRow('Potassium (K)', '${levels['k_ppm'] ?? levels['Potassium'] ?? 'N/A'}'),
       ],
     );
   }
