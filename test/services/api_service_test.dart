@@ -11,11 +11,9 @@ void main() {
       final client = MockClient((request) async {
         return http.Response(
             jsonEncode({
-              'temperature': 25.0,
-              'ec': 1.5,
-              'ph': 6.8,
-              'status': 'ok',
-              'timestamp': '2026-03-01T10:00:00Z'
+              'timestamp': '2026-03-01T10:00:00Z',
+              'sensors': {'temp_c': 25.0},
+              'status': 'ok'
             }),
             200);
       });
@@ -24,7 +22,7 @@ void main() {
       final data = await apiService.fetchSensorData();
 
       expect(data, isA<SensorData>());
-      expect(data.temperature, 25.0);
+      expect(data.sensors!['temp_c'], 25.0);
     });
 
     test('fetchSensorData throws an exception if the http call completes with an error', () async {
