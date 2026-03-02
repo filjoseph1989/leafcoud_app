@@ -1,11 +1,11 @@
 # Implementation Plan: Bucket Control and Status Overlay
 
 ## Phase 1: Backend Integration & State Management
-- [ ] **Task: Extend `ApiService` for bucket control**
-    - [ ] Write tests for POST request to `/control/active-bucket`
-    - [ ] Write tests for GET request to fetch current active bucket status
-    - [ ] Implement `postActiveBucket(String label)` in `ApiService`
-    - [ ] Implement `fetchActiveBucketStatus()` in `ApiService`
+- [x] **Task: Extend `ApiService` for bucket control** f3bb397
+    - [x] Write tests for POST request to `/control/active-bucket`
+    - [x] Write tests for GET request to fetch current active bucket status
+    - [x] Implement `postActiveBucket(String label)` in `ApiService`
+    - [x] Implement `fetchActiveBucketStatus()` in `ApiService`
 - [ ] **Task: Create `BucketControlNotifier`**
     - [ ] Write tests for state updates and polling logic
     - [ ] Implement `BucketControlNotifier` class extending `ChangeNotifier`
