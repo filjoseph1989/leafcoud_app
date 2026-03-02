@@ -5,6 +5,7 @@ import 'package:flutter_leafcloud_app/history_screen.dart';
 import 'package:flutter_leafcloud_app/alerts_screen.dart';
 import 'package:flutter_leafcloud_app/widgets/video_feed_widget.dart';
 import 'package:flutter_leafcloud_app/notifiers/sensor_data_notifier.dart';
+import 'package:flutter_leafcloud_app/notifiers/bucket_control_notifier.dart';
 import 'package:flutter_leafcloud_app/models/sensor_data.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -20,7 +21,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<SensorDataNotifier>().startPolling(interval: const Duration(seconds: 10));
+      context.read<BucketControlNotifier>().startPolling(interval: const Duration(seconds: 2));
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -125,6 +132,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _buildRecommendationCard(data),
             const SizedBox(height: 24),
             _buildStatusCard(data),
+            const SizedBox(height: 24),
+            _buildBucketControl(context),
             const SizedBox(height: 24),
             _buildSensorReadings(data),
             const SizedBox(height: 24),
@@ -293,6 +302,75 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           Icon(Icons.chevron_right, color: Colors.grey[400]),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBucketControl(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 4.0),
+          child: Row(
+            children: [
+              Icon(Icons.tune, color: Colors.green, size: 22),
+              SizedBox(width: 8),
+              Text(
+                'Bucket Control',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(10),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            alignment: WrapAlignment.start,
+            children: [
+              _buildControlButton(context, 'NPK'),
+              _buildControlButton(context, 'Micro'),
+              _buildControlButton(context, 'Mix'),
+              _buildControlButton(context, 'Water'),
+              _buildControlButton(context, 'Stop', isStop: true),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildControlButton(BuildContext context, String label, {bool isStop = false}) {
+    final notifier = context.read<BucketControlNotifier>();
+    return ElevatedButton(
+      onPressed: () => notifier.setActiveBucket(label),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isStop ? Colors.red[50] : Colors.green[50],
+        foregroundColor: isStop ? Colors.red[700] : Colors.green[700],
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: isStop ? Colors.red[100]! : Colors.green[100]!),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(fontWeight: FontWeight.bold),
       ),
     );
   }

@@ -72,4 +72,26 @@ class MockApiService extends _i1.Mock implements _i4.ApiService {
             ),
           )
           as _i6.Future<_i3.SensorData>);
+
+  @override
+  _i6.Future<void> postActiveBucket(String? label) =>
+      (super.noSuchMethod(
+            Invocation.method(#postActiveBucket, [label]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<String> fetchActiveBucketStatus() =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchActiveBucketStatus, []),
+            returnValue: _i6.Future<String>.value(
+              _i5.dummyValue<String>(
+                this,
+                Invocation.method(#fetchActiveBucketStatus, []),
+              ),
+            ),
+          )
+          as _i6.Future<String>);
 }

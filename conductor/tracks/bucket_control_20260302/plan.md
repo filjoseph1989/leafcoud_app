@@ -16,7 +16,7 @@
 - [ ] **Task: Conductor - User Manual Verification 'Phase 1: Backend Integration & State Management' (Protocol in workflow.md)**
 
 ## Phase 2: Dashboard UI Enhancement
-- [ ] **Task: Implement Dashboard Control Buttons**
+- [~] **Task: Implement Dashboard Control Buttons**
     - [ ] Write tests for the control panel layout and button interactions
     - [ ] Create a `GridView` or `Wrap` with 'NPK', 'Micro', 'Mix', 'Water', and 'Stop' buttons
     - [ ] Connect button `onPressed` callbacks to `BucketControlNotifier.setActiveBucket`
