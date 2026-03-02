@@ -11,8 +11,8 @@
     - [x] Implement `BucketControlNotifier` class extending `ChangeNotifier`
     - [x] Implement start/stop polling methods (2s interval)
     - [x] Implement `setActiveBucket(String label)` calling `ApiService`
-- [ ] **Task: Register `BucketControlNotifier` in `main.dart`**
-    - [ ] Add `BucketControlNotifier` to the `MultiProvider` list
+- [x] **Task: Register `BucketControlNotifier` in `main.dart`** 1076f2d
+    - [x] Add `BucketControlNotifier` to the `MultiProvider` list
 - [ ] **Task: Conductor - User Manual Verification 'Phase 1: Backend Integration & State Management' (Protocol in workflow.md)**
 
 ## Phase 2: Dashboard UI Enhancement
