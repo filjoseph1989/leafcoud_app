@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Bucket Control Interface and Status Overlay**
+- [x] **Track: Bucket Control Interface and Status Overlay**
 *Link: [./tracks/bucket_control_20260302/](./tracks/bucket_control_20260302/)*
