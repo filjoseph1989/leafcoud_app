@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [x] **Track: Integrate live MJPEG video feed and real-time sensor data**
-  *Link: [./tracks/video_sensor_20260301/](./tracks/video_sensor_20260301/)*
+- [ ] **Track: Bucket Control Interface and Status Overlay**
+*Link: [./tracks/bucket_control_20260302/](./tracks/bucket_control_20260302/)*
