@@ -13,14 +13,14 @@
     - [x] Implement `setActiveBucket(String label)` calling `ApiService`
 - [x] **Task: Register `BucketControlNotifier` in `main.dart`** 1076f2d
     - [x] Add `BucketControlNotifier` to the `MultiProvider` list
-- [ ] **Task: Conductor - User Manual Verification 'Phase 1: Backend Integration & State Management' (Protocol in workflow.md)**
+- [x] **Task: Conductor - User Manual Verification 'Phase 1: Backend Integration & State Management' (Protocol in workflow.md)** 2dbb232
 
-## Phase 2: Dashboard UI Enhancement
+## Phase 2: Dashboard UI Enhancement [checkpoint: 2dbb232]
 - [x] **Task: Implement Dashboard Control Buttons** b3876b6
     - [x] Write tests for the control panel layout and button interactions
     - [x] Create a `GridView` or `Wrap` with 'NPK', 'Micro', 'Mix', 'Water', and 'Stop' buttons
     - [x] Connect button `onPressed` callbacks to `BucketControlNotifier.setActiveBucket`
-- [ ] **Task: Conductor - User Manual Verification 'Phase 2: Dashboard UI Enhancement' (Protocol in workflow.md)**
+- [x] **Task: Conductor - User Manual Verification 'Phase 2: Dashboard UI Enhancement' (Protocol in workflow.md)** 2dbb232
 
 ## Phase 3: Video Feed Status Overlay
 - [ ] **Task: Enhance `VideoFeedWidget` with Status Overlay**
