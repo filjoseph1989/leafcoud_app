@@ -15,7 +15,8 @@ A new Flutter project for Leafcloud, providing a mobile-first interface for clou
 
 ## Core Features
 - **Live Dashboard:** A unified view of current system metrics and health indicators.
-- **Live Video Monitor:** Integrated MJPEG stream for real-time visual infrastructure oversight.
+- **Infrastructure Control:** Interactive panel for managing active system components (e.g., bucket selection and emergency stop).
+- **Live Video Monitor:** Integrated MJPEG stream for real-time visual infrastructure oversight with status overlays.
 - **Smart Alerts:** Intelligent notification system that alerts users to performance or availability issues.
 - **Historical Insights:** Detailed performance graphs and logs to track long-term trends.
 
