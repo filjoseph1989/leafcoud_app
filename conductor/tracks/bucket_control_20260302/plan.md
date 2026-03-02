@@ -6,11 +6,11 @@
     - [x] Write tests for GET request to fetch current active bucket status
     - [x] Implement `postActiveBucket(String label)` in `ApiService`
     - [x] Implement `fetchActiveBucketStatus()` in `ApiService`
-- [ ] **Task: Create `BucketControlNotifier`**
-    - [ ] Write tests for state updates and polling logic
-    - [ ] Implement `BucketControlNotifier` class extending `ChangeNotifier`
-    - [ ] Implement start/stop polling methods (2s interval)
-    - [ ] Implement `setActiveBucket(String label)` calling `ApiService`
+- [x] **Task: Create `BucketControlNotifier`** e1b7035
+    - [x] Write tests for state updates and polling logic
+    - [x] Implement `BucketControlNotifier` class extending `ChangeNotifier`
+    - [x] Implement start/stop polling methods (2s interval)
+    - [x] Implement `setActiveBucket(String label)` calling `ApiService`
 - [ ] **Task: Register `BucketControlNotifier` in `main.dart`**
     - [ ] Add `BucketControlNotifier` to the `MultiProvider` list
 - [ ] **Task: Conductor - User Manual Verification 'Phase 1: Backend Integration & State Management' (Protocol in workflow.md)**
