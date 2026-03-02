@@ -133,11 +133,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 24),
             _buildStatusCard(data),
             const SizedBox(height: 24),
-            _buildBucketControl(context),
-            const SizedBox(height: 24),
             _buildSensorReadings(data),
             const SizedBox(height: 24),
             _buildNutrientPredictions(data),
+            const SizedBox(height: 24),
+            _buildBucketControl(context),
           ],
         ),
       ),
@@ -252,7 +252,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       statusText = statusData['overall_status']?.toString() ?? "Unknown";
       isOptimal = statusText == "Optimal";
     }
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -292,7 +292,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Text(
                   statusText,
                   style: TextStyle(
-                    fontSize: 22, 
+                    fontSize: 22,
                     color: isOptimal ? Colors.green[800] : Colors.orange[800],
                     fontWeight: FontWeight.bold
                   ),
@@ -416,7 +416,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Icon(icon, color: Colors.green[700], size: 22),
               const SizedBox(width: 8),
               Text(
-                title, 
+                title,
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
               ),
             ],
