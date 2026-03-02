@@ -17,4 +17,27 @@ class ApiService {
       throw Exception('Failed to load sensor data: ${response.statusCode}');
     }
   }
+
+  Future<void> postActiveBucket(String label) async {
+    final response = await client.post(
+      Uri.parse('$baseUrl/control/active-bucket'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'bucket': label}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to set active bucket: ${response.statusCode}');
+    }
+  }
+
+  Future<String> fetchActiveBucketStatus() async {
+    final response = await client.get(Uri.parse('$baseUrl/control/active-bucket'));
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['active_bucket'] ?? 'None';
+    } else {
+      throw Exception('Failed to fetch active bucket status: ${response.statusCode}');
+    }
+  }
 }
