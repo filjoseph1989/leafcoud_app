@@ -22,9 +22,9 @@
     - [x] Connect button `onPressed` callbacks to `BucketControlNotifier.setActiveBucket`
 - [x] **Task: Conductor - User Manual Verification 'Phase 2: Dashboard UI Enhancement' (Protocol in workflow.md)** 2dbb232
 
-## Phase 3: Video Feed Status Overlay
-- [ ] **Task: Enhance `VideoFeedWidget` with Status Overlay**
-    - [ ] Write tests for the overlay visibility and correct text rendering
-    - [ ] Add a `Stack` to `VideoFeedWidget` to layer a semi-transparent `Container` with `Text`
-    - [ ] Bind the overlay text to `BucketControlNotifier.activeBucketStatus`
-- [ ] **Task: Conductor - User Manual Verification 'Phase 3: Video Feed Status Overlay' (Protocol in workflow.md)**
+## Phase 3: Video Feed Status Overlay [checkpoint: cef86eb]
+- [x] **Task: Enhance `VideoFeedWidget` with Status Overlay** 5942229
+    - [x] Write tests for the overlay visibility and correct text rendering
+    - [x] Add a `Stack` to `VideoFeedWidget` to layer a semi-transparent `Container` with `Text`
+    - [x] Bind the overlay text to `BucketControlNotifier.activeBucketStatus`
+- [x] **Task: Conductor - User Manual Verification 'Phase 3: Video Feed Status Overlay' (Protocol in workflow.md)** cef86eb
