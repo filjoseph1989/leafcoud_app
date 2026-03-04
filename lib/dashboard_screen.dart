@@ -7,7 +7,6 @@ import 'package:flutter_leafcloud_app/widgets/video_feed_widget.dart';
 import 'package:flutter_leafcloud_app/notifiers/sensor_data_notifier.dart';
 import 'package:flutter_leafcloud_app/notifiers/bucket_control_notifier.dart';
 import 'package:flutter_leafcloud_app/models/sensor_data.dart';
-import 'package:flutter_leafcloud_app/services/file_logger.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -129,6 +128,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             _buildHeader(data),
+            const SizedBox(height: 24),
+            _buildApiStatus(context),
             const SizedBox(height: 24),
             _buildBucketControl(context),
             const SizedBox(height: 24),
@@ -307,6 +308,56 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Widget _buildApiStatus(BuildContext context) {
+    final notifier = context.watch<BucketControlNotifier>();
+    final isError = notifier.errorMessage != null;
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: isError ? Colors.red[50] : Colors.blue[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: isError ? Colors.red[200]! : Colors.blue[200]!),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            isError ? Icons.error_outline : Icons.info_outline,
+            color: isError ? Colors.red : Colors.blue,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isError ? 'API Error' : 'System Control Status',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: isError ? Colors.red[900] : Colors.blue[900],
+                  ),
+                ),
+                Text(
+                  isError ? notifier.errorMessage! : 'Active Bucket: ${notifier.activeBucketStatus}',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: isError ? Colors.red[700] : Colors.blue[700],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (notifier.isLoading)
+            const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildBucketControl(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -367,7 +418,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final notifier = context.read<BucketControlNotifier>();
     return ElevatedButton(
       onPressed: () {
-        FileLogger.log('Dashboard: Button $label clicked');
         notifier.setActiveBucket(label);
       },
       style: ElevatedButton.styleFrom(
