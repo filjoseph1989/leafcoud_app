@@ -308,22 +308,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  String? _lastClickedLabel;
+
   Widget _buildApiStatus(BuildContext context) {
     final notifier = context.watch<BucketControlNotifier>();
     final isError = notifier.errorMessage != null;
+    final isLoading = notifier.isLoading;
+
+    String statusText = 'Active Bucket: ${notifier.activeBucketStatus}';
+    if (isLoading && _lastClickedLabel != null) {
+      statusText = 'Sending: $_lastClickedLabel...';
+    } else if (isError) {
+      statusText = notifier.errorMessage!;
+    }
 
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isError ? Colors.red[50] : Colors.blue[50],
+        color: isError ? Colors.red[50] : (isLoading ? Colors.blue[50] : Colors.green[50]),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isError ? Colors.red[200]! : Colors.blue[200]!),
+        border: Border.all(
+          color: isError ? Colors.red[200]! : (isLoading ? Colors.blue[200]! : Colors.green[200]!),
+        ),
       ),
       child: Row(
         children: [
           Icon(
-            isError ? Icons.error_outline : Icons.info_outline,
-            color: isError ? Colors.red : Colors.blue,
+            isError ? Icons.error_outline : (isLoading ? Icons.send : Icons.check_circle_outline),
+            color: isError ? Colors.red : (isLoading ? Colors.blue : Colors.green),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -331,23 +343,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isError ? 'API Error' : 'System Control Status',
+                  isError ? 'API Error' : (isLoading ? 'Request Sent' : 'System Control Status'),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: isError ? Colors.red[900] : Colors.blue[900],
+                    color: isError ? Colors.red[900] : (isLoading ? Colors.blue[900] : Colors.green[900]),
                   ),
                 ),
                 Text(
-                  isError ? notifier.errorMessage! : 'Active Bucket: ${notifier.activeBucketStatus}',
+                  statusText,
                   style: TextStyle(
                     fontSize: 13,
-                    color: isError ? Colors.red[700] : Colors.blue[700],
+                    color: isError ? Colors.red[700] : (isLoading ? Colors.blue[700] : Colors.green[700]),
                   ),
                 ),
               ],
             ),
           ),
-          if (notifier.isLoading)
+          if (isLoading)
             const SizedBox(
               width: 16,
               height: 16,
@@ -418,6 +430,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final notifier = context.read<BucketControlNotifier>();
     return ElevatedButton(
       onPressed: () {
+        setState(() {
+          _lastClickedLabel = label;
+        });
         notifier.setActiveBucket(label);
       },
       style: ElevatedButton.styleFrom(
