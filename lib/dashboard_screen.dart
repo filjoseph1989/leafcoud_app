@@ -147,7 +147,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildHeader(SensorData data) {
-    const String videoUrl = 'http://192.168.1.7:8000/video_feed';
+    const String videoUrl = 'http://192.168.1.7:8000/video_feed/';
     String formattedDate = DateFormat.yMMMd().add_jm().format(data.timestamp);
 
     return Column(

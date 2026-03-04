@@ -23,7 +23,7 @@ void main() {
           create: (_) => BucketControlNotifier(
             apiService: ApiService(
               client: httpClient,
-              baseUrl: 'http://192.168.1.2:8000',
+              baseUrl: 'http://192.168.1.7:8000',
             ),
           ),
         ),

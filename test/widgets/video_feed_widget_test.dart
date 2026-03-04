@@ -20,7 +20,7 @@ void main() {
   });
 
   testWidgets('VideoFeedWidget displays MjpegView with correct URL', (WidgetTester tester) async {
-    const testUrl = 'http://localhost:8000/video_feed';
+    const testUrl = 'http://localhost:8000/video_feed/';
     when(mockApiService.fetchActiveBucketStatus()).thenAnswer((_) async => 'None');
 
     await tester.pumpWidget(
@@ -40,7 +40,7 @@ void main() {
   });
 
   testWidgets('VideoFeedWidget displays active bucket overlay', (WidgetTester tester) async {
-    const testUrl = 'http://localhost:8000/video_feed';
+    const testUrl = 'http://localhost:8000/video_feed/';
     when(mockApiService.fetchActiveBucketStatus()).thenAnswer((_) async => 'NPK');
 
     await tester.pumpWidget(

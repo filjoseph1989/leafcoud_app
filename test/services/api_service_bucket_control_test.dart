@@ -11,7 +11,7 @@ void main() {
     test('postActiveBucket sends a POST request with the correct label', () async {
       final client = MockClient((request) async {
         if (request.method == 'POST' &&
-            request.url.toString() == '$baseUrl/control/active-bucket' &&
+            request.url.toString() == '$baseUrl/control/active-bucket/' &&
             jsonDecode(request.body)['bucket'] == 'NPK') {
           return http.Response(jsonEncode({'status': 'success'}), 200);
         }
@@ -27,7 +27,7 @@ void main() {
     test('fetchActiveBucketStatus returns the active bucket name', () async {
       final client = MockClient((request) async {
         if (request.method == 'GET' &&
-            request.url.toString() == '$baseUrl/control/active-bucket') {
+            request.url.toString() == '$baseUrl/control/active-bucket/') {
           return http.Response(jsonEncode({'active_bucket': 'NPK'}), 200);
         }
         return http.Response('Error', 400);

@@ -20,7 +20,7 @@ class ApiService {
 
   Future<void> postActiveBucket(String label) async {
     final response = await client.post(
-      Uri.parse('$baseUrl/control/active-bucket'),
+      Uri.parse('$baseUrl/control/active-bucket/'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'bucket': label}),
     );
@@ -31,7 +31,7 @@ class ApiService {
   }
 
   Future<String> fetchActiveBucketStatus() async {
-    final response = await client.get(Uri.parse('$baseUrl/control/active-bucket'));
+    final response = await client.get(Uri.parse('$baseUrl/control/active-bucket/'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
