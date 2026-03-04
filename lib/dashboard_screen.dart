@@ -433,7 +433,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         setState(() {
           _lastClickedLabel = label;
         });
-        notifier.setActiveBucket(label);
+        // Send 'STOP' in all caps if it's the stop button
+        notifier.setActiveBucket(isStop ? 'STOP' : label);
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: isStop ? Colors.red[50] : Colors.green[50],

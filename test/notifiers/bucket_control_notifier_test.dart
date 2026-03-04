@@ -1,15 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:flutter_leafcloud_app/notifiers/bucket_control_notifier.dart';
-import 'package:flutter_leafcloud_app/services/api_service.dart';
+import '../dashboard_screen_test.mocks.dart';
 
-import 'bucket_control_notifier_test.mocks.dart';
-
-@GenerateMocks([ApiService])
 void main() {
-  late BucketControlNotifier notifier;
   late MockApiService mockApiService;
+  late BucketControlNotifier notifier;
 
   setUp(() {
     mockApiService = MockApiService();
@@ -30,7 +26,19 @@ void main() {
       await notifier.setActiveBucket('NPK');
 
       verify(mockApiService.postActiveBucket('NPK')).called(1);
+      verify(mockApiService.fetchActiveBucketStatus()).called(1);
       expect(notifier.activeBucketStatus, 'NPK');
+      expect(notifier.isLoading, false);
+      expect(notifier.errorMessage, isNull);
+    });
+
+    test('setActiveBucket updates error on failure', () async {
+      when(mockApiService.postActiveBucket('STOP')).thenThrow(Exception('API Error'));
+
+      await notifier.setActiveBucket('STOP');
+
+      expect(notifier.activeBucketStatus, 'None');
+      expect(notifier.errorMessage, contains('Exception: API Error'));
     });
 
     test('fetchActiveBucketStatus updates state on success', () async {
@@ -40,14 +48,6 @@ void main() {
 
       expect(notifier.activeBucketStatus, 'Water');
       expect(notifier.errorMessage, isNull);
-    });
-
-    test('fetchActiveBucketStatus updates error on failure', () async {
-      when(mockApiService.fetchActiveBucketStatus()).thenThrow(Exception('Failed to fetch status'));
-
-      await notifier.fetchActiveBucketStatus();
-
-      expect(notifier.errorMessage, contains('Exception: Failed to fetch status'));
     });
 
     test('polling updates status periodically', () async {

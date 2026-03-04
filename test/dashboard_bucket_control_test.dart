@@ -92,12 +92,12 @@ void main() {
   testWidgets('Pressing Stop button calls setActiveBucket', (WidgetTester tester) async {
     await setupWidget(tester);
     
-    when(mockApiService.postActiveBucket('Stop')).thenAnswer((_) async => null);
+    when(mockApiService.postActiveBucket('STOP')).thenAnswer((_) async => null);
 
     await tester.tap(find.widgetWithText(ElevatedButton, 'Stop'));
     await tester.pump();
 
-    verify(mockApiService.postActiveBucket('Stop')).called(1);
+    verify(mockApiService.postActiveBucket('STOP')).called(1);
 
     await cleanupWidget(tester);
   });

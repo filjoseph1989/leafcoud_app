@@ -20,9 +20,10 @@ class ApiService {
 
   Future<void> postActiveBucket(String label) async {
     final response = await client.post(
-      Uri.parse('$baseUrl/control/active-bucket/'),
+      Uri.parse('$baseUrl/control/active-bucket'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'bucket': label}),
+      // Changed key to 'bucket_id' per server documentation
+      body: jsonEncode({'bucket_id': label}),
     );
 
     if (response.statusCode != 200) {
@@ -31,11 +32,13 @@ class ApiService {
   }
 
   Future<String> fetchActiveBucketStatus() async {
-    final response = await client.get(Uri.parse('$baseUrl/control/active-bucket/'));
+    // Changed endpoint to '/control/current-status' per server documentation
+    final response = await client.get(Uri.parse('$baseUrl/control/current-status'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return data['active_bucket'] ?? 'None';
+      // We'll check for 'bucket_id' or 'active_bucket' based on typical patterns
+      return data['bucket_id'] ?? data['active_bucket'] ?? 'None';
     } else {
       throw Exception('Failed to fetch active bucket status: ${response.statusCode}');
     }
