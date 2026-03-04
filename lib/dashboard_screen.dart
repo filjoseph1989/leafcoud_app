@@ -7,6 +7,7 @@ import 'package:flutter_leafcloud_app/widgets/video_feed_widget.dart';
 import 'package:flutter_leafcloud_app/notifiers/sensor_data_notifier.dart';
 import 'package:flutter_leafcloud_app/notifiers/bucket_control_notifier.dart';
 import 'package:flutter_leafcloud_app/models/sensor_data.dart';
+import 'package:flutter_leafcloud_app/services/file_logger.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -365,7 +366,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildControlButton(BuildContext context, String label, {bool isStop = false}) {
     final notifier = context.read<BucketControlNotifier>();
     return ElevatedButton(
-      onPressed: () => notifier.setActiveBucket(label),
+      onPressed: () {
+        FileLogger.log('Dashboard: Button $label clicked');
+        notifier.setActiveBucket(label);
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: isStop ? Colors.red[50] : Colors.green[50],
         foregroundColor: isStop ? Colors.red[700] : Colors.green[700],

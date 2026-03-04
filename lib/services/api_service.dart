@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_leafcloud_app/models/sensor_data.dart';
+import 'package:flutter_leafcloud_app/services/file_logger.dart';
 
 class ApiService {
   final http.Client client;
@@ -19,8 +21,10 @@ class ApiService {
   }
 
   Future<void> postActiveBucket(String label) async {
+    final uri = Uri.parse('$baseUrl/control/active-bucket');
+    FileLogger.log('ApiService: Sending POST to $uri with body: {"bucket": "$label"}');
     final response = await client.post(
-      Uri.parse('$baseUrl/control/active-bucket'),
+      uri,
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'bucket': label}),
     );
