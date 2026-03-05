@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_leafcloud_app/models/sensor_data.dart';
+import 'package:flutter_leafcloud_app/models/image_info.dart';
 
 class ApiService {
   final http.Client client;
@@ -41,6 +42,32 @@ class ApiService {
       return data['bucket_id'] ?? data['active_bucket'] ?? 'None';
     } else {
       throw Exception('Failed to fetch active bucket status: ${response.statusCode}');
+    }
+  }
+
+  Future<List<ImageInfo>> fetchImages({int skip = 0, int limit = 50}) async {
+    final response = await client.get(
+      Uri.parse('$baseUrl/admin/images/?skip=$skip&limit=$limit'),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((json) => ImageInfo.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load images: ${response.statusCode}');
+    }
+  }
+
+  Future<void> deleteImage(String filename) async {
+    final response = await client.delete(
+      Uri.parse('$baseUrl/admin/images/$filename'),
+      headers: {
+        'Authorization': 'demo-access-token-xyz-789',
+      },
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to delete image: ${response.statusCode}');
     }
   }
 }

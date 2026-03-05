@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_leafcloud_app/login_screen.dart';
 import 'package:flutter_leafcloud_app/notifiers/sensor_data_notifier.dart';
 import 'package:flutter_leafcloud_app/notifiers/bucket_control_notifier.dart';
+import 'package:flutter_leafcloud_app/notifiers/image_management_notifier.dart';
 import 'package:flutter_leafcloud_app/services/api_service.dart';
 
 void main() {
@@ -21,6 +22,14 @@ void main() {
         ),
         ChangeNotifierProvider(
           create: (_) => BucketControlNotifier(
+            apiService: ApiService(
+              client: httpClient,
+              baseUrl: 'http://192.168.1.7:8000',
+            ),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ImageManagementNotifier(
             apiService: ApiService(
               client: httpClient,
               baseUrl: 'http://192.168.1.7:8000',
