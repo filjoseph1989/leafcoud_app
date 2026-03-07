@@ -6,6 +6,7 @@ class BucketControlNotifier extends ChangeNotifier {
   final ApiService apiService;
 
   String _activeBucketStatus = 'None';
+  String? _sendingLabel;
   bool _isLoading = false;
   String? _errorMessage;
   Timer? _timer;
@@ -13,11 +14,13 @@ class BucketControlNotifier extends ChangeNotifier {
   BucketControlNotifier({required this.apiService});
 
   String get activeBucketStatus => _activeBucketStatus;
+  String? get sendingLabel => _sendingLabel;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
   Future<void> setActiveBucket(String label) async {
     _isLoading = true;
+    _sendingLabel = label;
     _errorMessage = null;
     notifyListeners();
 
@@ -28,6 +31,7 @@ class BucketControlNotifier extends ChangeNotifier {
       _errorMessage = e.toString();
     } finally {
       _isLoading = false;
+      _sendingLabel = null;
       notifyListeners();
     }
   }

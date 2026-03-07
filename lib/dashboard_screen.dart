@@ -17,6 +17,8 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  static const String _videoUrl = 'http://192.168.1.7:8000/video_feed/';
+
   @override
   void initState() {
     super.initState();
@@ -157,7 +159,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildHeader(SensorData data) {
-    const String videoUrl = 'http://192.168.1.7:8000/video_feed/';
     String formattedDate = DateFormat.yMMMd().add_jm().format(data.timestamp);
 
     return Column(
@@ -170,12 +171,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               'Live Monitor',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            if (context.watch<SensorDataNotifier>().isLoading)
-              const SizedBox(
-                height: 16,
-                width: 16,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
+            Consumer<SensorDataNotifier>(
+              builder: (context, notifier, child) {
+                if (notifier.isLoading) {
+                  return const SizedBox(
+                    height: 16,
+                    width: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
           ],
         ),
         const SizedBox(height: 4),
@@ -200,7 +207,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: SizedBox(
               height: 220,
               width: double.infinity,
-              child: VideoFeedWidget(url: videoUrl),
+              child: VideoFeedWidget(url: _videoUrl),
             ),
           ),
         ),
@@ -318,65 +325,66 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  String? _lastClickedLabel;
-
   Widget _buildApiStatus(BuildContext context) {
-    final notifier = context.watch<BucketControlNotifier>();
-    final isError = notifier.errorMessage != null;
-    final isLoading = notifier.isLoading;
+    return Consumer<BucketControlNotifier>(
+      builder: (context, notifier, child) {
+        final isError = notifier.errorMessage != null;
+        final isLoading = notifier.isLoading;
 
-    String statusText = 'Active Bucket: ${notifier.activeBucketStatus}';
-    if (isLoading && _lastClickedLabel != null) {
-      statusText = 'Sending: $_lastClickedLabel...';
-    } else if (isError) {
-      statusText = notifier.errorMessage!;
-    }
+        String statusText = 'Active Bucket: ${notifier.activeBucketStatus}';
+        if (isLoading && notifier.sendingLabel != null) {
+          statusText = 'Sending: ${notifier.sendingLabel}...';
+        } else if (isError) {
+          statusText = notifier.errorMessage!;
+        }
 
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: isError ? Colors.red[50] : (isLoading ? Colors.blue[50] : Colors.green[50]),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isError ? Colors.red[200]! : (isLoading ? Colors.blue[200]! : Colors.green[200]!),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            isError ? Icons.error_outline : (isLoading ? Icons.send : Icons.check_circle_outline),
-            color: isError ? Colors.red : (isLoading ? Colors.blue : Colors.green),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isError ? 'API Error' : (isLoading ? 'Request Sent' : 'System Control Status'),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: isError ? Colors.red[900] : (isLoading ? Colors.blue[900] : Colors.green[900]),
-                  ),
-                ),
-                Text(
-                  statusText,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: isError ? Colors.red[700] : (isLoading ? Colors.blue[700] : Colors.green[700]),
-                  ),
-                ),
-              ],
+        return Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isError ? Colors.red[50] : (isLoading ? Colors.blue[50] : Colors.green[50]),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isError ? Colors.red[200]! : (isLoading ? Colors.blue[200]! : Colors.green[200]!),
             ),
           ),
-          if (isLoading)
-            const SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-        ],
-      ),
+          child: Row(
+            children: [
+              Icon(
+                isError ? Icons.error_outline : (isLoading ? Icons.send : Icons.check_circle_outline),
+                color: isError ? Colors.red : (isLoading ? Colors.blue : Colors.green),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isError ? 'API Error' : (isLoading ? 'Request Sent' : 'System Control Status'),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: isError ? Colors.red[900] : (isLoading ? Colors.blue[900] : Colors.green[900]),
+                      ),
+                    ),
+                    Text(
+                      statusText,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isError ? Colors.red[700] : (isLoading ? Colors.blue[700] : Colors.green[700]),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (isLoading)
+                const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+            ],
+          ),
+        );
+      }
     );
   }
 
@@ -440,9 +448,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final notifier = context.read<BucketControlNotifier>();
     return ElevatedButton(
       onPressed: () {
-        setState(() {
-          _lastClickedLabel = label;
-        });
         // Send 'STOP' in all caps if it's the stop button
         notifier.setActiveBucket(isStop ? 'STOP' : label);
       },
