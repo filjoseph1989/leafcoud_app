@@ -204,9 +204,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           child: const ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(16)),
-            child: SizedBox(
-              height: 220,
-              width: double.infinity,
+            child: AspectRatio(
+              aspectRatio: 1.0,
               child: VideoFeedWidget(url: _videoUrl),
             ),
           ),

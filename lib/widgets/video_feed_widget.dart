@@ -21,7 +21,7 @@ class VideoFeedWidget extends StatelessWidget {
           children: [
             MjpegView(
               uri: url,
-              fit: BoxFit.cover,
+              fit: BoxFit.contain,
               width: double.infinity,
               height: double.infinity,
             ),
