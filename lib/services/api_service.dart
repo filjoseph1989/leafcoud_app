@@ -57,15 +57,39 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> fetchExperimentHistory(String experimentId) async {
-    final response = await client.get(
-      Uri.parse('$baseUrl/experiments/$experimentId/history'),
-    );
+  Future<Map<String, dynamic>> fetchExperimentHistory(String? experimentId) async {
+    // If experimentId is null or empty, fetch latest global history
+    if (experimentId == null || experimentId.isEmpty) {
+      final response = await client.get(Uri.parse('$baseUrl/app/history/'));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return {'experiment_id': 'Latest', 'bucket_data': data};
+      }
+      throw Exception('Failed to load global history: ${response.statusCode}');
+    }
+
+    // Try to fetch ID-specific history
+    // Server expects integer ID for /experiments/{id}/history
+    final isInteger = int.tryParse(experimentId) != null;
+    final url = isInteger 
+        ? '$baseUrl/experiments/$experimentId/history'
+        : '$baseUrl/app/history/?experiment_id=$experimentId';
+
+    final response = await client.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map<String, dynamic>) {
+        return decoded;
+      } else if (decoded is List) {
+        return {'experiment_id': experimentId, 'bucket_data': decoded};
+      }
+      return {'experiment_id': experimentId, 'bucket_data': []};
+    } else if (response.statusCode == 422 || response.statusCode == 404) {
+      // Graceful fallback for missing or unprocessable records
+      return {'experiment_id': experimentId, 'bucket_data': []};
     } else {
-      throw Exception('Failed to load experiment history: ${response.statusCode}');
+      throw Exception('Failed to load history for $experimentId: ${response.statusCode}');
     }
   }
 

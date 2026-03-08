@@ -20,9 +20,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
     super.initState();
     _experimentIdController.text = widget.experimentId ?? '';
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_experimentIdController.text.isNotEmpty) {
-        context.read<HistoryNotifier>().fetchHistory(_experimentIdController.text);
-      }
+      context.read<HistoryNotifier>().fetchHistory(
+        _experimentIdController.text.isNotEmpty ? _experimentIdController.text : null
+      );
     });
   }
 
@@ -97,7 +97,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 }
 
                 if (notifier.bucketData.isEmpty) {
-                  return const Center(child: Text('Enter an Experiment ID to view history'));
+                  return const Center(
+                    child: Text(
+                      'No history data found.\nTry a different Experiment ID or wait for data ingestion.',
+                      textAlign: TextAlign.center,
+                    ),
+                  );
                 }
 
                 final listData = notifier.bucketData.reversed.toList();

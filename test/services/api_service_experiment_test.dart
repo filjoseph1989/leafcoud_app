@@ -28,9 +28,9 @@ void main() {
     test('fetchExperimentHistory returns data pre-grouped by bucket', () async {
       final client = MockClient((request) async {
         if (request.method == 'GET' &&
-            request.url.toString() == '$baseUrl/experiments/EXP-123/history') {
+            request.url.toString() == '$baseUrl/experiments/123/history') {
           return http.Response(jsonEncode({
-            'experiment_id': 'EXP-123',
+            'experiment_id': '123',
             'bucket_data': [
               {'timestamp': '2026-03-01T10:00:00Z', 'n_ppm': 100.0}
             ]
@@ -40,10 +40,10 @@ void main() {
       });
 
       final apiService = ApiService(client: client, baseUrl: baseUrl);
-      final history = await apiService.fetchExperimentHistory('EXP-123');
+      final history = await apiService.fetchExperimentHistory('123');
 
       expect(history, isA<Map<String, dynamic>>());
-      expect(history['experiment_id'], 'EXP-123');
+      expect(history['experiment_id'], '123');
       expect(history['bucket_data'], isA<List>());
     });
   });

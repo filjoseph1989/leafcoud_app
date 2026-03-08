@@ -16,7 +16,7 @@ class HistoryNotifier extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  Future<void> fetchHistory(String experimentId) async {
+  Future<void> fetchHistory([String? experimentId]) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();

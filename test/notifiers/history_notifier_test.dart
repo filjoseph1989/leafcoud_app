@@ -22,18 +22,18 @@ void main() {
 
     test('fetchHistory updates state on success', () async {
       final mockResponse = {
-        'experiment_id': 'EXP-123',
+        'experiment_id': '123',
         'bucket_data': [
           {'timestamp': '2026-03-01T10:00:00Z', 'n_ppm': 100.0}
         ]
       };
 
-      when(mockApiService.fetchExperimentHistory('EXP-123'))
+      when(mockApiService.fetchExperimentHistory('123'))
           .thenAnswer((_) async => mockResponse);
 
-      await notifier.fetchHistory('EXP-123');
+      await notifier.fetchHistory('123');
 
-      expect(notifier.experimentId, 'EXP-123');
+      expect(notifier.experimentId, '123');
       expect(notifier.bucketData, isNotEmpty);
       expect(notifier.bucketData.first['n_ppm'], 100.0);
       expect(notifier.isLoading, false);
