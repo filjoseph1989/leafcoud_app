@@ -32,6 +32,18 @@ class ApiService {
     }
   }
 
+  Future<void> postActiveExperiment(String experimentId) async {
+    final response = await client.post(
+      Uri.parse('$baseUrl/control/active-experiment'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'experiment_id': experimentId}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to set active experiment: ${response.statusCode}');
+    }
+  }
+
   Future<String> fetchActiveBucketStatus() async {
     // Added trailing slash to avoid 500/405 errors per server documentation
     final response = await client.get(Uri.parse('$baseUrl/control/current-status/'));
@@ -42,6 +54,18 @@ class ApiService {
       return data['bucket_id'] ?? data['active_bucket'] ?? 'None';
     } else {
       throw Exception('Failed to fetch active bucket status: ${response.statusCode}');
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchExperimentHistory(String experimentId) async {
+    final response = await client.get(
+      Uri.parse('$baseUrl/experiments/$experimentId/history'),
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load experiment history: ${response.statusCode}');
     }
   }
 
