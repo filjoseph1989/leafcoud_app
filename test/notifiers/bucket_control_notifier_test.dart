@@ -15,8 +15,19 @@ void main() {
   group('BucketControlNotifier', () {
     test('initial state is correct', () {
       expect(notifier.activeBucketStatus, 'None');
+      expect(notifier.activeExperimentId, isNull);
       expect(notifier.isLoading, false);
       expect(notifier.errorMessage, isNull);
+    });
+
+    test('setExperimentId calls apiService and updates state', () async {
+      when(mockApiService.postActiveExperiment('EXP-1')).thenAnswer((_) async => null);
+
+      await notifier.setExperimentId('EXP-1');
+
+      verify(mockApiService.postActiveExperiment('EXP-1')).called(1);
+      expect(notifier.activeExperimentId, 'EXP-1');
+      expect(notifier.isLoading, false);
     });
 
     test('setActiveBucket calls apiService and updates status', () async {
