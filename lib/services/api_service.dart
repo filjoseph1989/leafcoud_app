@@ -33,8 +33,8 @@ class ApiService {
   }
 
   Future<String> fetchActiveBucketStatus() async {
-    // Changed endpoint to '/control/current-status' per server documentation
-    final response = await client.get(Uri.parse('$baseUrl/control/current-status'));
+    // Added trailing slash to avoid 500/405 errors per server documentation
+    final response = await client.get(Uri.parse('$baseUrl/control/current-status/'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
