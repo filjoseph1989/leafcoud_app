@@ -6,6 +6,7 @@ class BucketControlNotifier extends ChangeNotifier {
   final ApiService apiService;
 
   String _activeBucketStatus = 'None';
+  String? _activeExperimentId;
   String? _sendingLabel;
   bool _isLoading = false;
   String? _errorMessage;
@@ -14,6 +15,7 @@ class BucketControlNotifier extends ChangeNotifier {
   BucketControlNotifier({required this.apiService});
 
   String get activeBucketStatus => _activeBucketStatus;
+  String? get activeExperimentId => _activeExperimentId;
   String? get sendingLabel => _sendingLabel;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -32,6 +34,22 @@ class BucketControlNotifier extends ChangeNotifier {
     } finally {
       _isLoading = false;
       _sendingLabel = null;
+      notifyListeners();
+    }
+  }
+
+  Future<void> setExperimentId(String experimentId) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await apiService.postActiveExperiment(experimentId);
+      _activeExperimentId = experimentId;
+    } catch (e) {
+      _errorMessage = e.toString();
+    } finally {
+      _isLoading = false;
       notifyListeners();
     }
   }
