@@ -45,13 +45,13 @@ class ApiService {
   }
 
   Future<String> fetchActiveBucketStatus() async {
-    // Added trailing slash to avoid 500/405 errors per server documentation
-    final response = await client.get(Uri.parse('$baseUrl/control/current-status/'));
+    // Removed trailing slash based on curl redirect results
+    final response = await client.get(Uri.parse('$baseUrl/control/current-status'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      // We'll check for 'bucket_id' or 'active_bucket' based on typical patterns
-      return data['bucket_id'] ?? data['active_bucket'] ?? 'None';
+      // Updated keys to match server response: active_bucket_id
+      return data['active_bucket_id']?.toString() ?? data['bucket_id'] ?? data['active_bucket'] ?? 'None';
     } else {
       throw Exception('Failed to fetch active bucket status: ${response.statusCode}');
     }
