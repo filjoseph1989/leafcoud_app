@@ -5,36 +5,30 @@ import 'package:flutter_leafcloud_app/login_screen.dart';
 import 'package:flutter_leafcloud_app/notifiers/sensor_data_notifier.dart';
 import 'package:flutter_leafcloud_app/notifiers/bucket_control_notifier.dart';
 import 'package:flutter_leafcloud_app/notifiers/image_management_notifier.dart';
+import 'package:flutter_leafcloud_app/notifiers/history_notifier.dart';
 import 'package:flutter_leafcloud_app/services/api_service.dart';
 
 void main() {
   final httpClient = http.Client();
+  final apiService = ApiService(
+    client: httpClient,
+    baseUrl: 'http://192.168.1.7:8000',
+  );
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => SensorDataNotifier(
-            apiService: ApiService(
-              client: httpClient,
-              baseUrl: 'http://192.168.1.7:8000',
-            ),
-          ),
+          create: (_) => SensorDataNotifier(apiService: apiService),
         ),
         ChangeNotifierProvider(
-          create: (_) => BucketControlNotifier(
-            apiService: ApiService(
-              client: httpClient,
-              baseUrl: 'http://192.168.1.7:8000',
-            ),
-          ),
+          create: (_) => BucketControlNotifier(apiService: apiService),
         ),
         ChangeNotifierProvider(
-          create: (_) => ImageManagementNotifier(
-            apiService: ApiService(
-              client: httpClient,
-              baseUrl: 'http://192.168.1.7:8000',
-            ),
-          ),
+          create: (_) => ImageManagementNotifier(apiService: apiService),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => HistoryNotifier(apiService: apiService),
         ),
       ],
       child: const MyApp(),
