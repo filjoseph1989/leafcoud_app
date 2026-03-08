@@ -33,6 +33,15 @@ class SensorData {
     );
   }
 
+  String get healthStatus {
+    if (status is String) {
+      return status as String;
+    } else if (status is Map) {
+      return (status as Map)['overall_status']?.toString() ?? 'Unknown';
+    }
+    return 'Unknown';
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'timestamp': timestamp.toIso8601String(),
