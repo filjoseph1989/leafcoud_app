@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter_leafcloud_app/history_screen.dart';
 import 'package:flutter_leafcloud_app/alerts_screen.dart';
 import 'package:flutter_leafcloud_app/image_gallery_screen.dart';
+import 'package:flutter_leafcloud_app/experiment_management_screen.dart';
 import 'package:flutter_leafcloud_app/widgets/video_feed_widget.dart';
 import 'package:flutter_leafcloud_app/notifiers/sensor_data_notifier.dart';
 import 'package:flutter_leafcloud_app/notifiers/bucket_control_notifier.dart';
@@ -43,6 +44,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.tune),
+            tooltip: 'Experiment Management',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ExperimentManagementScreen()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.photo_library),
             onPressed: () {
@@ -216,12 +227,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildRecommendationCard(SensorData data) {
     final recommendation = data.recommendation ?? 'Everything looks great!';
-    final statusData = data.status;
+    final health = data.healthStatus;
     Color themeColor = Colors.orange;
 
-    if (statusData is String && statusData == "Optimal") {
-      themeColor = Colors.green;
-    } else if (statusData is Map && statusData['overall_status'] == "Optimal") {
+    if (health == "Optimal") {
       themeColor = Colors.green;
     }
 
@@ -259,17 +268,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildStatusCard(SensorData data) {
-    final statusData = data.status;
-    String statusText = "Unknown";
-    bool isOptimal = false;
-
-    if (statusData is String) {
-      statusText = statusData;
-      isOptimal = statusText == "Optimal";
-    } else if (statusData is Map) {
-      statusText = statusData['overall_status']?.toString() ?? "Unknown";
-      isOptimal = statusText == "Optimal";
-    }
+    final statusText = data.healthStatus;
+    final isOptimal = statusText == "Optimal";
 
     return Container(
       padding: const EdgeInsets.all(16),
