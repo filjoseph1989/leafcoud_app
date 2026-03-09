@@ -84,6 +84,15 @@ class MockApiService extends _i1.Mock implements _i4.ApiService {
           as _i6.Future<void>);
 
   @override
+  _i6.Future<void> postActiveExperiment(String? experimentId) =>
+      (super.noSuchMethod(
+            Invocation.method(#postActiveExperiment, [experimentId]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
   _i6.Future<String> fetchActiveBucketStatus() =>
       (super.noSuchMethod(
             Invocation.method(#fetchActiveBucketStatus, []),
@@ -95,6 +104,18 @@ class MockApiService extends _i1.Mock implements _i4.ApiService {
             ),
           )
           as _i6.Future<String>);
+
+  @override
+  _i6.Future<Map<String, dynamic>> fetchExperimentHistory(
+    String? experimentId,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchExperimentHistory, [experimentId]),
+            returnValue: _i6.Future<Map<String, dynamic>>.value(
+              <String, dynamic>{},
+            ),
+          )
+          as _i6.Future<Map<String, dynamic>>);
 
   @override
   _i6.Future<List<_i7.ImageInfo>> fetchImages({

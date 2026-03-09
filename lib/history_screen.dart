@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_leafcloud_app/notifiers/history_notifier.dart';
+import 'package:flutter_leafcloud_app/models/history_entry.dart';
 
 class HistoryScreen extends StatefulWidget {
   final String? experimentId;
@@ -96,7 +97,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   );
                 }
 
-                if (notifier.bucketData.isEmpty) {
+                if (notifier.historyData.isEmpty) {
                   return const Center(
                     child: Text(
                       'No history data found.\nTry a different Experiment ID or wait for data ingestion.',
@@ -105,15 +106,39 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   );
                 }
 
-                final listData = notifier.bucketData.reversed.toList();
+                final listData = notifier.currentBucketData.reversed.toList();
 
                 return Column(
                   children: [
+                    if (notifier.availableBuckets.length > 1)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Select Bucket:', style: TextStyle(fontWeight: FontWeight.bold)),
+                            DropdownButton<String>(
+                              value: notifier.selectedBucket,
+                              items: notifier.availableBuckets.map((String bucket) {
+                                return DropdownMenuItem<String>(
+                                  value: bucket,
+                                  child: Text(bucket),
+                                );
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                if (newValue != null) {
+                                  notifier.selectBucket(newValue);
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
                     SizedBox(
                       height: 250,
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
-                        child: _buildChart(notifier.bucketData),
+                        child: _buildChart(notifier.currentBucketData),
                       ),
                     ),
                     Expanded(
@@ -121,17 +146,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         padding: const EdgeInsets.all(8.0),
                         itemCount: listData.length,
                         itemBuilder: (context, index) {
-                          final entry = listData[index] as Map<String, dynamic>;
+                          final entry = listData[index];
                           
-                          String formattedDate = 'Unknown';
-                          if (entry['timestamp'] != null) {
-                            try {
-                              final DateTime parsedDate = DateTime.parse(entry['timestamp']);
-                              formattedDate = DateFormat.yMMMd().add_jm().format(parsedDate);
-                            } catch (e) {
-                              formattedDate = entry['timestamp'].toString();
-                            }
-                          }
+                          final String formattedDate = DateFormat.yMMMd().add_jm().format(entry.timestamp);
 
                           return Card(
                             margin: const EdgeInsets.symmetric(vertical: 8.0),
@@ -146,13 +163,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                   ),
                                   const SizedBox(height: 8),
-                                  _buildDataRow('Nitrogen', '${entry['n_ppm']?.toStringAsFixed(1) ?? 'N/A'} ppm'),
-                                  _buildDataRow('Phosphorus', '${entry['p_ppm']?.toStringAsFixed(1) ?? 'N/A'} ppm'),
-                                  _buildDataRow('Potassium', '${entry['k_ppm']?.toStringAsFixed(1) ?? 'N/A'} ppm'),
-                                  const Divider(),
-                                  _buildDataRow('EC', '${entry['ec']?.toStringAsFixed(2) ?? 'N/A'} mS/cm'),
-                                  _buildDataRow('pH', '${entry['ph']?.toStringAsFixed(2) ?? 'N/A'}'),
-                                  _buildDataRow('Temp', '${entry['temp']?.toStringAsFixed(1) ?? 'N/A'} °C'),
+                                  _buildDataRow('EC', '${entry.ec?.toStringAsFixed(2) ?? 'N/A'} mS/cm'),
+                                  _buildDataRow('pH', '${entry.ph?.toStringAsFixed(2) ?? 'N/A'}'),
+                                  _buildDataRow('Water Temp', '${entry.waterTemp?.toStringAsFixed(1) ?? entry.temp?.toStringAsFixed(1) ?? 'N/A'} °C'),
+                                  if (entry.imageUrl != null) ...[
+                                    const Divider(),
+                                    _buildDataRow('Image', 'Available'),
+                                  ],
                                 ],
                               ),
                             ),
@@ -170,7 +187,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildChart(List<dynamic> data) {
+  Widget _buildChart(List<HistoryEntry> data) {
     return LineChart(
       LineChartData(
         gridData: const FlGridData(show: true),
@@ -186,20 +203,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ),
         borderData: FlBorderData(show: true),
         lineBarsData: [
-          _buildLine(Colors.blue, 'n_ppm', data),
-          _buildLine(Colors.red, 'p_ppm', data),
-          _buildLine(Colors.orange, 'k_ppm', data),
+          _buildLine(Colors.blue, (e) => e.ec, data),
+          _buildLine(Colors.red, (e) => e.ph, data),
+          _buildLine(Colors.orange, (e) => e.displayTemp, data),
         ],
       ),
     );
   }
 
-  LineChartBarData _buildLine(Color color, String key, List<dynamic> data) {
+  LineChartBarData _buildLine(Color color, double? Function(HistoryEntry) selector, List<HistoryEntry> data) {
     List<FlSpot> spots = [];
     for (int i = 0; i < data.length; i++) {
-      final val = (data[i] as Map<String, dynamic>)[key];
+      final val = selector(data[i]);
       if (val != null) {
-        spots.add(FlSpot(i.toDouble(), (val as num).toDouble()));
+        spots.add(FlSpot(i.toDouble(), val));
       }
     }
     return LineChartBarData(

@@ -30,7 +30,7 @@ void main() {
       expect(sensorData.healthStatus, 'Optimal');
     });
 
-    test('should return Unknown if status is missing or malformed', () {
+    test('should return No Data Yet if status is missing or malformed', () {
       final json = {
         'timestamp': '2026-03-01T14:30:00Z',
         'status': null,
@@ -38,7 +38,7 @@ void main() {
 
       final sensorData = SensorData.fromJson(json);
 
-      expect(sensorData.healthStatus, 'Unknown');
+      expect(sensorData.healthStatus, 'No Data Yet');
     });
   });
 }

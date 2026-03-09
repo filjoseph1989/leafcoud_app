@@ -15,7 +15,9 @@ void main() {
   group('HistoryNotifier', () {
     test('initial state is correct', () {
       expect(notifier.experimentId, isNull);
-      expect(notifier.bucketData, isEmpty);
+      expect(notifier.historyData, isEmpty);
+      expect(notifier.availableBuckets, isEmpty);
+      expect(notifier.selectedBucket, isNull);
       expect(notifier.isLoading, false);
       expect(notifier.errorMessage, isNull);
     });
@@ -23,9 +25,11 @@ void main() {
     test('fetchHistory updates state on success', () async {
       final mockResponse = {
         'experiment_id': '123',
-        'bucket_data': [
-          {'timestamp': '2026-03-01T10:00:00Z', 'n_ppm': 100.0}
-        ]
+        'history': {
+          'NPK': [
+            {'timestamp': '2026-03-01T10:00:00Z', 'n_ppm': 100.0}
+          ]
+        }
       };
 
       when(mockApiService.fetchExperimentHistory('123'))
@@ -34,8 +38,10 @@ void main() {
       await notifier.fetchHistory('123');
 
       expect(notifier.experimentId, '123');
-      expect(notifier.bucketData, isNotEmpty);
-      expect(notifier.bucketData.first['n_ppm'], 100.0);
+      expect(notifier.historyData, isNotEmpty);
+      expect(notifier.availableBuckets, contains('NPK'));
+      expect(notifier.selectedBucket, 'NPK');
+      expect(notifier.currentBucketData.first.nitrogen, 100.0);
       expect(notifier.isLoading, false);
       expect(notifier.errorMessage, isNull);
     });

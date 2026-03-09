@@ -37,10 +37,12 @@ class SensorData {
     if (status is String) {
       return status as String;
     } else if (status is Map) {
-      return (status as Map)['overall_status']?.toString() ?? 'Unknown';
+      return (status as Map)['overall_status']?.toString() ?? 'No Data Yet';
     }
-    return 'Unknown';
+    return 'No Data Yet';
   }
+
+  bool get isNoData => sensors == null && status == null;
 
   Map<String, dynamic> toJson() {
     return {

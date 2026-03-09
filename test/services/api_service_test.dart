@@ -25,6 +25,21 @@ void main() {
       expect(data.sensors!['temp_c'], 25.0);
     });
 
+    test('fetchSensorData returns empty SensorData if the API returns an error key with 200 OK', () async {
+      final client = MockClient((request) async {
+        return http.Response(
+            jsonEncode({'error': 'No data available yet'}),
+            200);
+      });
+
+      final apiService = ApiService(client: client, baseUrl: 'http://test.com');
+      final data = await apiService.fetchSensorData();
+
+      expect(data, isA<SensorData>());
+      expect(data.isNoData, isTrue);
+      expect(data.healthStatus, 'No Data Yet');
+    });
+
     test('fetchSensorData throws an exception if the http call completes with an error', () async {
       final client = MockClient((request) async {
         return http.Response('Not Found', 404);

@@ -47,7 +47,10 @@ void main() {
           ChangeNotifierProvider.value(value: sensorDataNotifier),
           ChangeNotifierProvider.value(value: bucketControlNotifier),
         ],
-        child: const MaterialApp(home: DashboardScreen()),
+        child: MaterialApp(
+          theme: ThemeData(useMaterial3: true, splashFactory: NoSplash.splashFactory),
+          home: const DashboardScreen(),
+        ),
       ),
     );
     await tester.pump(); // Handle initState's post frame callback
@@ -63,7 +66,7 @@ void main() {
   }
 
   testWidgets('DashboardScreen displays bucket control buttons', (WidgetTester tester) async {
-    await setupWidget(tester);
+    await tester.runAsync(() => setupWidget(tester));
 
     expect(find.text('Bucket Control'), findsOneWidget);
     
@@ -77,7 +80,7 @@ void main() {
   });
 
   testWidgets('Pressing NPK button calls setActiveBucket', (WidgetTester tester) async {
-    await setupWidget(tester);
+    await tester.runAsync(() => setupWidget(tester));
     
     when(mockApiService.postActiveBucket('NPK')).thenAnswer((_) async => null);
 
@@ -90,7 +93,7 @@ void main() {
   });
 
   testWidgets('Pressing Stop button calls setActiveBucket', (WidgetTester tester) async {
-    await setupWidget(tester);
+    await tester.runAsync(() => setupWidget(tester));
     
     when(mockApiService.postActiveBucket('STOP')).thenAnswer((_) async => null);
 

@@ -13,7 +13,9 @@ class ApiService {
     final response = await client.get(Uri.parse('$baseUrl/app/latest_status/'));
 
     if (response.statusCode == 200) {
-      return SensorData.fromJson(jsonDecode(response.body));
+      final data = jsonDecode(response.body);
+      // Return SensorData even if it's empty/error-state JSON
+      return SensorData.fromJson(data is Map<String, dynamic> ? data : {});
     } else {
       throw Exception('Failed to load sensor data: ${response.statusCode}');
     }
@@ -63,7 +65,7 @@ class ApiService {
       final response = await client.get(Uri.parse('$baseUrl/app/history/'));
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        return {'experiment_id': 'Latest', 'bucket_data': data};
+        return {'experiment_id': 'Latest', 'history': {'All': data}};
       }
       throw Exception('Failed to load global history: ${response.statusCode}');
     }
@@ -82,12 +84,14 @@ class ApiService {
       if (decoded is Map<String, dynamic>) {
         return decoded;
       } else if (decoded is List) {
-        return {'experiment_id': experimentId, 'bucket_data': decoded};
+        return {'experiment_id': experimentId, 'history': {'All': decoded}};
       }
-      return {'experiment_id': experimentId, 'bucket_data': []};
-    } else if (response.statusCode == 422 || response.statusCode == 404) {
-      // Graceful fallback for missing or unprocessable records
-      return {'experiment_id': experimentId, 'bucket_data': []};
+      return {'experiment_id': experimentId, 'history': {}};
+    } else if (response.statusCode == 404) {
+      throw Exception('Experiment not found');
+    } else if (response.statusCode == 422) {
+      // Graceful fallback for unprocessable records
+      return {'experiment_id': experimentId, 'history': {}};
     } else {
       throw Exception('Failed to load history for $experimentId: ${response.statusCode}');
     }
@@ -116,6 +120,17 @@ class ApiService {
 
     if (response.statusCode != 200 && response.statusCode != 204) {
       throw Exception('Failed to delete image: ${response.statusCode}');
+    }
+  }
+
+  Future<void> restartIot() async {
+    final response = await client.post(
+      Uri.parse('$baseUrl/control/restart-iot'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to restart IoT system: ${response.statusCode}');
     }
   }
 }

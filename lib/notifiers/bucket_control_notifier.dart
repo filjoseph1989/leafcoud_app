@@ -65,6 +65,21 @@ class BucketControlNotifier extends ChangeNotifier {
     }
   }
 
+  Future<void> restartIot() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await apiService.restartIot();
+    } catch (e) {
+      _errorMessage = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   void startPolling({Duration interval = const Duration(seconds: 2)}) {
     _timer?.cancel();
     fetchActiveBucketStatus(); // Fetch immediately

@@ -28,23 +28,27 @@ void main() {
     test('fetchExperimentHistory returns data pre-grouped by bucket', () async {
       final client = MockClient((request) async {
         if (request.method == 'GET' &&
-            request.url.toString() == '$baseUrl/experiments/123/history') {
+            request.url.toString() == '$baseUrl/experiments/1/history') {
           return http.Response(jsonEncode({
-            'experiment_id': '123',
-            'bucket_data': [
-              {'timestamp': '2026-03-01T10:00:00Z', 'n_ppm': 100.0}
-            ]
+            'id': 1,
+            'experiment_id': 'EXP-NPK-AUTO',
+            'history': {
+              'NPK': [
+                {'timestamp': '2026-03-08T10:00:00Z', 'n': 100.0, 'ph': 6.0}
+              ]
+            }
           }), 200);
         }
         return http.Response('Error', 400);
       });
 
       final apiService = ApiService(client: client, baseUrl: baseUrl);
-      final history = await apiService.fetchExperimentHistory('123');
+      final history = await apiService.fetchExperimentHistory('1');
 
       expect(history, isA<Map<String, dynamic>>());
-      expect(history['experiment_id'], '123');
-      expect(history['bucket_data'], isA<List>());
+      expect(history['experiment_id'], 'EXP-NPK-AUTO');
+      expect(history['history'], isA<Map<String, dynamic>>());
+      expect(history['history']['NPK'], isA<List>());
     });
   });
 }

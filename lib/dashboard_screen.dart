@@ -490,9 +490,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       title: 'Nutrient Analysis',
       icon: Icons.science_outlined,
       children: [
-        _buildGridMetric('Nitrogen', '${levels['n_ppm'] ?? levels['Nitrogen'] ?? 'N/A'}', 'ppm', Icons.nature),
-        _buildGridMetric('Phosphorus', '${levels['p_ppm'] ?? levels['Phosphorus'] ?? 'N/A'}', 'ppm', Icons.grass),
-        _buildGridMetric('Potassium', '${levels['k_ppm'] ?? levels['Potassium'] ?? 'N/A'}', 'ppm', Icons.local_florist),
+        _buildGridMetric('Nitrogen', '${levels['n'] ?? levels['n_ppm'] ?? levels['Nitrogen'] ?? 'N/A'}', 'ppm', Icons.nature),
+        _buildGridMetric('Phosphorus', '${levels['p'] ?? levels['p_ppm'] ?? levels['Phosphorus'] ?? 'N/A'}', 'ppm', Icons.grass),
+        _buildGridMetric('Potassium', '${levels['k'] ?? levels['k_ppm'] ?? levels['Potassium'] ?? 'N/A'}', 'ppm', Icons.local_florist),
       ],
     );
   }
