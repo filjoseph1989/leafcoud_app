@@ -65,7 +65,7 @@ class ImageGridItem extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      image.bucketLabel ?? 'Reading',
+                      '${image.bucketLabel ?? 'Reading'}${image.readingId != null ? ' - #${image.readingId}' : ''}',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 12,
