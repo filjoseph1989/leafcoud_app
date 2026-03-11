@@ -103,7 +103,7 @@ class _ImageSliderScreenState extends State<ImageSliderScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  image.bucketLabel ?? 'Reading',
+                  '${image.bucketLabel ?? 'Reading'}${image.readingId != null ? ' - #${image.readingId}' : ''}',
                   style: const TextStyle(fontSize: 16, color: Colors.white),
                 ),
                 Text(
