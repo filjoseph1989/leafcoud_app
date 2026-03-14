@@ -21,6 +21,7 @@ void main() {
 
     when(mockChannel.sink).thenReturn(mockSink);
     when(mockChannel.stream).thenAnswer((_) => streamController.stream);
+    when(mockChannel.ready).thenAnswer((_) => Future.value());
 
     notifier = PHMonitorNotifier(
       channelFactory: (url) => mockChannel,
@@ -32,20 +33,46 @@ void main() {
   });
 
   group('PHMonitorNotifier', () {
-    test('initial state should be disconnected', () {
+    test('initial state should be disconnected and not monitoring', () {
       expect(notifier.isConnected, false);
+      expect(notifier.isMonitoring, false);
       expect(notifier.readings, isEmpty);
     });
 
-    test('should update connection status when connected', () async {
+    test('should update connection and monitoring status when connected', () async {
       notifier.connect('ws://localhost:8000');
-      // In a real scenario, the connection status might change asynchronously.
-      // For this test, we assume the notifier updates its state immediately or after a short delay.
+      // Wait for async _establishConnection
+      await Future.delayed(Duration(milliseconds: 100));
       expect(notifier.isConnected, true);
+      expect(notifier.isMonitoring, true);
+    });
+
+    test('isMonitoring should be false after manual disconnect', () async {
+      notifier.connect('ws://localhost:8000');
+      await Future.delayed(Duration(milliseconds: 100));
+      expect(notifier.isMonitoring, true);
+      
+      notifier.disconnect();
+      expect(notifier.isConnected, false);
+      expect(notifier.isMonitoring, false);
+    });
+
+    test('isMonitoring should remain true during automatic reconnect', () async {
+      notifier.connect('ws://localhost:8000');
+      await Future.delayed(Duration(milliseconds: 100));
+      expect(notifier.isMonitoring, true);
+      
+      // Simulate server-side closure (triggers reconnect)
+      await streamController.close();
+      await Future.delayed(Duration(milliseconds: 100));
+
+      expect(notifier.isConnected, false);
+      expect(notifier.isMonitoring, true); // Still monitoring/waiting to reconnect
     });
 
     test('should add readings when data is received via WebSocket', () async {
       notifier.connect('ws://localhost:8000');
+      await Future.delayed(Duration(milliseconds: 100));
 
       final readingJson = '{"device_id": "TEST_PI", "readings": [{"timestamp": "2026-03-14T12:00:00Z", "raw_adc": 20000, "voltage": 3.0}]}';
       streamController.add(readingJson);
@@ -60,6 +87,7 @@ void main() {
 
     test('should update connection status when connection is closed', () async {
       notifier.connect('ws://localhost:8000');
+      await Future.delayed(Duration(milliseconds: 100));
       expect(notifier.isConnected, true);
 
       await streamController.close();
