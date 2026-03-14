@@ -6,7 +6,6 @@ import 'package:flutter_leafcloud_app/ph_monitor_screen.dart';
 import 'package:flutter_leafcloud_app/models/ph_sensor_data.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 @GenerateMocks([PHMonitorNotifier])
 import 'ph_monitor_screen_test.mocks.dart';
