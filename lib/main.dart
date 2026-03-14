@@ -6,6 +6,7 @@ import 'package:flutter_leafcloud_app/notifiers/sensor_data_notifier.dart';
 import 'package:flutter_leafcloud_app/notifiers/bucket_control_notifier.dart';
 import 'package:flutter_leafcloud_app/notifiers/image_management_notifier.dart';
 import 'package:flutter_leafcloud_app/notifiers/history_notifier.dart';
+import 'package:flutter_leafcloud_app/notifiers/ph_monitor_notifier.dart';
 import 'package:flutter_leafcloud_app/services/api_service.dart';
 
 void main() {
@@ -29,6 +30,9 @@ void main() {
         ),
         ChangeNotifierProvider(
           create: (_) => HistoryNotifier(apiService: apiService),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => PHMonitorNotifier(),
         ),
       ],
       child: const MyApp(),
