@@ -5,6 +5,7 @@ import 'package:flutter_leafcloud_app/history_screen.dart';
 import 'package:flutter_leafcloud_app/alerts_screen.dart';
 import 'package:flutter_leafcloud_app/image_gallery_screen.dart';
 import 'package:flutter_leafcloud_app/experiment_management_screen.dart';
+import 'package:flutter_leafcloud_app/ph_monitor_screen.dart';
 import 'package:flutter_leafcloud_app/widgets/video_feed_widget.dart';
 import 'package:flutter_leafcloud_app/notifiers/sensor_data_notifier.dart';
 import 'package:flutter_leafcloud_app/notifiers/bucket_control_notifier.dart';
@@ -44,6 +45,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         foregroundColor: Colors.white,
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.waves_rounded),
+            tooltip: 'pH Monitor',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PHMonitorScreen()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.tune),
             tooltip: 'Experiment Management',
