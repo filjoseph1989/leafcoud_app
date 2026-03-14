@@ -11,13 +11,22 @@ class PHMonitorScreen extends StatefulWidget {
 }
 
 class _PHMonitorScreenState extends State<PHMonitorScreen> {
+  late PHMonitorNotifier _notifier;
+
   @override
   void initState() {
     super.initState();
+    _notifier = context.read<PHMonitorNotifier>();
     // Connect to the WebSocket when the screen is initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PHMonitorNotifier>().connect('ws://localhost:8000/iot/ph/stream');
+      _notifier.connect('ws://localhost:8000/iot/ph/stream');
     });
+  }
+
+  @override
+  void dispose() {
+    _notifier.disconnect();
+    super.dispose();
   }
 
   @override
