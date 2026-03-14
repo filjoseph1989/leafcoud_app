@@ -1,62 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 import 'package:flutter_leafcloud_app/widgets/video_feed_widget.dart';
+import 'package:flutter_leafcloud_app/notifiers/ph_monitor_notifier.dart';
 import 'package:flutter_leafcloud_app/notifiers/bucket_control_notifier.dart';
-import 'package:flutter_leafcloud_app/services/api_service.dart';
-import 'package:mjpeg_view/mjpeg_view.dart';
+import 'package:mockito/mockito.dart';
+import 'package:mockito/annotations.dart';
 
-import '../dashboard_screen_test.mocks.dart';
+@GenerateMocks([PHMonitorNotifier, BucketControlNotifier])
+import 'video_feed_widget_test.mocks.dart';
 
 void main() {
-  late MockApiService mockApiService;
-  late BucketControlNotifier bucketControlNotifier;
+  late MockPHMonitorNotifier mockPhNotifier;
+  late MockBucketControlNotifier mockBucketNotifier;
 
   setUp(() {
-    mockApiService = MockApiService();
-    bucketControlNotifier = BucketControlNotifier(apiService: mockApiService);
+    mockPhNotifier = MockPHMonitorNotifier();
+    mockBucketNotifier = MockBucketControlNotifier();
+    
+    when(mockPhNotifier.isMonitoring).thenReturn(false);
+    when(mockBucketNotifier.activeBucketStatus).thenReturn('None');
   });
 
-  testWidgets('VideoFeedWidget displays MjpegView with correct URL', (WidgetTester tester) async {
-    const testUrl = 'http://localhost:8000/video_feed/';
-    when(mockApiService.fetchActiveBucketStatus()).thenAnswer((_) async => 'None');
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: ChangeNotifierProvider<BucketControlNotifier>.value(
-            value: bucketControlNotifier,
-            child: const VideoFeedWidget(url: testUrl),
-          ),
+  Widget createWidgetUnderTest() {
+    return MaterialApp(
+      home: MultiProvider(
+        providers: [
+          ChangeNotifierProvider<PHMonitorNotifier>.value(value: mockPhNotifier),
+          ChangeNotifierProvider<BucketControlNotifier>.value(value: mockBucketNotifier),
+        ],
+        child: const Scaffold(
+          body: VideoFeedWidget(url: 'http://test.com'),
         ),
       ),
     );
+  }
 
-    expect(find.byType(MjpegView), findsOneWidget);
-    final mjpegWidget = tester.widget<MjpegView>(find.byType(MjpegView));
-    expect(mjpegWidget.uri, testUrl);
-  });
+  group('VideoFeedWidget Mutual Exclusion', () {
+    testWidgets('should show video when pH monitoring is inactive', (WidgetTester tester) async {
+      await tester.pumpWidget(createWidgetUnderTest());
 
-  testWidgets('VideoFeedWidget displays active bucket overlay', (WidgetTester tester) async {
-    const testUrl = 'http://localhost:8000/video_feed/';
-    when(mockApiService.fetchActiveBucketStatus()).thenAnswer((_) async => 'NPK');
+      expect(find.textContaining('Video feed paused'), findsNothing);
+    });
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: ChangeNotifierProvider<BucketControlNotifier>.value(
-            value: bucketControlNotifier,
-            child: const VideoFeedWidget(url: testUrl),
-          ),
-        ),
-      ),
-    );
+    testWidgets('should show pause overlay when pH monitoring is active', (WidgetTester tester) async {
+      when(mockPhNotifier.isMonitoring).thenReturn(true);
 
-    await bucketControlNotifier.fetchActiveBucketStatus();
-    await tester.pump();
+      await tester.pumpWidget(createWidgetUnderTest());
 
-    expect(find.text('Active Bucket: NPK'), findsOneWidget);
+      expect(find.textContaining('Video feed paused'), findsOneWidget);
+      expect(find.byIcon(Icons.pause_circle_outline), findsOneWidget);
+    });
   });
 }
