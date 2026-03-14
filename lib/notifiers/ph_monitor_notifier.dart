@@ -9,9 +9,11 @@ typedef WebSocketChannelFactory = WebSocketChannel Function(Uri url);
 class PHMonitorNotifier extends ChangeNotifier {
   final List<PHSensorData> _readings = [];
   bool _isConnected = false;
+  bool _isReconnecting = false;
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
   final WebSocketChannelFactory _channelFactory;
+  Timer? _reconnectTimer;
 
   PHMonitorNotifier({
     WebSocketChannelFactory? channelFactory,
@@ -19,29 +21,38 @@ class PHMonitorNotifier extends ChangeNotifier {
 
   List<PHSensorData> get readings => List.unmodifiable(_readings);
   bool get isConnected => _isConnected;
+  bool get isReconnecting => _isReconnecting;
 
   void connect(String url) {
     if (_isConnected) return;
+    _isReconnecting = true;
+    notifyListeners();
 
+    _establishConnection(url);
+  }
+
+  void _establishConnection(String url) {
     try {
       final uri = Uri.parse(url);
       _channel = _channelFactory(uri);
-      _isConnected = true;
-      notifyListeners();
-
+      
       _subscription = _channel!.stream.listen(
         (message) {
+          if (!_isConnected) {
+            _isConnected = true;
+            _isReconnecting = false;
+          }
           _handleMessage(message);
         },
         onDone: () {
-          _handleDisconnect();
+          _handleDisconnect(url);
         },
         onError: (error) {
-          _handleDisconnect();
+          _handleDisconnect(url);
         },
       );
     } catch (e) {
-      _handleDisconnect();
+      _handleDisconnect(url);
     }
   }
 
@@ -63,21 +74,32 @@ class PHMonitorNotifier extends ChangeNotifier {
     }
   }
 
-  void _handleDisconnect() {
+  void _handleDisconnect(String url) {
     _isConnected = false;
     _subscription?.cancel();
     _subscription = null;
     _channel = null;
+    
+    if (_isReconnecting) {
+      // Retry connection after a delay
+      _reconnectTimer?.cancel();
+      _reconnectTimer = Timer(const Duration(seconds: 5), () => _establishConnection(url));
+    }
+    
     notifyListeners();
   }
 
   void disconnect() {
-    _handleDisconnect();
+    _isReconnecting = false;
+    _reconnectTimer?.cancel();
+    _handleDisconnect('');
   }
 
   @override
   void dispose() {
-    _handleDisconnect();
+    _isReconnecting = false;
+    _reconnectTimer?.cancel();
+    _handleDisconnect('');
     super.dispose();
   }
 }
