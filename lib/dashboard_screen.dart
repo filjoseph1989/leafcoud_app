@@ -48,11 +48,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
           IconButton(
             icon: const Icon(Icons.waves_rounded),
             tooltip: 'pH Monitor',
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const PHMonitorScreen()),
               );
+              // When we return from pH monitor, show a message that video is resuming
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('pH monitoring stopped. Resuming video feed...'),
+                    duration: Duration(seconds: 2),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
             },
           ),
           IconButton(

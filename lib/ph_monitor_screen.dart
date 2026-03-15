@@ -19,13 +19,25 @@ class _PHMonitorScreenState extends State<PHMonitorScreen> {
     _notifier = context.read<PHMonitorNotifier>();
     // Connect to the WebSocket when the screen is initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _notifier.connect(const String.fromEnvironment('PH_WS_URL', defaultValue: 'ws://localhost:8000/iot/ph/stream'));
+      _notifier.connect(const String.fromEnvironment('PH_WS_URL', defaultValue: 'ws://192.168.1.7:8000/iot/ph/stream'));
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Starting pH stream... Video feed will be paused.'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.orangeAccent,
+        ),
+      );
     });
   }
 
   @override
   void dispose() {
     _notifier.disconnect();
+    
+    // We can't use the screen context here as it's being disposed
+    // Use the root navigator or scaffold messenger if possible, 
+    // but typically SnackBar is shown when we return to the previous screen.
     super.dispose();
   }
 
