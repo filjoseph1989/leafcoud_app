@@ -20,6 +20,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   static const String _videoUrl = 'http://192.168.1.7:8000/video_feed/';
+  BucketControlNotifier? _bucketNotifier;
 
   @override
   void initState() {
@@ -31,7 +32,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _bucketNotifier = Provider.of<BucketControlNotifier>(context, listen: false);
+  }
+
+  @override
   void dispose() {
+    // Ensure the pH probe session is stopped when leaving the dashboard
+    _bucketNotifier?.stopPHSession();
     super.dispose();
   }
 
@@ -115,6 +124,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Future<void> _togglePHSession(BuildContext context) async {
+    final notifier = context.read<BucketControlNotifier>();
+    await notifier.togglePHSession();
+    if (notifier.errorMessage != null && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: Could not toggle probe: ${notifier.errorMessage}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   Widget _buildBody(SensorDataNotifier notifier) {
     if (notifier.isLoading && notifier.data == null) {
       return const Center(key: ValueKey('loading'), child: CircularProgressIndicator());
@@ -176,6 +198,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _buildApiStatus(context),
             const SizedBox(height: 24),
             _buildBucketControl(context),
+            const SizedBox(height: 24),
+            _buildPHControl(context),
             const SizedBox(height: 24),
             _buildRecommendationCard(data),
             const SizedBox(height: 24),
@@ -488,6 +512,83 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Widget _buildPHControl(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 4.0),
+          child: Row(
+            children: [
+              Icon(Icons.sensors, color: Colors.blue, size: 22),
+              SizedBox(width: 8),
+              Text(
+                'pH Probe Session',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Consumer<BucketControlNotifier>(
+          builder: (context, notifier, child) {
+            final isActive = notifier.phUpdateRequested;
+            return Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha(10),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    isActive 
+                      ? 'Live session active. Probe is reading hardware values.'
+                      : 'Probe is in hybrid mode. Start live session for real-time readings.',
+                    style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: notifier.isLoading ? null : () => _togglePHSession(context),
+                      icon: notifier.isLoading 
+                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                        : Icon(isActive ? Icons.stop_circle : Icons.play_circle_fill),
+                      label: Text(
+                        isActive ? 'Stop Live Probe' : 'Start Live Probe',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isActive ? Colors.red[50] : Colors.blue[50],
+                        foregroundColor: isActive ? Colors.red[700] : Colors.blue[700],
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: isActive ? Colors.red[100]! : Colors.blue[100]!),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
   Widget _buildSensorReadings(SensorData data) {
     final sensors = data.sensors;
     if (sensors == null) return const SizedBox.shrink();
@@ -497,7 +598,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       icon: Icons.thermostat_outlined,
       children: [
         _buildGridMetric('EC', '${sensors['ec'] ?? 'N/A'}', 'mS/cm', Icons.bolt),
-        _buildGridMetric('pH', '${sensors['ph'] ?? 'N/A'}', '', Icons.opacity),
+        _buildGridMetric(
+          'pH', 
+          '${sensors['ph'] ?? 'N/A'}', 
+          '', 
+          Icons.opacity, 
+          showLiveBadge: data.phUpdateRequested,
+        ),
         _buildGridMetric('Temp', '${sensors['temp_c'] ?? sensors['temp'] ?? 'N/A'}', '°C', Icons.device_thermostat),
       ],
     );
@@ -549,45 +656,85 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildGridMetric(String label, String value, String unit, IconData icon) {
+  Widget _buildGridMetric(String label, String value, String unit, IconData icon, {bool showLiveBadge = false}) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[200]!),
+        border: Border.all(color: showLiveBadge ? Colors.red[200]! : Colors.grey[200]!),
+        boxShadow: showLiveBadge ? [
+          BoxShadow(color: Colors.red.withAlpha(20), blurRadius: 8, spreadRadius: 1)
+        ] : null,
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Stack(
+        clipBehavior: Clip.none,
         children: [
-          Icon(icon, size: 20, color: Colors.green[600]),
-          const SizedBox(height: 8),
-          FittedBox(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  value,
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                if (unit.isNotEmpty) ...[
-                  const SizedBox(width: 2),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 2.0),
-                    child: Text(
-                      unit,
-                      style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+          if (showLiveBadge)
+            Positioned(
+              top: -8,
+              right: -8,
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.4, end: 1.0),
+                duration: const Duration(milliseconds: 1000),
+                curve: Curves.easeInOut,
+                builder: (context, value, child) {
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(value),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ),
-                ],
-              ],
+                    child: const Text(
+                      'LIVE',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  );
+                },
+                onEnd: () {}, // Handled by repeating if needed, but simple pulsing is fine
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(fontSize: 11, color: Colors.grey[600], fontWeight: FontWeight.w500),
-            textAlign: TextAlign.center,
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 20, color: showLiveBadge ? Colors.red[600] : Colors.green[600]),
+              const SizedBox(height: 8),
+              FittedBox(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      value,
+                      style: TextStyle(
+                        fontSize: 20, 
+                        fontWeight: FontWeight.bold,
+                        color: showLiveBadge ? Colors.red[900] : Colors.black,
+                      ),
+                    ),
+                    if (unit.isNotEmpty) ...[
+                      const SizedBox(width: 2),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 2.0),
+                        child: Text(
+                          unit,
+                          style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(fontSize: 11, color: Colors.grey[600], fontWeight: FontWeight.w500),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         ],
       ),

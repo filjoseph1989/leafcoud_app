@@ -197,6 +197,22 @@ class MockBucketControlNotifier extends _i1.Mock
           as _i8.Future<void>);
 
   @override
+  _i8.Future<void> stopPHSession() =>
+      (super.noSuchMethod(
+            Invocation.method(#stopPHSession, []),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
+
+  @override
+  void startPHSafetyTimer({Duration? duration = const Duration(minutes: 10)}) =>
+      super.noSuchMethod(
+        Invocation.method(#startPHSafetyTimer, [], {#duration: duration}),
+        returnValueForMissingStub: null,
+      );
+
+  @override
   _i8.Future<void> restartIot() =>
       (super.noSuchMethod(
             Invocation.method(#restartIot, []),
