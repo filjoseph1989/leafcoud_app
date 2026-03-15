@@ -24,11 +24,14 @@ void main() {
       await apiService.postActiveBucket('NPK');
     });
 
-    test('fetchActiveBucketStatus returns the active bucket name', () async {
+    test('fetchActiveBucketStatus returns the active bucket name and ph_update_requested', () async {
       final client = MockClient((request) async {
         if (request.method == 'GET' &&
             request.url.toString() == '$baseUrl/control/current-status') {
-          return http.Response(jsonEncode({'active_bucket_id': 'NPK'}), 200);
+          return http.Response(jsonEncode({
+            'active_bucket_id': 'NPK',
+            'ph_update_requested': true,
+          }), 200);
         }
         return http.Response('Error', 400);
       });
@@ -36,7 +39,8 @@ void main() {
       final apiService = ApiService(client: client, baseUrl: baseUrl);
       final status = await apiService.fetchActiveBucketStatus();
 
-      expect(status, 'NPK');
+      expect(status['bucket_id'], 'NPK');
+      expect(status['ph_update_requested'], isTrue);
     });
 
     test('postActiveBucket throws an exception on error', () async {

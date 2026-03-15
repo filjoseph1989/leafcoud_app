@@ -93,17 +93,14 @@ class MockApiService extends _i1.Mock implements _i4.ApiService {
           as _i6.Future<void>);
 
   @override
-  _i6.Future<String> fetchActiveBucketStatus() =>
+  _i6.Future<Map<String, dynamic>> fetchActiveBucketStatus() =>
       (super.noSuchMethod(
             Invocation.method(#fetchActiveBucketStatus, []),
-            returnValue: _i6.Future<String>.value(
-              _i5.dummyValue<String>(
-                this,
-                Invocation.method(#fetchActiveBucketStatus, []),
-              ),
+            returnValue: _i6.Future<Map<String, dynamic>>.value(
+              <String, dynamic>{},
             ),
           )
-          as _i6.Future<String>);
+          as _i6.Future<Map<String, dynamic>>);
 
   @override
   _i6.Future<Map<String, dynamic>> fetchExperimentHistory(
@@ -143,6 +140,24 @@ class MockApiService extends _i1.Mock implements _i4.ApiService {
   _i6.Future<void> restartIot() =>
       (super.noSuchMethod(
             Invocation.method(#restartIot, []),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> requestPHUpdate() =>
+      (super.noSuchMethod(
+            Invocation.method(#requestPHUpdate, []),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> acknowledgePHUpdate() =>
+      (super.noSuchMethod(
+            Invocation.method(#acknowledgePHUpdate, []),
             returnValue: _i6.Future<void>.value(),
             returnValueForMissingStub: _i6.Future<void>.value(),
           )

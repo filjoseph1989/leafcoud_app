@@ -143,6 +143,14 @@ class MockBucketControlNotifier extends _i1.Mock
           as String);
 
   @override
+  bool get phUpdateRequested =>
+      (super.noSuchMethod(
+            Invocation.getter(#phUpdateRequested),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
   bool get isLoading =>
       (super.noSuchMethod(Invocation.getter(#isLoading), returnValue: false)
           as bool);
@@ -174,6 +182,15 @@ class MockBucketControlNotifier extends _i1.Mock
   _i8.Future<void> fetchActiveBucketStatus() =>
       (super.noSuchMethod(
             Invocation.method(#fetchActiveBucketStatus, []),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> togglePHSession() =>
+      (super.noSuchMethod(
+            Invocation.method(#togglePHSession, []),
             returnValue: _i8.Future<void>.value(),
             returnValueForMissingStub: _i8.Future<void>.value(),
           )

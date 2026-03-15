@@ -6,6 +6,7 @@ class BucketControlNotifier extends ChangeNotifier {
   final ApiService apiService;
 
   String _activeBucketStatus = 'None';
+  bool _phUpdateRequested = false;
   String? _activeExperimentId;
   String? _sendingLabel;
   bool _isLoading = false;
@@ -15,6 +16,7 @@ class BucketControlNotifier extends ChangeNotifier {
   BucketControlNotifier({required this.apiService});
 
   String get activeBucketStatus => _activeBucketStatus;
+  bool get phUpdateRequested => _phUpdateRequested;
   String? get activeExperimentId => _activeExperimentId;
   String? get sendingLabel => _sendingLabel;
   bool get isLoading => _isLoading;
@@ -56,12 +58,55 @@ class BucketControlNotifier extends ChangeNotifier {
 
   Future<void> fetchActiveBucketStatus() async {
     try {
-      _activeBucketStatus = await apiService.fetchActiveBucketStatus();
+      final status = await apiService.fetchActiveBucketStatus();
+      _activeBucketStatus = status['bucket_id'];
+      _phUpdateRequested = status['ph_update_requested'];
       _errorMessage = null;
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
       notifyListeners();
+    }
+  }
+
+  Future<void> togglePHSession() async {
+    _isLoading = true;
+    _errorMessage = null;
+    final previousState = _phUpdateRequested;
+    
+    // Optimistic update
+    _phUpdateRequested = !previousState;
+    notifyListeners();
+
+    try {
+      if (!previousState) {
+        await apiService.requestPHUpdate();
+      } else {
+        await apiService.acknowledgePHUpdate();
+      }
+      await fetchActiveBucketStatus(); // Sync with server
+    } catch (e) {
+      _errorMessage = e.toString();
+      _phUpdateRequested = previousState; // Revert on failure
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> stopPHSession() async {
+    if (_phUpdateRequested) {
+      _isLoading = true;
+      notifyListeners();
+      try {
+        await apiService.acknowledgePHUpdate();
+        await fetchActiveBucketStatus();
+      } catch (e) {
+        _errorMessage = e.toString();
+      } finally {
+        _isLoading = false;
+        notifyListeners();
+      }
     }
   }
 

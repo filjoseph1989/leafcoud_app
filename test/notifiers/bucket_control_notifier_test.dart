@@ -32,7 +32,10 @@ void main() {
 
     test('setActiveBucket calls apiService and updates status', () async {
       when(mockApiService.postActiveBucket('NPK')).thenAnswer((_) async => null);
-      when(mockApiService.fetchActiveBucketStatus()).thenAnswer((_) async => 'NPK');
+      when(mockApiService.fetchActiveBucketStatus()).thenAnswer((_) async => {
+        'bucket_id': 'NPK',
+        'ph_update_requested': false,
+      });
 
       await notifier.setActiveBucket('NPK');
 
@@ -53,7 +56,10 @@ void main() {
     });
 
     test('fetchActiveBucketStatus updates state on success', () async {
-      when(mockApiService.fetchActiveBucketStatus()).thenAnswer((_) async => 'Water');
+      when(mockApiService.fetchActiveBucketStatus()).thenAnswer((_) async => {
+        'bucket_id': 'Water',
+        'ph_update_requested': false,
+      });
 
       await notifier.fetchActiveBucketStatus();
 
@@ -62,7 +68,10 @@ void main() {
     });
 
     test('polling updates status periodically', () async {
-      when(mockApiService.fetchActiveBucketStatus()).thenAnswer((_) async => 'Mix');
+      when(mockApiService.fetchActiveBucketStatus()).thenAnswer((_) async => {
+        'bucket_id': 'Mix',
+        'ph_update_requested': false,
+      });
 
       notifier.startPolling(interval: const Duration(milliseconds: 100));
 

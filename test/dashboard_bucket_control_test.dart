@@ -6,6 +6,7 @@ import 'package:mockito/mockito.dart';
 import 'package:flutter_leafcloud_app/dashboard_screen.dart';
 import 'package:flutter_leafcloud_app/notifiers/sensor_data_notifier.dart';
 import 'package:flutter_leafcloud_app/notifiers/bucket_control_notifier.dart';
+import 'package:flutter_leafcloud_app/notifiers/ph_monitor_notifier.dart';
 import 'package:flutter_leafcloud_app/services/api_service.dart';
 import 'package:flutter_leafcloud_app/models/sensor_data.dart';
 
@@ -15,11 +16,13 @@ void main() {
   late MockApiService mockApiService;
   late SensorDataNotifier sensorDataNotifier;
   late BucketControlNotifier bucketControlNotifier;
+  late PHMonitorNotifier phMonitorNotifier;
 
   setUp(() {
     mockApiService = MockApiService();
     sensorDataNotifier = SensorDataNotifier(apiService: mockApiService);
     bucketControlNotifier = BucketControlNotifier(apiService: mockApiService);
+    phMonitorNotifier = PHMonitorNotifier(channelFactory: (_) => throw UnimplementedError());
 
     // Default mock behavior for initial sensor data fetch
     final mockData = SensorData(
@@ -28,12 +31,16 @@ void main() {
       status: 'Optimal',
     );
     when(mockApiService.fetchSensorData()).thenAnswer((_) async => mockData);
-    when(mockApiService.fetchActiveBucketStatus()).thenAnswer((_) async => 'None');
+    when(mockApiService.fetchActiveBucketStatus()).thenAnswer((_) async => {
+      'bucket_id': 'None',
+      'ph_update_requested': false,
+    });
   });
 
   tearDown(() {
     sensorDataNotifier.stopPolling();
     bucketControlNotifier.stopPolling();
+    phMonitorNotifier.dispose();
   });
 
   Future<void> setupWidget(WidgetTester tester) async {
@@ -46,6 +53,7 @@ void main() {
         providers: [
           ChangeNotifierProvider.value(value: sensorDataNotifier),
           ChangeNotifierProvider.value(value: bucketControlNotifier),
+          ChangeNotifierProvider.value(value: phMonitorNotifier),
         ],
         child: MaterialApp(
           theme: ThemeData(useMaterial3: true, splashFactory: NoSplash.splashFactory),

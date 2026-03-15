@@ -46,14 +46,17 @@ class ApiService {
     }
   }
 
-  Future<String> fetchActiveBucketStatus() async {
+  Future<Map<String, dynamic>> fetchActiveBucketStatus() async {
     // Removed trailing slash based on curl redirect results
     final response = await client.get(Uri.parse('$baseUrl/control/current-status'));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       // Updated keys to match server response: active_bucket_id
-      return data['active_bucket_id']?.toString() ?? data['bucket_id'] ?? data['active_bucket'] ?? 'None';
+      return {
+        'bucket_id': data['active_bucket_id']?.toString() ?? data['bucket_id'] ?? data['active_bucket'] ?? 'None',
+        'ph_update_requested': data['ph_update_requested'] == true,
+      };
     } else {
       throw Exception('Failed to fetch active bucket status: ${response.statusCode}');
     }
@@ -131,6 +134,28 @@ class ApiService {
 
     if (response.statusCode != 200) {
       throw Exception('Failed to restart IoT system: ${response.statusCode}');
+    }
+  }
+
+  Future<void> requestPHUpdate() async {
+    final response = await client.post(
+      Uri.parse('$baseUrl/control/request-ph-update'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to request pH update: ${response.statusCode}');
+    }
+  }
+
+  Future<void> acknowledgePHUpdate() async {
+    final response = await client.post(
+      Uri.parse('$baseUrl/control/acknowledge-ph-update'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to acknowledge pH update: ${response.statusCode}');
     }
   }
 }

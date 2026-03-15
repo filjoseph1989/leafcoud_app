@@ -47,9 +47,28 @@ class MockPHMonitorNotifier extends _i1.Mock implements _i2.PHMonitorNotifier {
           as bool);
 
   @override
+  bool get isReconnecting =>
+      (super.noSuchMethod(
+            Invocation.getter(#isReconnecting),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  bool get isMonitoring =>
+      (super.noSuchMethod(Invocation.getter(#isMonitoring), returnValue: false)
+          as bool);
+
+  @override
   bool get hasListeners =>
       (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
           as bool);
+
+  @override
+  void notifyListeners() => super.noSuchMethod(
+    Invocation.method(#notifyListeners, []),
+    returnValueForMissingStub: null,
+  );
 
   @override
   void connect(String? url) => super.noSuchMethod(
@@ -78,12 +97,6 @@ class MockPHMonitorNotifier extends _i1.Mock implements _i2.PHMonitorNotifier {
   @override
   void removeListener(_i4.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void notifyListeners() => super.noSuchMethod(
-    Invocation.method(#notifyListeners, []),
     returnValueForMissingStub: null,
   );
 }

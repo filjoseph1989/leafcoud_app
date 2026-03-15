@@ -6,6 +6,7 @@ class SensorData {
   final Map<String, dynamic>? predictions;
   final dynamic status; // Can be String or Map
   final String? recommendation;
+  final bool phUpdateRequested;
 
   SensorData({
     required this.timestamp,
@@ -15,6 +16,7 @@ class SensorData {
     this.predictions,
     this.status,
     this.recommendation,
+    this.phUpdateRequested = false,
   });
 
   factory SensorData.fromJson(Map<String, dynamic> json) {
@@ -30,6 +32,7 @@ class SensorData {
           : null,
       status: json['status'],
       recommendation: json['recommendation']?.toString(),
+      phUpdateRequested: json['ph_update_requested'] == true,
     );
   }
 
