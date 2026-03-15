@@ -16,6 +16,7 @@ void main() {
   setUp(() {
     mockNotifier = MockPHMonitorNotifier();
     when(mockNotifier.isConnected).thenReturn(false);
+    when(mockNotifier.isReconnecting).thenReturn(false);
     when(mockNotifier.readings).thenReturn([]);
   });
 

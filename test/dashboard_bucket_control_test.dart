@@ -114,21 +114,22 @@ void main() {
     await cleanupWidget(tester);
   });
 
-  testWidgets('DashboardScreen displays "Start Live Probe" button initially', (WidgetTester tester) async {
+  testWidgets('DashboardScreen displays "Update pH" button initially', (WidgetTester tester) async {
     await tester.runAsync(() => setupWidget(tester));
 
-    expect(find.text('Start Live Probe'), findsOneWidget);
-    expect(find.text('LIVE'), findsNothing);
+    expect(find.text('Update pH'), findsOneWidget);
+    expect(find.text('UPDATING'), findsNothing);
+    expect(find.textContaining('pH Correction Active'), findsNothing);
 
     await cleanupWidget(tester);
   });
 
-  testWidgets('Pressing "Start Live Probe" calls togglePHSession', (WidgetTester tester) async {
+  testWidgets('Pressing "Update pH" calls togglePHSession', (WidgetTester tester) async {
     await tester.runAsync(() => setupWidget(tester));
 
     when(mockApiService.requestPHUpdate()).thenAnswer((_) async => null);
 
-    await tester.tap(find.text('Start Live Probe'));
+    await tester.tap(find.text('Update pH'));
     await tester.pump();
 
     verify(mockApiService.requestPHUpdate()).called(1);
@@ -136,7 +137,7 @@ void main() {
     await cleanupWidget(tester);
   });
 
-  testWidgets('DashboardScreen displays "Stop Live Probe" and LIVE indicator when active', (WidgetTester tester) async {
+  testWidgets('DashboardScreen displays "Stop Updating", UPDATING indicator, and Warning Banner when active', (WidgetTester tester) async {
     // Mock active state
     when(mockApiService.fetchActiveBucketStatus()).thenAnswer((_) async => {
       'bucket_id': 'None',
@@ -153,18 +154,19 @@ void main() {
 
     await tester.runAsync(() => setupWidget(tester));
 
-    expect(find.text('Stop Live Probe'), findsOneWidget);
-    expect(find.text('LIVE'), findsOneWidget);
+    expect(find.text('Stop Updating'), findsOneWidget);
+    expect(find.text('UPDATING'), findsOneWidget);
+    expect(find.textContaining('pH Correction Active'), findsOneWidget);
 
     await cleanupWidget(tester);
   });
 
-  testWidgets('Pressing "Start Live Probe" shows snackbar on failure', (WidgetTester tester) async {
+  testWidgets('Pressing "Update pH" shows snackbar on failure', (WidgetTester tester) async {
     await tester.runAsync(() => setupWidget(tester));
 
     when(mockApiService.requestPHUpdate()).thenThrow(Exception('API Error'));
 
-    await tester.tap(find.text('Start Live Probe'));
+    await tester.tap(find.text('Update pH'));
     await tester.pump(); // Start toggle
     await tester.pump(); // Handle error and show snackbar
 
@@ -173,7 +175,7 @@ void main() {
     await cleanupWidget(tester);
   });
 
-  testWidgets('DashboardScreen calls stopPHSession on dispose if probe is active', (WidgetTester tester) async {
+  testWidgets('DashboardScreen does NOT call stopPHSession on dispose', (WidgetTester tester) async {
     final mockBucketNotifier = MockBucketControlNotifier();
     
     // Default stubs for mock notifier
@@ -181,7 +183,7 @@ void main() {
     when(mockBucketNotifier.activeBucketStatus).thenReturn('None');
     when(mockBucketNotifier.isLoading).thenReturn(false);
     when(mockBucketNotifier.errorMessage).thenReturn(null);
-    when(mockBucketNotifier.stopPHSession()).thenAnswer((_) async => null);
+    // when(mockBucketNotifier.stopPHSession()).thenAnswer((_) async => null);
 
     // Set a very large surface size to ensure everything is "visible" without scrolling
     tester.view.physicalSize = const Size(1200, 3000);
@@ -210,6 +212,7 @@ void main() {
     await tester.pumpWidget(Container());
     await tester.pump();
 
-    verify(mockBucketNotifier.stopPHSession()).called(1);
+    // Should NOT be called anymore as per persist requirements
+    verifyNever(mockBucketNotifier.stopPHSession());
   });
 }

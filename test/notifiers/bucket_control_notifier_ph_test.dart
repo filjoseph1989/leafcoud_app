@@ -104,29 +104,5 @@ void main() {
       await notifier.stopPHSession();
       verifyNever(mockApiService.acknowledgePHUpdate());
     });
-
-    test('automatic safety timeout calls stopPHSession after delay', () async {
-      // Mock active state
-      when(mockApiService.fetchActiveBucketStatus()).thenAnswer((_) async => {
-        'bucket_id': 'None',
-        'ph_update_requested': true,
-      });
-      await notifier.fetchActiveBucketStatus();
-      expect(notifier.phUpdateRequested, isTrue);
-
-      when(mockApiService.acknowledgePHUpdate()).thenAnswer((_) async => null);
-      when(mockApiService.fetchActiveBucketStatus()).thenAnswer((_) async => {
-        'bucket_id': 'None',
-        'ph_update_requested': false,
-      });
-      
-      // We'll need to implement this in the notifier
-      notifier.startPHSafetyTimer(duration: const Duration(milliseconds: 100));
-
-      await Future.delayed(const Duration(milliseconds: 250));
-
-      verify(mockApiService.acknowledgePHUpdate()).called(1);
-      expect(notifier.phUpdateRequested, isFalse);
-    });
   });
 }

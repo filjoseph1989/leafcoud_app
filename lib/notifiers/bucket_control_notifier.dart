@@ -12,7 +12,6 @@ class BucketControlNotifier extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   Timer? _timer;
-  Timer? _safetyTimer;
 
   BucketControlNotifier({required this.apiService});
 
@@ -82,10 +81,8 @@ class BucketControlNotifier extends ChangeNotifier {
     try {
       if (!previousState) {
         await apiService.requestPHUpdate();
-        startPHSafetyTimer(); // Start safety timer on activation
       } else {
         await apiService.acknowledgePHUpdate();
-        _safetyTimer?.cancel();
       }
       await fetchActiveBucketStatus(); // Sync with server
     } catch (e) {
@@ -103,7 +100,6 @@ class BucketControlNotifier extends ChangeNotifier {
       if (hasListeners) notifyListeners();
       try {
         await apiService.acknowledgePHUpdate();
-        _safetyTimer?.cancel();
         await fetchActiveBucketStatus();
       } catch (e) {
         _errorMessage = e.toString();
@@ -112,15 +108,6 @@ class BucketControlNotifier extends ChangeNotifier {
         if (hasListeners) notifyListeners();
       }
     }
-  }
-
-  void startPHSafetyTimer({Duration duration = const Duration(minutes: 10)}) {
-    _safetyTimer?.cancel();
-    _safetyTimer = Timer(duration, () {
-      if (_phUpdateRequested) {
-        stopPHSession();
-      }
-    });
   }
 
   Future<void> restartIot() async {
@@ -149,14 +136,11 @@ class BucketControlNotifier extends ChangeNotifier {
   void stopPolling() {
     _timer?.cancel();
     _timer = null;
-    _safetyTimer?.cancel();
-    _safetyTimer = null;
   }
 
   @override
   void dispose() {
     stopPolling();
-    stopPHSession(); // Fire and forget on dispose
     super.dispose();
   }
 }

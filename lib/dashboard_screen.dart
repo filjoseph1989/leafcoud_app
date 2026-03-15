@@ -39,8 +39,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   void dispose() {
-    // Ensure the pH probe session is stopped when leaving the dashboard
-    _bucketNotifier?.stopPHSession();
+    // Session now persists across navigation/disposal as per correction track requirements
     super.dispose();
   }
 
@@ -58,13 +57,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
             icon: const Icon(Icons.waves_rounded),
             tooltip: 'pH Monitor',
             onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
               await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const PHMonitorScreen()),
               );
               // When we return from pH monitor, show a message that video is resuming
               if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                messenger.showSnackBar(
                   const SnackBar(
                     content: Text('pH monitoring stopped. Resuming video feed...'),
                     duration: Duration(seconds: 2),
@@ -126,9 +126,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> _togglePHSession(BuildContext context) async {
     final notifier = context.read<BucketControlNotifier>();
+    final messenger = ScaffoldMessenger.of(context);
     await notifier.togglePHSession();
     if (notifier.errorMessage != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(
           content: Text('Error: Could not toggle probe: ${notifier.errorMessage}'),
           backgroundColor: Colors.red,
@@ -193,6 +194,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            _buildWarningBanner(),
             _buildHeader(data),
             const SizedBox(height: 24),
             _buildApiStatus(context),
@@ -211,6 +213,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildWarningBanner() {
+    return Consumer<BucketControlNotifier>(
+      builder: (context, notifier, child) {
+        if (!notifier.phUpdateRequested) return const SizedBox.shrink();
+        
+        return Container(
+          width: double.infinity,
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.red[700],
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.red.withAlpha(40),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: const Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'pH Correction Active: Raspberry Pi is in high-power mode updating historical records.',
+                  style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -520,10 +559,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           padding: EdgeInsets.symmetric(horizontal: 4.0),
           child: Row(
             children: [
-              Icon(Icons.sensors, color: Colors.blue, size: 22),
+              Icon(Icons.history_edu, color: Colors.blue, size: 22),
               SizedBox(width: 8),
               Text(
-                'pH Probe Session',
+                'pH History Correction',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ],
@@ -551,8 +590,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   Text(
                     isActive 
-                      ? 'Live session active. Probe is reading hardware values.'
-                      : 'Probe is in hybrid mode. Start live session for real-time readings.',
+                      ? 'Correction session active. Pi is updating historical records.'
+                      : 'Probe is in hybrid mode. Start correction to backfill historical data.',
                     style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                     textAlign: TextAlign.center,
                   ),
@@ -563,9 +602,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       onPressed: notifier.isLoading ? null : () => _togglePHSession(context),
                       icon: notifier.isLoading 
                         ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                        : Icon(isActive ? Icons.stop_circle : Icons.play_circle_fill),
+                        : Icon(isActive ? Icons.pause_circle_filled : Icons.history_edu),
                       label: Text(
-                        isActive ? 'Stop Live Probe' : 'Start Live Probe',
+                        isActive ? 'Stop Updating' : 'Update pH',
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       style: ElevatedButton.styleFrom(
@@ -686,7 +725,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Text(
-                      'LIVE',
+                      'UPDATING',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 8,
