@@ -562,7 +562,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Icon(Icons.history_edu, color: Colors.blue, size: 22),
               SizedBox(width: 8),
               Text(
-                'pH History Correction',
+                'Update PH',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ],

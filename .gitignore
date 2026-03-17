@@ -11,4 +11,10 @@ build/
 # Log files
 *.log
 context/
-.docsconductor/
+
+.docs/
+conductor/product.md
+conductor/tech-stack.md
+conductor/tracks.md
+conductor/tracks/
+coverage/
