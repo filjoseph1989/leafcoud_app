@@ -3,17 +3,14 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i8;
-import 'dart:ui' as _i5;
+import 'dart:async' as _i5;
+import 'dart:ui' as _i6;
 
-import 'package:flutter_leafcloud_app/models/ph_sensor_data.dart' as _i4;
 import 'package:flutter_leafcloud_app/notifiers/bucket_control_notifier.dart'
-    as _i6;
-import 'package:flutter_leafcloud_app/notifiers/ph_monitor_notifier.dart'
     as _i3;
 import 'package:flutter_leafcloud_app/services/api_service.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i7;
+import 'package:mockito/src/dummies.dart' as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -35,87 +32,11 @@ class _FakeApiService_0 extends _i1.SmartFake implements _i2.ApiService {
     : super(parent, parentInvocation);
 }
 
-/// A class which mocks [PHMonitorNotifier].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockPHMonitorNotifier extends _i1.Mock implements _i3.PHMonitorNotifier {
-  MockPHMonitorNotifier() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  List<_i4.PHSensorData> get readings =>
-      (super.noSuchMethod(
-            Invocation.getter(#readings),
-            returnValue: <_i4.PHSensorData>[],
-          )
-          as List<_i4.PHSensorData>);
-
-  @override
-  bool get isConnected =>
-      (super.noSuchMethod(Invocation.getter(#isConnected), returnValue: false)
-          as bool);
-
-  @override
-  bool get isReconnecting =>
-      (super.noSuchMethod(
-            Invocation.getter(#isReconnecting),
-            returnValue: false,
-          )
-          as bool);
-
-  @override
-  bool get isMonitoring =>
-      (super.noSuchMethod(Invocation.getter(#isMonitoring), returnValue: false)
-          as bool);
-
-  @override
-  bool get hasListeners =>
-      (super.noSuchMethod(Invocation.getter(#hasListeners), returnValue: false)
-          as bool);
-
-  @override
-  void notifyListeners() => super.noSuchMethod(
-    Invocation.method(#notifyListeners, []),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void connect(String? url) => super.noSuchMethod(
-    Invocation.method(#connect, [url]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void disconnect() => super.noSuchMethod(
-    Invocation.method(#disconnect, []),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void dispose() => super.noSuchMethod(
-    Invocation.method(#dispose, []),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void addListener(_i5.VoidCallback? listener) => super.noSuchMethod(
-    Invocation.method(#addListener, [listener]),
-    returnValueForMissingStub: null,
-  );
-
-  @override
-  void removeListener(_i5.VoidCallback? listener) => super.noSuchMethod(
-    Invocation.method(#removeListener, [listener]),
-    returnValueForMissingStub: null,
-  );
-}
-
 /// A class which mocks [BucketControlNotifier].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockBucketControlNotifier extends _i1.Mock
-    implements _i6.BucketControlNotifier {
+    implements _i3.BucketControlNotifier {
   MockBucketControlNotifier() {
     _i1.throwOnMissingStub(this);
   }
@@ -135,7 +56,7 @@ class MockBucketControlNotifier extends _i1.Mock
   String get activeBucketStatus =>
       (super.noSuchMethod(
             Invocation.getter(#activeBucketStatus),
-            returnValue: _i7.dummyValue<String>(
+            returnValue: _i4.dummyValue<String>(
               this,
               Invocation.getter(#activeBucketStatus),
             ),
@@ -161,65 +82,58 @@ class MockBucketControlNotifier extends _i1.Mock
           as bool);
 
   @override
-  _i8.Future<void> setActiveBucket(String? label) =>
+  _i5.Future<void> setActiveBucket(String? label) =>
       (super.noSuchMethod(
             Invocation.method(#setActiveBucket, [label]),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  _i8.Future<void> setExperimentId(String? experimentId) =>
+  _i5.Future<void> setExperimentId(String? experimentId) =>
       (super.noSuchMethod(
             Invocation.method(#setExperimentId, [experimentId]),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  _i8.Future<void> fetchActiveBucketStatus() =>
+  _i5.Future<void> fetchActiveBucketStatus() =>
       (super.noSuchMethod(
             Invocation.method(#fetchActiveBucketStatus, []),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  _i8.Future<void> togglePHSession() =>
+  _i5.Future<void> togglePHSession() =>
       (super.noSuchMethod(
             Invocation.method(#togglePHSession, []),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  _i8.Future<void> stopPHSession() =>
+  _i5.Future<void> stopPHSession() =>
       (super.noSuchMethod(
             Invocation.method(#stopPHSession, []),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  void startPHSafetyTimer({Duration? duration = const Duration(minutes: 10)}) =>
-      super.noSuchMethod(
-        Invocation.method(#startPHSafetyTimer, [], {#duration: duration}),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  _i8.Future<void> restartIot() =>
+  _i5.Future<void> restartIot() =>
       (super.noSuchMethod(
             Invocation.method(#restartIot, []),
-            returnValue: _i8.Future<void>.value(),
-            returnValueForMissingStub: _i8.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i8.Future<void>);
+          as _i5.Future<void>);
 
   @override
   void startPolling({Duration? interval = const Duration(seconds: 2)}) =>
@@ -241,13 +155,13 @@ class MockBucketControlNotifier extends _i1.Mock
   );
 
   @override
-  void addListener(_i5.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i6.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i5.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i6.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
