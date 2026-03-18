@@ -54,47 +54,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.waves_rounded),
-            tooltip: 'pH Monitor',
-            onPressed: () async {
-              final messenger = ScaffoldMessenger.of(context);
-              await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const PHMonitorScreen()),
-              );
-              // When we return from pH monitor, show a message that video is resuming
-              if (mounted) {
-                messenger.showSnackBar(
-                  const SnackBar(
-                    content: Text('pH monitoring stopped. Resuming video feed...'),
-                    duration: Duration(seconds: 2),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              }
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.tune),
-            tooltip: 'Experiment Management',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ExperimentManagementScreen()),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.photo_library),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ImageGalleryScreen()),
-              );
-            },
-          ),
-          IconButton(
             icon: const Icon(Icons.notifications_none),
+            tooltip: 'Alerts',
             onPressed: () {
               Navigator.push(
                 context,
@@ -102,16 +63,98 @@ class _DashboardScreenState extends State<DashboardScreen> {
               );
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.history),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => HistoryScreen()),
-              );
-            },
-          ),
         ],
+      ),
+      drawer: Drawer(
+        child: Column(
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.green[700],
+              ),
+              child: const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.cloud_queue, color: Colors.white, size: 48),
+                    SizedBox(height: 12),
+                    Text(
+                      'LeafCloud',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.waves_rounded),
+              title: const Text('pH Monitor'),
+              onTap: () async {
+                Navigator.pop(context); // Close drawer
+                final messenger = ScaffoldMessenger.of(context);
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PHMonitorScreen()),
+                );
+                if (mounted) {
+                  messenger.showSnackBar(
+                    const SnackBar(
+                      content: Text('pH monitoring stopped. Resuming video feed...'),
+                      duration: Duration(seconds: 2),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.tune),
+              title: const Text('Experiment Management'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ExperimentManagementScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Image Gallery'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ImageGalleryScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.history),
+              title: const Text('History'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HistoryScreen()),
+                );
+              },
+            ),
+            const Spacer(),
+            const Divider(),
+            const Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Text(
+                'v1.0.0',
+                style: TextStyle(color: Colors.grey, fontSize: 12),
+              ),
+            ),
+          ],
+        ),
       ),
       body: Consumer<SensorDataNotifier>(
         builder: (context, notifier, child) {
@@ -562,7 +605,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Icon(Icons.history_edu, color: Colors.blue, size: 22),
               SizedBox(width: 8),
               Text(
-                'pH History Correction',
+                'Update PH',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ],
