@@ -193,4 +193,16 @@ class ApiService {
       throw Exception('Failed to stop calibration: ${response.statusCode}');
     }
   }
+
+  Future<void> requestCalibration(String type) async {
+    final response = await client.post(
+      Uri.parse('$baseUrl/control/request-calibration'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'type': type}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to request $type calibration: ${response.statusCode}');
+    }
+  }
 }

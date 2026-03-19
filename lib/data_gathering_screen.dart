@@ -107,10 +107,10 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
                 crossAxisSpacing: 12,
                 childAspectRatio: 5,
                 children: [
-                  _buildCalibrationButton(context, 'EC 1413 Calibrate', () => _handleCalibration(context, 'EC', 1413.0)),
-                  _buildCalibrationButton(context, 'PH 4.01 Calibrate', () => _handleCalibration(context, 'PH', 4.01)),
-                  _buildCalibrationButton(context, 'PH 8.86 Calibrate', () => _handleCalibration(context, 'PH', 8.86)),
-                  _buildCalibrationButton(context, 'STOP Calibration', () => _handleStopCalibration(context), isStop: true),
+                  _buildCalibrationButton(context, 'EC 1413 Calibrate', () => _handleProtocolCalibration(context, 'ec')),
+                  _buildCalibrationButton(context, 'PH 4.01 Calibrate', () => _handleProtocolCalibration(context, 'ph_401')),
+                  _buildCalibrationButton(context, 'PH 8.86 Calibrate', () => _handleProtocolCalibration(context, 'ph_686')),
+                  _buildCalibrationButton(context, 'STOP Calibration', () => _handleProtocolCalibration(context, 'stop'), isStop: true),
                 ],
               ),
             ],
@@ -140,28 +140,25 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
     );
   }
 
-  Future<void> _handleStopCalibration(BuildContext context) async {
+  Future<void> _handleProtocolCalibration(BuildContext context, String type) async {
     final messenger = ScaffoldMessenger.of(context);
     final apiService = context.read<BucketControlNotifier>().apiService;
 
-    try {
-      await apiService.postStopCalibration();
-      messenger.showSnackBar(const SnackBar(content: Text('Calibration stopped successfully'), backgroundColor: Colors.green));
-    } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('Failed to stop calibration: $e'), backgroundColor: Colors.red));
+    if (type == 'stop') {
+      try {
+        await apiService.requestCalibration('stop');
+        messenger.showSnackBar(const SnackBar(content: Text('Calibration stopped successfully'), backgroundColor: Colors.green));
+      } catch (e) {
+        messenger.showSnackBar(SnackBar(content: Text('Failed to stop calibration: $e'), backgroundColor: Colors.red));
+      }
+      return;
     }
-  }
 
-  Future<void> _handleCalibration(BuildContext context, String type, double value) async {
-    final messenger = ScaffoldMessenger.of(context);
-    final apiService = context.read<BucketControlNotifier>().apiService;
-    
-    // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Confirm $type Calibration'),
-        content: Text('Are you sure you want to calibrate $type to $value? Ensure the probe is in the correct solution.'),
+        title: Text('Confirm Calibration ($type)'),
+        content: Text('Are you sure you want to request $type calibration? Ensure the probe is in the correct solution.'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('CANCEL')),
           TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('CALIBRATE')),
@@ -172,14 +169,10 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
     if (confirmed != true) return;
 
     try {
-      if (type == 'EC') {
-        await apiService.postCalibrateEC(value);
-      } else {
-        await apiService.postCalibratePH(value);
-      }
-      messenger.showSnackBar(SnackBar(content: Text('$type Calibrated to $value successfully'), backgroundColor: Colors.green));
+      await apiService.requestCalibration(type);
+      messenger.showSnackBar(SnackBar(content: Text('$type calibration request sent successfully'), backgroundColor: Colors.green));
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('Calibration failed: $e'), backgroundColor: Colors.red));
+      messenger.showSnackBar(SnackBar(content: Text('Calibration request failed: $e'), backgroundColor: Colors.red));
     }
   }
 
