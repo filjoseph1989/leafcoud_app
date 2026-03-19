@@ -110,6 +110,7 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
                   _buildCalibrationButton(context, 'EC 1413 Calibrate', () => _handleCalibration(context, 'EC', 1413.0)),
                   _buildCalibrationButton(context, 'PH 4.01 Calibrate', () => _handleCalibration(context, 'PH', 4.01)),
                   _buildCalibrationButton(context, 'PH 8.86 Calibrate', () => _handleCalibration(context, 'PH', 8.86)),
+                  _buildCalibrationButton(context, 'STOP Calibration', () => _handleStopCalibration(context), isStop: true),
                 ],
               ),
             ],
@@ -119,16 +120,16 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
     );
   }
 
-  Widget _buildCalibrationButton(BuildContext context, String label, VoidCallback onPressed) {
+  Widget _buildCalibrationButton(BuildContext context, String label, VoidCallback onPressed, {bool isStop = false}) {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.purple[50],
-        foregroundColor: Colors.purple[700],
+        backgroundColor: isStop ? Colors.red[50] : Colors.purple[50],
+        foregroundColor: isStop ? Colors.red[700] : Colors.purple[700],
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: Colors.purple[100]!),
+          side: BorderSide(color: isStop ? Colors.red[100]! : Colors.purple[100]!),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       ),
@@ -137,6 +138,18 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
         style: const TextStyle(fontWeight: FontWeight.bold),
       ),
     );
+  }
+
+  Future<void> _handleStopCalibration(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final apiService = context.read<BucketControlNotifier>().apiService;
+
+    try {
+      await apiService.postStopCalibration();
+      messenger.showSnackBar(const SnackBar(content: Text('Calibration stopped successfully'), backgroundColor: Colors.green));
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('Failed to stop calibration: $e'), backgroundColor: Colors.red));
+    }
   }
 
   Future<void> _handleCalibration(BuildContext context, String type, double value) async {

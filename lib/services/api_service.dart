@@ -182,4 +182,15 @@ class ApiService {
       throw Exception('Failed to calibrate pH: ${response.statusCode}');
     }
   }
+
+  Future<void> postStopCalibration() async {
+    final response = await client.post(
+      Uri.parse('$baseUrl/control/stop-calibration'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to stop calibration: ${response.statusCode}');
+    }
+  }
 }
