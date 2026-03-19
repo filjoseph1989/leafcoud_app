@@ -158,4 +158,28 @@ class ApiService {
       throw Exception('Failed to acknowledge pH update: ${response.statusCode}');
     }
   }
+
+  Future<void> postCalibrateEC(double value) async {
+    final response = await client.post(
+      Uri.parse('$baseUrl/control/calibrate-ec'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'value': value}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to calibrate EC: ${response.statusCode}');
+    }
+  }
+
+  Future<void> postCalibratePH(double value) async {
+    final response = await client.post(
+      Uri.parse('$baseUrl/control/calibrate-ph'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'value': value}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to calibrate pH: ${response.statusCode}');
+    }
+  }
 }

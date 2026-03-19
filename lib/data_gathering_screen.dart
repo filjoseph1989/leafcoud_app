@@ -54,6 +54,8 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
                   const SizedBox(height: 24),
                   _buildPHControl(context),
                   const SizedBox(height: 24),
+                  _buildCalibrationControl(context),
+                  const SizedBox(height: 24),
                   _buildSystemControl(context),
                 ],
               ),
@@ -62,6 +64,110 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
         },
       ),
     );
+  }
+
+  Widget _buildCalibrationControl(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 4.0),
+          child: Row(
+            children: [
+              Icon(Icons.compass_calibration, color: Colors.purple, size: 22),
+              SizedBox(width: 8),
+              Text(
+                'Sensor Calibration',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(10),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              GridView.count(
+                crossAxisCount: 1,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 5,
+                children: [
+                  _buildCalibrationButton(context, 'EC 1413 Calibrate', () => _handleCalibration(context, 'EC', 1413.0)),
+                  _buildCalibrationButton(context, 'PH 4.01 Calibrate', () => _handleCalibration(context, 'PH', 4.01)),
+                  _buildCalibrationButton(context, 'PH 8.86 Calibrate', () => _handleCalibration(context, 'PH', 8.86)),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCalibrationButton(BuildContext context, String label, VoidCallback onPressed) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.purple[50],
+        foregroundColor: Colors.purple[700],
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: Colors.purple[100]!),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Future<void> _handleCalibration(BuildContext context, String type, double value) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final apiService = context.read<BucketControlNotifier>().apiService;
+    
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Confirm $type Calibration'),
+        content: Text('Are you sure you want to calibrate $type to $value? Ensure the probe is in the correct solution.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('CANCEL')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('CALIBRATE')),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      if (type == 'EC') {
+        await apiService.postCalibrateEC(value);
+      } else {
+        await apiService.postCalibratePH(value);
+      }
+      messenger.showSnackBar(SnackBar(content: Text('$type Calibrated to $value successfully'), backgroundColor: Colors.green));
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('Calibration failed: $e'), backgroundColor: Colors.red));
+    }
   }
 
   Widget _buildSystemControl(BuildContext context) {
