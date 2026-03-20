@@ -31,9 +31,9 @@ void main() {
       expect(await connectionService.getSavedPort(), '8080');
     });
 
-    test('checkHealth returns true when /health responds with 200', () async {
+    test('checkHealth returns true when /app/latest_status/ responds with 200', () async {
       mockClient = MockClient((request) async {
-        if (request.url.path == '/health') {
+        if (request.url.path == '/app/latest_status/') {
           return http.Response('{"status": "ok"}', 200);
         }
         return http.Response('Not Found', 404);
@@ -45,24 +45,7 @@ void main() {
       expect(result, isTrue);
     });
 
-    test('checkHealth returns true when /health is 404 but root / responds with 200', () async {
-      mockClient = MockClient((request) async {
-        if (request.url.path == '/health') {
-          return http.Response('Not Found', 404);
-        }
-        if (request.url.path == '/') {
-          return http.Response('OK', 200);
-        }
-        return http.Response('Error', 500);
-      });
-
-      connectionService = ConnectionService(client: mockClient);
-      final result = await connectionService.checkHealth('1.2.3.4', '80');
-
-      expect(result, isTrue);
-    });
-
-    test('checkHealth returns false when server responds with error on both /health and /', () async {
+    test('checkHealth returns false when server responds with error', () async {
       mockClient = MockClient((request) async {
         return http.Response('Error', 500);
       });
