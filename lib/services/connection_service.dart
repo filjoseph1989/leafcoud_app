@@ -28,15 +28,9 @@ class ConnectionService {
   Future<bool> checkHealth(String ip, String port) async {
     final baseUrl = getBaseUrl(ip, port);
     try {
-      // Try /health first, then fallback to root / if it fails with 404
-      var response = await client.get(Uri.parse('$baseUrl/health')).timeout(const Duration(seconds: 5));
-      if (response.statusCode == 200) return true;
-      
-      if (response.statusCode == 404) {
-        response = await client.get(Uri.parse('$baseUrl/')).timeout(const Duration(seconds: 5));
-        return response.statusCode == 200;
-      }
-      return false;
+      // Use /app/latest_status/ to verify server is reachable
+      final response = await client.get(Uri.parse('$baseUrl/app/latest_status/')).timeout(const Duration(seconds: 5));
+      return response.statusCode == 200;
     } catch (e) {
       return false;
     }
