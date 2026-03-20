@@ -5,7 +5,7 @@ class ConnectionService {
   final http.Client client;
   static const String keyIp = 'server_ip';
   static const String keyPort = 'server_port';
-  static const String defaultBaseUrl = 'https://leafcloud-server.onrender.com';
+  static const String defaultBaseUrl = 'http://192.168.1.7:8000';
 
   ConnectionService({required this.client});
 
@@ -28,8 +28,15 @@ class ConnectionService {
   Future<bool> checkHealth(String ip, String port) async {
     final baseUrl = getBaseUrl(ip, port);
     try {
-      final response = await client.get(Uri.parse('$baseUrl/health')).timeout(const Duration(seconds: 5));
-      return response.statusCode == 200;
+      // Try /health first, then fallback to root / if it fails with 404
+      var response = await client.get(Uri.parse('$baseUrl/health')).timeout(const Duration(seconds: 5));
+      if (response.statusCode == 200) return true;
+      
+      if (response.statusCode == 404) {
+        response = await client.get(Uri.parse('$baseUrl/')).timeout(const Duration(seconds: 5));
+        return response.statusCode == 200;
+      }
+      return false;
     } catch (e) {
       return false;
     }
