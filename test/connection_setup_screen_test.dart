@@ -101,7 +101,7 @@ void main() {
     testWidgets('Connects to default on "Use Default" tap', (WidgetTester tester) async {
       when(mockConnectionService.getSavedIp()).thenAnswer((_) async => null);
       when(mockConnectionService.getSavedPort()).thenAnswer((_) async => null);
-      when(mockConnectionService.getBaseUrl('', '')).thenReturn('https://leafcloud-server.onrender.com');
+      when(mockConnectionService.getBaseUrl('', '')).thenReturn('http://192.168.1.7:8000');
       when(mockConnectionService.checkHealth('', '')).thenAnswer((_) async => true);
 
       await tester.pumpWidget(createWidgetUnderTest());
@@ -112,7 +112,7 @@ void main() {
 
       verify(mockConnectionService.checkHealth('', '')).called(1);
       verify(mockConnectionService.saveConnectionSettings('', '')).called(1);
-      verify(mockApiService.baseUrl = 'https://leafcloud-server.onrender.com').called(1);
+      verify(mockApiService.baseUrl = 'http://192.168.1.7:8000').called(1);
     });
   });
 }
