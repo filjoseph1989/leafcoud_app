@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -27,11 +28,14 @@ class ConnectionService {
 
   Future<bool> checkHealth(String ip, String port) async {
     final baseUrl = getBaseUrl(ip, port);
+    debugPrint('ConnectionService: Checking health for $baseUrl/app/latest_status/');
     try {
       // Use /app/latest_status/ to verify server is reachable
       final response = await client.get(Uri.parse('$baseUrl/app/latest_status/')).timeout(const Duration(seconds: 5));
+      debugPrint('ConnectionService: Health check response status: ${response.statusCode}');
       return response.statusCode == 200;
     } catch (e) {
+      debugPrint('ConnectionService: Health check failed with error: $e');
       return false;
     }
   }
