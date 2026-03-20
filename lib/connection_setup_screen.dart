@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_leafcloud_app/services/connection_service.dart';
+import 'package:flutter_leafcloud_app/services/api_service.dart';
 import 'package:flutter_leafcloud_app/login_screen.dart';
 
 class ConnectionSetupScreen extends StatefulWidget {
@@ -49,6 +50,9 @@ class _ConnectionSetupScreenState extends State<ConnectionSetupScreen> {
     if (success) {
       await service.saveConnectionSettings(ip, port);
       if (mounted) {
+        // Update ApiService baseUrl globally
+        Provider.of<ApiService>(context, listen: false).baseUrl = service.getBaseUrl(ip, port);
+        
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const LoginScreen()),
         );

@@ -65,6 +65,12 @@ class MockApiService extends _i1.Mock implements _i4.ApiService {
           as String);
 
   @override
+  set baseUrl(String? value) => super.noSuchMethod(
+    Invocation.setter(#baseUrl, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
   _i6.Future<_i3.SensorData> fetchSensorData() =>
       (super.noSuchMethod(
             Invocation.method(#fetchSensorData, []),

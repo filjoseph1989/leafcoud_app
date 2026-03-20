@@ -2,24 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_leafcloud_app/connection_setup_screen.dart';
 import 'package:flutter_leafcloud_app/services/connection_service.dart';
+import 'package:flutter_leafcloud_app/services/api_service.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
-@GenerateMocks([ConnectionService])
+@GenerateMocks([ConnectionService, ApiService])
 import 'connection_setup_screen_test.mocks.dart';
 
 void main() {
-  late MockConnectionService mockService;
+  late MockConnectionService mockConnectionService;
+  late MockApiService mockApiService;
 
   setUp(() {
-    mockService = MockConnectionService();
+    mockConnectionService = MockConnectionService();
+    mockApiService = MockApiService();
+    
+    // Default mock behavior
+    when(mockApiService.client).thenReturn(http.Client());
+    when(mockApiService.baseUrl).thenReturn('http://placeholder');
   });
 
   Widget createWidgetUnderTest() {
     return MaterialApp(
-      home: Provider<ConnectionService>.value(
-        value: mockService,
+      home: MultiProvider(
+        providers: [
+          Provider<ConnectionService>.value(value: mockConnectionService),
+          Provider<ApiService>.value(value: mockApiService),
+        ],
         child: const ConnectionSetupScreen(),
       ),
     );
@@ -27,8 +38,8 @@ void main() {
 
   group('ConnectionSetupScreen', () {
     testWidgets('renders IP and Port fields', (WidgetTester tester) async {
-      when(mockService.getSavedIp()).thenAnswer((_) async => null);
-      when(mockService.getSavedPort()).thenAnswer((_) async => null);
+      when(mockConnectionService.getSavedIp()).thenAnswer((_) async => null);
+      when(mockConnectionService.getSavedPort()).thenAnswer((_) async => null);
 
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pump();
@@ -39,8 +50,8 @@ void main() {
     });
 
     testWidgets('pre-fills saved IP and Port', (WidgetTester tester) async {
-      when(mockService.getSavedIp()).thenAnswer((_) async => '1.2.3.4');
-      when(mockService.getSavedPort()).thenAnswer((_) async => '8080');
+      when(mockConnectionService.getSavedIp()).thenAnswer((_) async => '1.2.3.4');
+      when(mockConnectionService.getSavedPort()).thenAnswer((_) async => '8080');
 
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pump();
@@ -50,9 +61,10 @@ void main() {
     });
 
     testWidgets('shows loading indicator and performs health check on Connect', (WidgetTester tester) async {
-      when(mockService.getSavedIp()).thenAnswer((_) async => '1.2.3.4');
-      when(mockService.getSavedPort()).thenAnswer((_) async => '8080');
-      when(mockService.checkHealth(any, any)).thenAnswer((_) async {
+      when(mockConnectionService.getSavedIp()).thenAnswer((_) async => '1.2.3.4');
+      when(mockConnectionService.getSavedPort()).thenAnswer((_) async => '8080');
+      when(mockConnectionService.getBaseUrl(any, any)).thenReturn('http://1.2.3.4:8080');
+      when(mockConnectionService.checkHealth(any, any)).thenAnswer((_) async {
         await Future.delayed(const Duration(milliseconds: 100));
         return true;
       });
@@ -66,14 +78,15 @@ void main() {
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
       await tester.pump(const Duration(milliseconds: 100));
-      verify(mockService.checkHealth('1.2.3.4', '8080')).called(1);
-      verify(mockService.saveConnectionSettings('1.2.3.4', '8080')).called(1);
+      verify(mockConnectionService.checkHealth('1.2.3.4', '8080')).called(1);
+      verify(mockConnectionService.saveConnectionSettings('1.2.3.4', '8080')).called(1);
+      verify(mockApiService.baseUrl = 'http://1.2.3.4:8080').called(1);
     });
 
     testWidgets('shows error message on health check failure', (WidgetTester tester) async {
-      when(mockService.getSavedIp()).thenAnswer((_) async => null);
-      when(mockService.getSavedPort()).thenAnswer((_) async => null);
-      when(mockService.checkHealth(any, any)).thenAnswer((_) async => false);
+      when(mockConnectionService.getSavedIp()).thenAnswer((_) async => null);
+      when(mockConnectionService.getSavedPort()).thenAnswer((_) async => null);
+      when(mockConnectionService.checkHealth(any, any)).thenAnswer((_) async => false);
 
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pump();
@@ -86,9 +99,10 @@ void main() {
     });
 
     testWidgets('Connects to default on "Use Default" tap', (WidgetTester tester) async {
-      when(mockService.getSavedIp()).thenAnswer((_) async => null);
-      when(mockService.getSavedPort()).thenAnswer((_) async => null);
-      when(mockService.checkHealth('', '')).thenAnswer((_) async => true);
+      when(mockConnectionService.getSavedIp()).thenAnswer((_) async => null);
+      when(mockConnectionService.getSavedPort()).thenAnswer((_) async => null);
+      when(mockConnectionService.getBaseUrl('', '')).thenReturn('https://leafcloud-server.onrender.com');
+      when(mockConnectionService.checkHealth('', '')).thenAnswer((_) async => true);
 
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pump();
@@ -96,8 +110,9 @@ void main() {
       await tester.tap(find.text('Use Default'));
       await tester.pumpAndSettle();
 
-      verify(mockService.checkHealth('', '')).called(1);
-      verify(mockService.saveConnectionSettings('', '')).called(1);
+      verify(mockConnectionService.checkHealth('', '')).called(1);
+      verify(mockConnectionService.saveConnectionSettings('', '')).called(1);
+      verify(mockApiService.baseUrl = 'https://leafcloud-server.onrender.com').called(1);
     });
   });
 }

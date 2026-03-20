@@ -5,7 +5,7 @@ import 'package:flutter_leafcloud_app/models/image_info.dart';
 
 class ApiService {
   final http.Client client;
-  final String baseUrl;
+  String baseUrl;
 
   ApiService({required this.client, required this.baseUrl});
 
