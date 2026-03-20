@@ -43,7 +43,10 @@ class _ImageSliderScreenState extends State<ImageSliderScreen> {
           ),
           TextButton(
             onPressed: () async {
-              Navigator.of(context).pop();
+              final navigator = Navigator.of(context);
+              final scaffoldMessenger = ScaffoldMessenger.of(context);
+              
+              navigator.pop();
               try {
                 final notifier = context.read<ImageManagementNotifier>();
                 final imagesCount = notifier.images.length;
@@ -51,7 +54,7 @@ class _ImageSliderScreenState extends State<ImageSliderScreen> {
                 await notifier.deleteImage(image);
                 
                 if (imagesCount <= 1) {
-                  if (mounted) Navigator.of(context).pop();
+                  if (mounted) navigator.pop();
                 } else {
                   // If we deleted the last one, go to the new last one
                   if (_currentIndex >= notifier.images.length) {
@@ -63,7 +66,7 @@ class _ImageSliderScreenState extends State<ImageSliderScreen> {
                 }
               } catch (e) {
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  scaffoldMessenger.showSnackBar(
                     SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
                   );
                 }

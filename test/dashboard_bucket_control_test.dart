@@ -23,6 +23,7 @@ void main() {
     final mockData = SensorData(
       timestamp: DateTime.now(),
       sensors: {'ec': 1.0, 'ph': 6.0, 'temp_c': 20.0},
+      predictions: {'n': 100, 'p': 50, 'k': 200},
       status: 'Optimal',
     );
     when(mockApiService.fetchSensorData()).thenAnswer((_) async => mockData);

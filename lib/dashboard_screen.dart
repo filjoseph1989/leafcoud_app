@@ -399,7 +399,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   return Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(value),
+                      color: Colors.red.withValues(alpha: value),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Text(
