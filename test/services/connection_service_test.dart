@@ -31,7 +31,7 @@ void main() {
       expect(await connectionService.getSavedPort(), '8080');
     });
 
-    test('checkHealth returns true when /app/latest_status/ responds with 200', () async {
+    test('checkHealth returns success when /app/latest_status/ responds with 200', () async {
       mockClient = MockClient((request) async {
         if (request.url.path == '/app/latest_status/') {
           return http.Response('{"status": "ok"}', 200);
@@ -42,10 +42,10 @@ void main() {
       connectionService = ConnectionService(client: mockClient);
       final result = await connectionService.checkHealth('1.2.3.4', '80');
 
-      expect(result, isTrue);
+      expect(result.success, isTrue);
     });
 
-    test('checkHealth returns false when server responds with error', () async {
+    test('checkHealth returns failure when server responds with error', () async {
       mockClient = MockClient((request) async {
         return http.Response('Error', 500);
       });
@@ -53,18 +53,20 @@ void main() {
       connectionService = ConnectionService(client: mockClient);
       final result = await connectionService.checkHealth('1.2.3.4', '80');
 
-      expect(result, isFalse);
+      expect(result.success, isFalse);
+      expect(result.statusCode, 500);
     });
 
-    test('checkHealth returns false when connection fails', () async {
+    test('checkHealth returns failure with message when connection fails', () async {
       mockClient = MockClient((request) async {
-        throw Exception('Connection failed');
+        throw Exception('SocketException: Connection failed');
       });
 
       connectionService = ConnectionService(client: mockClient);
       final result = await connectionService.checkHealth('1.2.3.4', '80');
 
-      expect(result, isFalse);
+      expect(result.success, isFalse);
+      expect(result.errorMessage, contains('Host is unreachable'));
     });
 
     test('getBaseUrl returns default when nothing is saved', () async {

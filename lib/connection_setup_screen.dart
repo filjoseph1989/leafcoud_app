@@ -45,9 +45,9 @@ class _ConnectionSetupScreenState extends State<ConnectionSetupScreen> {
     final ip = useDefault ? '' : _ipController.text.trim();
     final port = useDefault ? '' : _portController.text.trim();
 
-    final success = await service.checkHealth(ip, port);
+    final result = await service.checkHealth(ip, port);
 
-    if (success) {
+    if (result.success) {
       await service.saveConnectionSettings(ip, port);
       if (mounted) {
         // Update ApiService baseUrl globally
@@ -61,7 +61,7 @@ class _ConnectionSetupScreenState extends State<ConnectionSetupScreen> {
       if (mounted) {
         setState(() {
           _isLoading = false;
-          _errorMessage = 'Could not connect to server. Please check settings.';
+          _errorMessage = result.errorMessage ?? 'Could not connect to server. Please check settings.';
         });
       }
     }
@@ -173,9 +173,43 @@ class _ConnectionSetupScreenState extends State<ConnectionSetupScreen> {
                   style: TextStyle(fontSize: 16),
                 ),
               ),
+              const SizedBox(height: 32),
+              const Divider(),
+              const SizedBox(height: 16),
+              Text(
+                'Troubleshooting Tips:',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[700],
+                ),
+              ),
+              const SizedBox(height: 8),
+              _buildTip('Ensure the server is running on the target machine.'),
+              _buildTip('Check if both devices are on the same Wi-Fi network.'),
+              _buildTip('Android Emulator? Try 10.0.2.2 instead of localhost.'),
+              _buildTip('iOS Simulator? localhost or your Mac\'s local IP should work.'),
+              _buildTip('Check your firewall settings on the server machine.'),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTip(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('• ', style: TextStyle(fontWeight: FontWeight.bold)),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+            ),
+          ),
+        ],
       ),
     );
   }

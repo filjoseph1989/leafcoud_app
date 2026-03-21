@@ -5,6 +5,7 @@ import 'package:flutter_leafcloud_app/widgets/video_feed_widget.dart';
 import 'package:flutter_leafcloud_app/notifiers/sensor_data_notifier.dart';
 import 'package:flutter_leafcloud_app/notifiers/bucket_control_notifier.dart';
 import 'package:flutter_leafcloud_app/models/sensor_data.dart';
+import 'package:flutter_leafcloud_app/services/api_service.dart';
 
 class DataGatheringScreen extends StatefulWidget {
   const DataGatheringScreen({super.key});
@@ -14,7 +15,10 @@ class DataGatheringScreen extends StatefulWidget {
 }
 
 class _DataGatheringScreenState extends State<DataGatheringScreen> {
-  static const String _videoUrl = 'http://192.168.1.7:8000/video_feed/';
+  String _getVideoUrl(BuildContext context) {
+    final apiService = Provider.of<ApiService>(context, listen: false);
+    return '${apiService.baseUrl}/video_feed/';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -392,11 +396,11 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
               ),
             ],
           ),
-          child: const ClipRRect(
-            borderRadius: BorderRadius.all(Radius.circular(16)),
+          child: ClipRRect(
+            borderRadius: const BorderRadius.all(Radius.circular(16)),
             child: AspectRatio(
               aspectRatio: 1.0,
-              child: VideoFeedWidget(url: _videoUrl),
+              child: VideoFeedWidget(url: _getVideoUrl(context)),
             ),
           ),
         ),

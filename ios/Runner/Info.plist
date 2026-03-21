@@ -73,5 +73,9 @@
 	</dict>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>LeafCloud needs to connect to local devices to manage your sustainable compute infrastructure.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_http._tcp</string>
+	</array>
 </dict>
 </plist>
