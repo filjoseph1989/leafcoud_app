@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:flutter_leafcloud_app/dashboard_screen.dart';
+import 'package:flutter_leafcloud_app/services/api_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -23,8 +24,9 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final response = await http.post(
-        Uri.parse('http://192.168.1.7:8000/auth/login'),
+      final apiService = Provider.of<ApiService>(context, listen: false);
+      final response = await apiService.client.post(
+        Uri.parse('${apiService.baseUrl}/auth/login'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'email': _emailController.text,

@@ -7,7 +7,6 @@ import 'package:mockito/mockito.dart';
 import 'package:flutter_leafcloud_app/dashboard_screen.dart';
 import 'package:flutter_leafcloud_app/notifiers/sensor_data_notifier.dart';
 import 'package:flutter_leafcloud_app/notifiers/bucket_control_notifier.dart';
-import 'package:flutter_leafcloud_app/notifiers/ph_monitor_notifier.dart';
 import 'package:flutter_leafcloud_app/services/api_service.dart';
 import 'package:flutter_leafcloud_app/models/sensor_data.dart';
 
@@ -37,9 +36,6 @@ void main() {
           ),
           ChangeNotifierProvider(
             create: (_) => BucketControlNotifier(apiService: mockApiService),
-          ),
-          ChangeNotifierProvider(
-            create: (_) => PHMonitorNotifier(channelFactory: (_) => throw UnimplementedError()),
           ),
         ],
         child: const MaterialApp(home: DashboardScreen()),

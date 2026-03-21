@@ -65,6 +65,12 @@ class MockApiService extends _i1.Mock implements _i4.ApiService {
           as String);
 
   @override
+  set baseUrl(String? value) => super.noSuchMethod(
+    Invocation.setter(#baseUrl, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
   _i6.Future<_i3.SensorData> fetchSensorData() =>
       (super.noSuchMethod(
             Invocation.method(#fetchSensorData, []),
@@ -158,6 +164,42 @@ class MockApiService extends _i1.Mock implements _i4.ApiService {
   _i6.Future<void> acknowledgePHUpdate() =>
       (super.noSuchMethod(
             Invocation.method(#acknowledgePHUpdate, []),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> postCalibrateEC(double? value) =>
+      (super.noSuchMethod(
+            Invocation.method(#postCalibrateEC, [value]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> postCalibratePH(double? value) =>
+      (super.noSuchMethod(
+            Invocation.method(#postCalibratePH, [value]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> postStopCalibration() =>
+      (super.noSuchMethod(
+            Invocation.method(#postStopCalibration, []),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> requestCalibration(String? type) =>
+      (super.noSuchMethod(
+            Invocation.method(#requestCalibration, [type]),
             returnValue: _i6.Future<void>.value(),
             returnValueForMissingStub: _i6.Future<void>.value(),
           )

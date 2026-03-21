@@ -5,7 +5,7 @@ import 'package:flutter_leafcloud_app/models/image_info.dart';
 
 class ApiService {
   final http.Client client;
-  final String baseUrl;
+  String baseUrl;
 
   ApiService({required this.client, required this.baseUrl});
 
@@ -156,6 +156,53 @@ class ApiService {
 
     if (response.statusCode != 200) {
       throw Exception('Failed to acknowledge pH update: ${response.statusCode}');
+    }
+  }
+
+  Future<void> postCalibrateEC(double value) async {
+    final response = await client.post(
+      Uri.parse('$baseUrl/control/calibrate-ec'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'value': value}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to calibrate EC: ${response.statusCode}');
+    }
+  }
+
+  Future<void> postCalibratePH(double value) async {
+    final response = await client.post(
+      Uri.parse('$baseUrl/control/calibrate-ph'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'value': value}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to calibrate pH: ${response.statusCode}');
+    }
+  }
+
+  Future<void> postStopCalibration() async {
+    final response = await client.post(
+      Uri.parse('$baseUrl/control/stop-calibration'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to stop calibration: ${response.statusCode}');
+    }
+  }
+
+  Future<void> requestCalibration(String type) async {
+    final response = await client.post(
+      Uri.parse('$baseUrl/control/request-calibration'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'type': type}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to request $type calibration: ${response.statusCode}');
     }
   }
 }
