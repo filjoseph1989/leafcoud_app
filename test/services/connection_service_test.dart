@@ -69,6 +69,19 @@ void main() {
       expect(result.errorMessage, contains('Host is unreachable'));
     });
 
+    test('checkHealth returns failure with message when connection times out', () async {
+      mockClient = MockClient((request) async {
+        await Future.delayed(const Duration(milliseconds: 100));
+        throw Exception('TimeoutException after 0:00:05.000000: Future not completed');
+      });
+
+      connectionService = ConnectionService(client: mockClient);
+      final result = await connectionService.checkHealth('1.2.3.4', '80');
+
+      expect(result.success, isFalse);
+      expect(result.errorMessage, contains('Connection timed out (10s)'));
+    });
+
     test('getBaseUrl returns default when nothing is saved', () async {
       connectionService = ConnectionService(client: http.Client());
       expect(connectionService.getBaseUrl(null, null), ConnectionService.defaultBaseUrl);

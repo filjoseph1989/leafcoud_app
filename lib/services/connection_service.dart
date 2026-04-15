@@ -39,7 +39,7 @@ class ConnectionService {
     debugPrint('ConnectionService: Checking health for $baseUrl/app/latest_status/');
     try {
       // Use /app/latest_status/ to verify server is reachable
-      final response = await client.get(Uri.parse('$baseUrl/app/latest_status/')).timeout(const Duration(seconds: 5));
+      final response = await client.get(Uri.parse('$baseUrl/app/latest_status/')).timeout(const Duration(seconds: 10));
       debugPrint('ConnectionService: Health check response status: ${response.statusCode}');
       
       if (response.statusCode == 200) {
@@ -57,7 +57,7 @@ class ConnectionService {
       if (message.contains('SocketException')) {
         message = 'Connection failed: Host is unreachable. Ensure the server is running and on the same network.';
       } else if (message.contains('TimeoutException')) {
-        message = 'Connection timed out. The server took too long to respond.';
+        message = 'Connection timed out (10s). The server took too long to respond. Please check if the IP and Port are correct.';
       }
       return HealthCheckResult(success: false, errorMessage: message);
     }
