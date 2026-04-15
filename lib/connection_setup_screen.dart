@@ -35,39 +35,32 @@ class _ConnectionSetupScreenState extends State<ConnectionSetupScreen> {
     }
   }
 
-  Future<void> _connect({bool useDefault = false}) async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
-
+  Future<void> _saveSettings() async {
     final service = Provider.of<ConnectionService>(context, listen: false);
-    final ip = useDefault ? '' : _ipController.text.trim();
-    final port = useDefault ? '' : _portController.text.trim();
+    final ip = _ipController.text.trim();
+    final port = _portController.text.trim();
 
-    final result = await service.checkHealth(ip, port);
-
-    if (result.success) {
-      await service.saveConnectionSettings(ip, port);
-      if (mounted) {
-        // Update ApiService baseUrl globally
-        Provider.of<ApiService>(context, listen: false).baseUrl = service.getBaseUrl(ip, port);
-        
-        Navigator.of(context).pop();
-      }
-    } else {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-          _errorMessage = result.errorMessage ?? 'Could not connect to server. Please check settings.';
-        });
-      }
+    await service.saveConnectionSettings(ip, port);
+    
+    if (mounted) {
+      // Update ApiService baseUrl globally
+      Provider.of<ApiService>(context, listen: false).baseUrl = service.getBaseUrl(ip, port);
+      Navigator.of(context).pop();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.green),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      extendBodyBehindAppBar: true,
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -92,26 +85,11 @@ class _ConnectionSetupScreenState extends State<ConnectionSetupScreen> {
               ),
               const SizedBox(height: 8),
               const Text(
-                'Configure the server address to continue',
+                'Configure the server address',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey),
               ),
               const SizedBox(height: 32),
-              if (_errorMessage != null)
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.red[50],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.red[200]!),
-                  ),
-                  child: Text(
-                    _errorMessage!,
-                    style: TextStyle(color: Colors.red[800]),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
               TextField(
                 controller: _ipController,
                 decoration: const InputDecoration(
@@ -135,7 +113,7 @@ class _ConnectionSetupScreenState extends State<ConnectionSetupScreen> {
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: _isLoading ? null : () => _connect(),
+                onPressed: () => _saveSettings(),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green[700],
                   foregroundColor: Colors.white,
@@ -144,31 +122,9 @@ class _ConnectionSetupScreenState extends State<ConnectionSetupScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                      )
-                    : const Text(
-                        'Connect',
-                        style: TextStyle(fontSize: 18),
-                      ),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: _isLoading ? null : () => _connect(useDefault: true),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Colors.green[700],
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  side: BorderSide(color: Colors.green[700]!),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
                 child: const Text(
-                  'Use Default',
-                  style: TextStyle(fontSize: 16),
+                  'Save Settings',
+                  style: TextStyle(fontSize: 18),
                 ),
               ),
               const SizedBox(height: 32),

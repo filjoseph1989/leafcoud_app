@@ -15,10 +15,10 @@ void main() {
   final httpClient = http.Client();
   final connectionService = ConnectionService(client: httpClient);
   
-  // Initialize with a placeholder, will be updated in ConnectionSetupScreen
+  // Initialize with an empty URL, will be updated in LandingScreen or ConnectionSetupScreen
   final apiService = ApiService(
     client: httpClient,
-    baseUrl: ConnectionService.defaultBaseUrl,
+    baseUrl: '',
   );
 
   runApp(

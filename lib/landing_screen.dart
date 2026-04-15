@@ -16,6 +16,9 @@ class _LandingScreenState extends State<LandingScreen> {
   bool _isCheckingConnection = true;
   String? _savedBaseUrl;
 
+  bool _isConnecting = false;
+  String? _errorMessage;
+
   @override
   void initState() {
     super.initState();
@@ -35,6 +38,47 @@ class _LandingScreenState extends State<LandingScreen> {
       setState(() {
         _isCheckingConnection = false;
       });
+    }
+  }
+
+  Future<void> _handleGetStarted() async {
+    setState(() {
+      _isConnecting = true;
+      _errorMessage = null;
+    });
+
+    final connectionService = Provider.of<ConnectionService>(context, listen: false);
+    final ip = await connectionService.getSavedIp();
+    final port = await connectionService.getSavedPort();
+    
+    final result = await connectionService.checkHealth(ip ?? '', port ?? '');
+
+    if (mounted) {
+      setState(() {
+        _isConnecting = false;
+      });
+
+      if (result.success) {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result.errorMessage ?? 'Connection failed. Please check your settings.'),
+            backgroundColor: Colors.red[700],
+            action: SnackBarAction(
+              label: 'Settings',
+              textColor: Colors.white,
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const ConnectionSetupScreen()),
+                );
+              },
+            ),
+          ),
+        );
+      }
     }
   }
 
@@ -80,15 +124,11 @@ class _LandingScreenState extends State<LandingScreen> {
                       ),
                     ),
                     const SizedBox(height: 64),
-                    if (_isCheckingConnection)
+                    if (_isCheckingConnection || _isConnecting)
                       const CircularProgressIndicator()
                     else
                       ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (context) => const LoginScreen()),
-                          );
-                        },
+                        onPressed: _handleGetStarted,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green[700],
                           foregroundColor: Colors.white,

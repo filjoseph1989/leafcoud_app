@@ -14,7 +14,6 @@ class ConnectionService {
   final http.Client client;
   static const String keyIp = 'server_ip';
   static const String keyPort = 'server_port';
-  static const String defaultBaseUrl = 'http://192.168.1.7:8000';
 
   ConnectionService({required this.client});
 
@@ -36,6 +35,9 @@ class ConnectionService {
 
   Future<HealthCheckResult> checkHealth(String ip, String port) async {
     final baseUrl = getBaseUrl(ip, port);
+    if (baseUrl.isEmpty) {
+      return HealthCheckResult(success: false, errorMessage: 'No server address configured.');
+    }
     debugPrint('ConnectionService: Checking health for $baseUrl/app/latest_status/');
     try {
       // Use /app/latest_status/ to verify server is reachable
@@ -65,7 +67,7 @@ class ConnectionService {
 
   String getBaseUrl(String? ip, String? port) {
     if (ip == null || ip.isEmpty) {
-      return defaultBaseUrl;
+      return '';
     }
     if (port == null || port.isEmpty) {
       return 'http://$ip';
