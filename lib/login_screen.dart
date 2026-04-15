@@ -75,7 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               Icon(
                 Icons.eco,
-                size: 80,
+                size: 120,
                 color: Colors.green[700],
               ),
               const SizedBox(height: 16),

@@ -57,7 +57,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.cloud_queue, color: Colors.white, size: 48),
+                    Icon(Icons.eco, color: Colors.white, size: 48),
                     SizedBox(height: 12),
                     Text(
                       'LeafCloud',
@@ -73,7 +73,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.analytics_outlined),
-              title: const Text('Data Gathering'),
+              title: const Text('Data Gathering'), 
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -316,10 +316,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       children: [
         _buildGridMetric('EC', '${sensors['ec'] ?? 'N/A'}', 'mS/cm', Icons.bolt),
         _buildGridMetric(
-          'pH', 
-          '${sensors['ph'] ?? 'N/A'}', 
-          '', 
-          Icons.opacity, 
+          'pH',
+          '${sensors['ph'] ?? 'N/A'}',
+          '',
+          Icons.opacity,
           showLiveBadge: data.phUpdateRequested,
         ),
         _buildGridMetric('Temp', '${sensors['temp_c'] ?? sensors['temp'] ?? 'N/A'}', '°C', Icons.device_thermostat),
@@ -426,7 +426,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Text(
                       value,
                       style: TextStyle(
-                        fontSize: 20, 
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: showLiveBadge ? Colors.red[900] : Colors.black,
                       ),

@@ -69,27 +69,31 @@ class _ConnectionSetupScreenState extends State<ConnectionSetupScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Icon(
-                Icons.settings_remote,
-                size: 80,
+                Icons.eco,
+                size: 120,
                 color: Colors.green[700],
               ),
               const SizedBox(height: 16),
               Text(
-                'Connection Setup',
+                'LeafCloud',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 32,
                   fontWeight: FontWeight.bold,
                   color: Colors.green[800],
                 ),
               ),
-              const SizedBox(height: 8),
-              const Text(
-                'Configure the server address',
+              const SizedBox(height: 12),
+              Text(
+                'Connection Setup',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green[700],
+                ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 48),
               TextField(
                 controller: _ipController,
                 decoration: const InputDecoration(
@@ -127,7 +131,7 @@ class _ConnectionSetupScreenState extends State<ConnectionSetupScreen> {
                   style: TextStyle(fontSize: 18),
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 48),
               const Divider(),
               const SizedBox(height: 16),
               Text(

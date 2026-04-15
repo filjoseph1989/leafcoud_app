@@ -4,14 +4,16 @@ import FlutterMacOS
 class MainFlutterWindow: NSWindow {
   override func awakeFromNib() {
     let flutterViewController = FlutterViewController()
-    var windowFrame = self.frame
+    
+    // Set a fixed mobile-like size (320x640)
+    let width: CGFloat = 320
+    let height: CGFloat = 640
+    var windowFrame = NSRect(x: 0, y: 0, width: width, height: height)
 
     if let screen = NSScreen.main {
       let screenFrame = screen.visibleFrame
-      let height = screenFrame.height
-      let width: CGFloat = 320 // Mobile-like width
       let x = screenFrame.origin.x + (screenFrame.width - width) / 2
-      let y = screenFrame.origin.y
+      let y = screenFrame.origin.y + (screenFrame.height - height) / 2
       windowFrame = NSRect(x: x, y: y, width: width, height: height)
     }
 
