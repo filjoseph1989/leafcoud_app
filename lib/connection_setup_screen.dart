@@ -53,9 +53,7 @@ class _ConnectionSetupScreenState extends State<ConnectionSetupScreen> {
         // Update ApiService baseUrl globally
         Provider.of<ApiService>(context, listen: false).baseUrl = service.getBaseUrl(ip, port);
         
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-        );
+        Navigator.of(context).pop();
       }
     } else {
       if (mounted) {
