@@ -4,9 +4,9 @@
 - **Professional & Technical:** Communication should be precise, direct, and authoritative, suitable for infrastructure management.
 
 ## Visual Identity
-- **Minimalist & Modern:** Clean design with high-contrast elements and ample white space.
+- **Clean & Modern:** A polished aesthetic with soft shadows, rounded corners (16-24px), and ample white space for improved legibility and focus.
 - **Eco-Focused & Sustainable:** Visual cues (such as green highlights or carbon metrics) to emphasize the project's sustainability goals.
-- **Infrastructure-Centric (NOC):** A default dark theme with high-visibility neon indicators for system health.
+- **User-Centric & Accessible:** A default light theme with a soft grey background (#F8F9FA) and primary brand green accents, moving away from high-contrast dark themes towards a friendlier, modern mobile experience.
 
 ## UX Principles
 - **Urgency-Driven Navigation:** Critical alerts and system health status are prioritized and front-and-center.
