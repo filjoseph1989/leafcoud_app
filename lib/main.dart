@@ -10,6 +10,7 @@ import 'package:flutter_leafcloud_app/notifiers/image_management_notifier.dart';
 
 import 'package:flutter_leafcloud_app/services/api_service.dart';
 import 'package:flutter_leafcloud_app/services/connection_service.dart';
+import 'package:flutter_leafcloud_app/theme.dart';
 
 void main() {
   final httpClient = http.Client();
@@ -52,10 +53,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'LeafCloud',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-        useMaterial3: true,
-      ),
+      theme: LeafCloudTheme.lightTheme,
       home: const LandingScreen(),
     );
   }

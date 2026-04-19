@@ -17,54 +17,11 @@ class VideoFeedWidget extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8.0),
-        child: Stack(
-          children: [
-            MjpegView(
-              uri: url,
-              fit: BoxFit.contain,
-              width: double.infinity,
-              height: double.infinity,
-            ),
-            Positioned(
-              top: 12,
-              left: 12,
-              child: Consumer<BucketControlNotifier>(
-                builder: (context, notifier, child) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withAlpha(120),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: notifier.activeBucketStatus == 'None' 
-                                ? Colors.grey 
-                                : Colors.greenAccent,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Active Bucket: ${notifier.activeBucketStatus}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
+        child: MjpegView(
+          uri: url,
+          fit: BoxFit.contain,
+          width: double.infinity,
+          height: double.infinity,
         ),
       ),
     );

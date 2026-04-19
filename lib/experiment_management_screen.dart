@@ -54,78 +54,89 @@ class _ExperimentManagementScreenState extends State<ExperimentManagementScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        title: const Text('Experiment Management'),
-        backgroundColor: Colors.green[700],
-        foregroundColor: Colors.white,
+        title: Text('Experiment Management', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+        backgroundColor: theme.colorScheme.surface,
+        foregroundColor: theme.colorScheme.onSurface,
+        elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: theme.colorScheme.primary),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Set Active Experiment',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
             Text(
-              'This ID will link sensor data to a specific experiment on the server.',
-              style: TextStyle(color: Colors.grey[600]),
+              'Set Active Experiment',
+              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'This ID links sensor data to a specific experiment on the server for accurate traceability.',
+              style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 32),
             TextField(
               controller: _experimentIdController,
               decoration: const InputDecoration(
-                labelText: 'Experiment ID',
-                border: OutlineInputBorder(),
                 hintText: 'e.g., EXP-NPK-BATCH1',
+                prefixIcon: Icon(Icons.tag_rounded),
               ),
             ),
             const SizedBox(height: 32),
             Consumer<BucketControlNotifier>(
               builder: (context, notifier, child) {
-                return ElevatedButton(
-                  onPressed: notifier.isLoading ? null : _saveExperimentId,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green[700],
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                return SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: notifier.isLoading ? null : _saveExperimentId,
+                    child: notifier.isLoading
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Text('Save Active Experiment'),
                   ),
-                  child: notifier.isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                        )
-                      : const Text('Save Active Experiment', style: TextStyle(fontSize: 16)),
                 );
               }
             ),
-            const SizedBox(height: 24),
-            const Divider(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 40),
             Text(
-              'Current Active Experiment:',
-              style: TextStyle(fontSize: 14, color: Colors.grey[700], fontWeight: FontWeight.w500),
+              'Current Status',
+              style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
             Consumer<BucketControlNotifier>(
               builder: (context, notifier, child) {
-                return Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey[300]!),
-                  ),
-                  child: Text(
-                    notifier.activeExperimentId ?? 'None (Auto-Resolve)',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'monospace'),
+                return Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Active Experiment ID',
+                          style: theme.textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          notifier.activeExperimentId ?? 'None (Auto-Resolve)',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'monospace',
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               }

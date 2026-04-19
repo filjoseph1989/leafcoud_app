@@ -6,6 +6,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:flutter_leafcloud_app/image_gallery_screen.dart';
 import 'package:flutter_leafcloud_app/notifiers/image_management_notifier.dart';
+import 'package:flutter_leafcloud_app/widgets/image_grid_item.dart';
 import 'package:flutter_leafcloud_app/services/api_service.dart';
 import 'package:flutter_leafcloud_app/models/image_info.dart';
 
@@ -50,6 +51,6 @@ void main() {
 
     expect(find.byType(CircularProgressIndicator), findsNothing);
     expect(find.text('Image Gallery'), findsOneWidget);
-    expect(find.byType(Card), findsNWidgets(2));
+    expect(find.byType(ImageGridItem), findsNWidgets(2));
   });
 }
