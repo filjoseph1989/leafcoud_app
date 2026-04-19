@@ -14,6 +14,7 @@ class ConnectionService {
   final http.Client client;
   static const String keyIp = 'server_ip';
   static const String keyPort = 'server_port';
+  static const String defaultBaseUrl = 'http://192.168.1.7:8000';
 
   ConnectionService({required this.client});
 
@@ -67,7 +68,7 @@ class ConnectionService {
 
   String getBaseUrl(String? ip, String? port) {
     if (ip == null || ip.isEmpty) {
-      return '';
+      return defaultBaseUrl;
     }
     if (port == null || port.isEmpty) {
       return 'http://$ip';

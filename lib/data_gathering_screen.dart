@@ -451,4 +451,94 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
       );
     }
   }
+
+  Future<void> _handleProtocolCalibration(BuildContext context, String type) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final apiService = context.read<BucketControlNotifier>().apiService;
+
+    if (type == 'stop') {
+      try {
+        await apiService.requestCalibration('stop');
+        messenger.showSnackBar(const SnackBar(content: Text('Calibration stopped successfully'), backgroundColor: Colors.green));
+      } catch (e) {
+        messenger.showSnackBar(SnackBar(content: Text('Failed to stop calibration: $e'), backgroundColor: Colors.red));
+      }
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Confirm Calibration ($type)'),
+        content: Text('Are you sure you want to request $type calibration? Ensure the probe is in the correct solution.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('CANCEL')),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('CALIBRATE')),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      await apiService.requestCalibration(type);
+      messenger.showSnackBar(SnackBar(content: Text('$type calibration request sent successfully'), backgroundColor: Colors.green));
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('Calibration request failed: $e'), backgroundColor: Colors.red));
+    }
+  }
+
+  void _showRestartConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm System Restart'),
+          content: const Text(
+            'Are you sure you want to restart the IoT system? \n\n'
+            'This will reboot the camera and sensor script. '
+            'The video feed and data ingestion will be interrupted for approximately 20-30 seconds.'
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('CANCEL'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _handleRestart();
+              },
+              style: TextButton.styleFrom(foregroundColor: Colors.orange[800]),
+              child: const Text('RESTART'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _handleRestart() async {
+    final notifier = context.read<BucketControlNotifier>();
+    await notifier.restartIot();
+
+    if (mounted) {
+      if (notifier.errorMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Restart Failed: ${notifier.errorMessage}'),
+            backgroundColor: Colors.red[700],
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Restart command sent successfully. System is rebooting...'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
+    }
+  }
 }
