@@ -337,6 +337,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return _buildInfoSection(
       title: 'Environment Metrics',
       icon: Icons.thermostat_rounded,
+      aspectRatio: 0.70,
       children: [
         _buildGridMetric('EC', '${data.sensors?['ec'] ?? 'N/A'}', 'mS/cm', Icons.bolt_rounded),
         _buildGridMetric(
@@ -358,6 +359,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return _buildInfoSection(
       title: 'Nutrient Analysis',
       icon: Icons.science_rounded,
+      aspectRatio: 0.70,
       children: [
         _buildGridMetric('Nitrogen', '${levels['n'] ?? levels['n_ppm'] ?? levels['Nitrogen'] ?? 'N/A'}', 'ppm', Icons.nature_rounded),
         _buildGridMetric('Phosphorus', '${levels['p'] ?? levels['p_ppm'] ?? levels['Phosphorus'] ?? 'N/A'}', 'ppm', Icons.grass_rounded),
@@ -366,7 +368,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildInfoSection({required String title, required IconData icon, required List<Widget> children}) {
+  Widget _buildInfoSection({required String title, required IconData icon, required double aspectRatio, required List<Widget> children}) {
     final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -389,7 +391,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           physics: const NeverScrollableScrollPhysics(),
           mainAxisSpacing: 16,
           crossAxisSpacing: 16,
-          childAspectRatio: 0.85,
+          childAspectRatio: aspectRatio,
           children: children,
         ),
       ],
@@ -399,7 +401,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildGridMetric(String label, String value, String unit, IconData icon, {bool showLiveBadge = false}) {
     final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -434,15 +436,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 24, color: theme.colorScheme.primary.withOpacity(0.5)),
-              const SizedBox(height: 12),
+              Icon(icon, size: 22, color: theme.colorScheme.primary.withOpacity(0.5)),
+              const SizedBox(height: 8),
               FittedBox(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
                       value,
-                      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, fontSize: 18),
                     ),
                     if (unit.isNotEmpty) ...[
                       const SizedBox(width: 2),

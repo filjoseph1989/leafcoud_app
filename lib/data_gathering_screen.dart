@@ -224,18 +224,14 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Live Monitor',
-              style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            Text(
-              formattedDate,
-              style: theme.textTheme.bodyMedium,
-            ),
-          ],
+        Text(
+          'Live Monitor',
+          style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          formattedDate,
+          style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.5)),
         ),
         const SizedBox(height: 20),
         Container(
