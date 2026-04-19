@@ -5,9 +5,9 @@ class MainFlutterWindow: NSWindow {
   override func awakeFromNib() {
     let flutterViewController = FlutterViewController()
     
-    // Set a fixed mobile-like size (320x640)
-    let width: CGFloat = 320
-    let height: CGFloat = 640
+    // Set a bigger mobile-like size (400x800)
+    let width: CGFloat = 400
+    let height: CGFloat = 800
     var windowFrame = NSRect(x: 0, y: 0, width: width, height: height)
 
     if let screen = NSScreen.main {
