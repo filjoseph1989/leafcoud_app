@@ -37,14 +37,22 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        title: const Text('Image Gallery'),
-        backgroundColor: Colors.green[700],
-        foregroundColor: Colors.white,
+        title: Text('Image Gallery', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+        backgroundColor: theme.colorScheme.surface,
+        foregroundColor: theme.colorScheme.onSurface,
+        elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: theme.colorScheme.primary),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: Icon(Icons.refresh_rounded, color: theme.colorScheme.primary),
             onPressed: () => context.read<ImageManagementNotifier>().fetchImages(refresh: true),
           ),
         ],
@@ -57,36 +65,60 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
 
           if (notifier.errorMessage != null && notifier.images.isEmpty) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text(notifier.errorMessage!),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => notifier.fetchImages(refresh: true),
-                    child: const Text('Retry'),
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.cloud_off_rounded, size: 80, color: theme.colorScheme.primary.withOpacity(0.2)),
+                    const SizedBox(height: 24),
+                    Text(
+                      'Load Failed',
+                      style: theme.textTheme.headlineMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      notifier.errorMessage!,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 32),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () => notifier.fetchImages(refresh: true),
+                        child: const Text('Retry'),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           }
 
           if (notifier.images.isEmpty) {
-            return const Center(child: Text('No images found.'));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.photo_library_outlined, size: 80, color: theme.colorScheme.primary.withOpacity(0.1)),
+                  const SizedBox(height: 16),
+                  Text('No images found', style: theme.textTheme.bodyLarge),
+                ],
+              ),
+            );
           }
 
           final baseUrl = notifier.apiService.baseUrl;
 
           return GridView.builder(
             controller: _scrollController,
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(20),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 1,
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
+              childAspectRatio: 0.85,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
             ),
             itemCount: notifier.images.length + (notifier.hasMore ? 1 : 0),
             itemBuilder: (context, index) {

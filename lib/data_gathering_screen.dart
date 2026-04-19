@@ -22,13 +22,19 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        title: const Text('Data Gathering', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.green[700],
-        foregroundColor: Colors.white,
+        title: Text('Data Gathering', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+        backgroundColor: theme.colorScheme.surface,
+        foregroundColor: theme.colorScheme.onSurface,
         elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: theme.colorScheme.primary),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: Consumer<SensorDataNotifier>(
         builder: (context, notifier, child) {
@@ -42,25 +48,26 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
 
           return RefreshIndicator(
             onRefresh: () => notifier.fetchSensorData(),
-            color: Colors.green[700],
+            color: theme.colorScheme.primary,
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  _buildWarningBanner(),
-                  _buildHeader(data),
-                  const SizedBox(height: 24),
-                  _buildApiStatus(context),
-                  const SizedBox(height: 24),
-                  _buildBucketControl(context),
-                  const SizedBox(height: 24),
-                  _buildPHControl(context),
-                  const SizedBox(height: 24),
-                  _buildCalibrationControl(context),
-                  const SizedBox(height: 24),
-                  _buildSystemControl(context),
+                  _buildWarningBanner(theme),
+                  _buildHeader(theme, data),
+                  const SizedBox(height: 32),
+                  _buildApiStatus(context, theme),
+                  const SizedBox(height: 32),
+                  _buildBucketControl(context, theme),
+                  const SizedBox(height: 32),
+                  _buildPHControl(context, theme),
+                  const SizedBox(height: 32),
+                  _buildCalibrationControl(context, theme),
+                  const SizedBox(height: 32),
+                  _buildSystemControl(context, theme),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -70,72 +77,49 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
     );
   }
 
-  Widget _buildCalibrationControl(BuildContext context) {
+  Widget _buildCalibrationControl(BuildContext context, ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.0),
-          child: Row(
-            children: [
-              Icon(Icons.compass_calibration, color: Colors.purple, size: 22),
-              SizedBox(width: 8),
-              Text(
-                'Sensor Calibration',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
+        Text(
+          'Sensor Calibration',
+          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(10),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              GridView.count(
-                crossAxisCount: 1,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 5,
-                children: [
-                  _buildCalibrationButton(context, 'EC 1413 Calibrate', () => _handleProtocolCalibration(context, 'ec')),
-                  _buildCalibrationButton(context, 'PH 4.01 Calibrate', () => _handleProtocolCalibration(context, 'ph_401')),
-                  _buildCalibrationButton(context, 'PH 8.86 Calibrate', () => _handleProtocolCalibration(context, 'ph_686')),
-                  _buildCalibrationButton(context, 'STOP Calibration', () => _handleProtocolCalibration(context, 'stop'), isStop: true),
-                ],
-              ),
-            ],
+        const SizedBox(height: 16),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 2.5,
+              children: [
+                _buildCalibrationButton(theme, 'EC 1413', () => _handleProtocolCalibration(context, 'ec')),
+                _buildCalibrationButton(theme, 'PH 4.01', () => _handleProtocolCalibration(context, 'ph_401')),
+                _buildCalibrationButton(theme, 'PH 8.86', () => _handleProtocolCalibration(context, 'ph_686')),
+                _buildCalibrationButton(theme, 'STOP', () => _handleProtocolCalibration(context, 'stop'), isStop: true),
+              ],
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildCalibrationButton(BuildContext context, String label, VoidCallback onPressed, {bool isStop = false}) {
+  Widget _buildCalibrationButton(ThemeData theme, String label, VoidCallback onPressed, {bool isStop = false}) {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: isStop ? Colors.red[50] : Colors.purple[50],
-        foregroundColor: isStop ? Colors.red[700] : Colors.purple[700],
+        backgroundColor: isStop ? Colors.red[50] : theme.colorScheme.primary.withOpacity(0.05),
+        foregroundColor: isStop ? Colors.red[700] : theme.colorScheme.primary,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: isStop ? Colors.red[100]! : Colors.purple[100]!),
+          borderRadius: BorderRadius.circular(16),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
       child: Text(
         label,
@@ -144,115 +128,51 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
     );
   }
 
-  Future<void> _handleProtocolCalibration(BuildContext context, String type) async {
-    final messenger = ScaffoldMessenger.of(context);
-    final apiService = context.read<BucketControlNotifier>().apiService;
-
-    if (type == 'stop') {
-      try {
-        await apiService.requestCalibration('stop');
-        messenger.showSnackBar(const SnackBar(content: Text('Calibration stopped successfully'), backgroundColor: Colors.green));
-      } catch (e) {
-        messenger.showSnackBar(SnackBar(content: Text('Failed to stop calibration: $e'), backgroundColor: Colors.red));
-      }
-      return;
-    }
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Confirm Calibration ($type)'),
-        content: Text('Are you sure you want to request $type calibration? Ensure the probe is in the correct solution.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('CANCEL')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('CALIBRATE')),
-        ],
-      ),
-    );
-
-    if (confirmed != true) return;
-
-    try {
-      await apiService.requestCalibration(type);
-      messenger.showSnackBar(SnackBar(content: Text('$type calibration request sent successfully'), backgroundColor: Colors.green));
-    } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('Calibration request failed: $e'), backgroundColor: Colors.red));
-    }
-  }
-
-  Widget _buildSystemControl(BuildContext context) {
+  Widget _buildSystemControl(BuildContext context, ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.0),
-          child: Row(
-            children: [
-              Icon(Icons.settings_remote, color: Colors.orange, size: 22),
-              SizedBox(width: 8),
-              Text(
-                'System Control',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
+        Text(
+          'System Control',
+          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         Consumer<BucketControlNotifier>(
           builder: (context, notifier, child) {
             final bool isRestarting = notifier.isLoading && notifier.sendingLabel == null;
             
-            return Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(10),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    'Perform administrative actions on the remote IoT device.',
-                    style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: notifier.isLoading ? null : () => _showRestartConfirmationDialog(context),
-                      icon: isRestarting
-                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Icon(Icons.restart_alt),
-                      label: Text(
-                        isRestarting ? 'Restarting...' : 'Restart System',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: isRestarting ? Colors.grey : Colors.orange[800],
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+            return Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    Text(
+                      'Administrative actions for the remote IoT device.',
+                      style: theme.textTheme.bodyMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: notifier.isLoading ? null : () => _showRestartConfirmationDialog(context),
+                        icon: isRestarting
+                          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : const Icon(Icons.restart_alt_rounded),
+                        label: Text(isRestarting ? 'Restarting...' : 'Restart System'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isRestarting ? Colors.grey : Colors.orange[800],
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Note: This will temporarily interrupt the video feed (~20s).',
-                    style: TextStyle(fontSize: 11, color: Colors.grey[500], fontStyle: FontStyle.italic),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+                    const SizedBox(height: 12),
+                    Text(
+                      'Temporarily interrupts feed (~20s).',
+                      style: theme.textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
             );
           },
@@ -261,87 +181,33 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
     );
   }
 
-  void _showRestartConfirmationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirm System Restart'),
-          content: const Text(
-            'Are you sure you want to restart the IoT system? \n\n'
-            'This will reboot the camera and sensor script. '
-            'The video feed and data ingestion will be interrupted for approximately 20-30 seconds.'
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('CANCEL'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _handleRestart();
-              },
-              style: TextButton.styleFrom(foregroundColor: Colors.orange[800]),
-              child: const Text('RESTART'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _handleRestart() async {
-    final notifier = context.read<BucketControlNotifier>();
-    await notifier.restartIot();
-
-    if (mounted) {
-      if (notifier.errorMessage != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Restart Failed: ${notifier.errorMessage}'),
-            backgroundColor: Colors.red[700],
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Restart command sent successfully. System is rebooting...'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 5),
-          ),
-        );
-      }
-    }
-  }
-
-  Widget _buildWarningBanner() {
+  Widget _buildWarningBanner(ThemeData theme) {
     return Consumer<BucketControlNotifier>(
       builder: (context, notifier, child) {
         if (!notifier.phUpdateRequested) return const SizedBox.shrink();
         
         return Container(
           width: double.infinity,
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          margin: const EdgeInsets.only(bottom: 24),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.red[700],
-            borderRadius: BorderRadius.circular(12),
+            color: Colors.red[600],
+            borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.red.withAlpha(40),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+                color: Colors.red.withOpacity(0.3),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Icons.warning_amber_rounded, color: Colors.white, size: 24),
-              SizedBox(width: 12),
-              Expanded(
+              const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 28),
+              const SizedBox(width: 16),
+              const Expanded(
                 child: Text(
-                  'pH Correction Active: Raspberry Pi is in high-power mode updating historical records.',
+                  'pH Correction Active: Raspberry Pi is in high-power mode.',
                   style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -352,7 +218,7 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
     );
   }
 
-  Widget _buildHeader(SensorData data) {
+  Widget _buildHeader(ThemeData theme, SensorData data) {
     String formattedDate = DateFormat.yMMMd().add_jm().format(data.timestamp);
 
     return Column(
@@ -361,43 +227,30 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
+            Text(
               'Live Monitor',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
-            Consumer<SensorDataNotifier>(
-              builder: (context, notifier, child) {
-                if (notifier.isLoading) {
-                  return const SizedBox(
-                    height: 16,
-                    width: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
+            Text(
+              formattedDate,
+              style: theme.textTheme.bodyMedium,
             ),
           ],
         ),
-        const SizedBox(height: 4),
-        Text(
-          'Last sync: $formattedDate',
-          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-        ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withAlpha(20),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
               ),
             ],
           ),
           child: ClipRRect(
-            borderRadius: const BorderRadius.all(Radius.circular(16)),
+            borderRadius: BorderRadius.circular(24),
             child: AspectRatio(
               aspectRatio: 1.0,
               child: VideoFeedWidget(url: _getVideoUrl(context)),
@@ -408,11 +261,12 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
     );
   }
 
-  Widget _buildApiStatus(BuildContext context) {
+  Widget _buildApiStatus(BuildContext context, ThemeData theme) {
     return Consumer<BucketControlNotifier>(
       builder: (context, notifier, child) {
         final isError = notifier.errorMessage != null;
         final isLoading = notifier.isLoading;
+        final statusColor = isError ? Colors.red : (isLoading ? theme.colorScheme.secondary : theme.colorScheme.primary);
 
         String statusText = 'Active Bucket: ${notifier.activeBucketStatus}';
         if (isLoading && notifier.sendingLabel != null) {
@@ -422,38 +276,40 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
         }
 
         return Container(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: isError ? Colors.red[50] : (isLoading ? Colors.blue[50] : Colors.green[50]),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isError ? Colors.red[200]! : (isLoading ? Colors.blue[200]! : Colors.green[200]!),
-            ),
+            color: statusColor.withOpacity(0.05),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: statusColor.withOpacity(0.1)),
           ),
           child: Row(
             children: [
-              Icon(
-                isError ? Icons.error_outline : (isLoading ? Icons.send : Icons.check_circle_outline),
-                color: isError ? Colors.red : (isLoading ? Colors.blue : Colors.green),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: statusColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  isError ? Icons.error_outline_rounded : (isLoading ? Icons.send_rounded : Icons.check_circle_outline_rounded),
+                  color: statusColor,
+                  size: 20,
+                ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      isError ? 'API Error' : (isLoading ? 'Request Sent' : 'System Control Status'),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: isError ? Colors.red[900] : (isLoading ? Colors.blue[900] : Colors.green[900]),
-                      ),
+                      isError ? 'API Error' : (isLoading ? 'Processing' : 'System Ready'),
+                      style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold, color: statusColor),
                     ),
                     Text(
                       statusText,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: isError ? Colors.red[700] : (isLoading ? Colors.blue[700] : Colors.green[700]),
-                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(color: statusColor.withOpacity(0.8)),
                     ),
                   ],
                 ),
@@ -471,77 +327,59 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
     );
   }
 
-  Widget _buildBucketControl(BuildContext context) {
+  Widget _buildBucketControl(BuildContext context, ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.0),
-          child: Row(
-            children: [
-              Icon(Icons.tune, color: Colors.green, size: 22),
-              SizedBox(width: 8),
-              Text(
-                'Bucket Control',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
+        Text(
+          'Bucket Control',
+          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(10),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 3,
-                children: [
-                  _buildControlButton(context, 'NPK'),
-                  _buildControlButton(context, 'Micro'),
-                  _buildControlButton(context, 'Mix'),
-                  _buildControlButton(context, 'Water'),
-                ],
-              ),
-              const SizedBox(height: 12),
-              SizedBox(width: double.infinity, child: _buildControlButton(context, 'Stop', isStop: true)),
-            ],
+        const SizedBox(height: 16),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 2.5,
+                  children: [
+                    _buildControlButton(context, theme, 'NPK'),
+                    _buildControlButton(context, theme, 'Micro'),
+                    _buildControlButton(context, theme, 'Mix'),
+                    _buildControlButton(context, theme, 'Water'),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                SizedBox(width: double.infinity, child: _buildControlButton(context, theme, 'Stop', isStop: true)),
+              ],
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildControlButton(BuildContext context, String label, {bool isStop = false}) {
+  Widget _buildControlButton(BuildContext context, ThemeData theme, String label, {bool isStop = false}) {
     final notifier = context.read<BucketControlNotifier>();
+    final color = isStop ? Colors.red : theme.colorScheme.primary;
     return ElevatedButton(
       onPressed: () {
         notifier.setActiveBucket(isStop ? 'STOP' : label);
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: isStop ? Colors.red[50] : Colors.green[50],
-        foregroundColor: isStop ? Colors.red[700] : Colors.green[700],
+        backgroundColor: color.withOpacity(0.05),
+        foregroundColor: color,
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: isStop ? Colors.red[100]! : Colors.green[100]!),
+          borderRadius: BorderRadius.circular(16),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
       child: Text(
         label,
@@ -550,75 +388,48 @@ class _DataGatheringScreenState extends State<DataGatheringScreen> {
     );
   }
 
-  Widget _buildPHControl(BuildContext context) {
+  Widget _buildPHControl(BuildContext context, ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.0),
-          child: Row(
-            children: [
-              Icon(Icons.history_edu, color: Colors.blue, size: 22),
-              SizedBox(width: 8),
-              Text(
-                'Update PH',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
+        Text(
+          'pH Management',
+          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         Consumer<BucketControlNotifier>(
           builder: (context, notifier, child) {
             final isActive = notifier.phUpdateRequested;
-            return Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(10),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    isActive 
-                      ? 'Correction session active. Pi is updating historical records.'
-                      : 'Probe is in hybrid mode. Start correction to backfill historical data.',
-                    style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: notifier.isLoading ? null : () => _togglePHSession(context),
-                      icon: notifier.isLoading 
-                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                        : Icon(isActive ? Icons.pause_circle_filled : Icons.history_edu),
-                      label: Text(
-                        isActive ? 'Stop Updating' : 'Update pH',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: isActive ? Colors.red[50] : Colors.blue[50],
-                        foregroundColor: isActive ? Colors.red[700] : Colors.blue[700],
-                        elevation: 0,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(color: isActive ? Colors.red[100]! : Colors.blue[100]!),
+            final color = isActive ? Colors.red : theme.colorScheme.secondary;
+            return Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    Text(
+                      isActive 
+                        ? 'Correction session active. Records are being updated.'
+                        : 'Probe in hybrid mode. Start correction to backfill data.',
+                      style: theme.textTheme.bodyMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: notifier.isLoading ? null : () => _togglePHSession(context),
+                        icon: notifier.isLoading 
+                          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                          : Icon(isActive ? Icons.pause_circle_filled_rounded : Icons.history_edu_rounded),
+                        label: Text(isActive ? 'Stop Updating' : 'Start pH Correction'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: color.withOpacity(0.1),
+                          foregroundColor: color,
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           },

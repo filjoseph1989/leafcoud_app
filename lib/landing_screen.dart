@@ -84,66 +84,75 @@ class _LandingScreenState extends State<LandingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.green[50]!, Colors.white],
+            colors: [
+              theme.colorScheme.primary.withOpacity(0.05),
+              theme.colorScheme.surface,
+            ],
           ),
         ),
         child: SafeArea(
           child: Stack(
             children: [
               Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.eco,
-                      size: 120,
-                      color: Colors.green[700],
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'LeafCloud',
-                      style: TextStyle(
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green[900],
-                        letterSpacing: 1.2,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: theme.colorScheme.primary.withOpacity(0.1),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.eco_rounded,
+                          size: 80,
+                          color: theme.colorScheme.primary,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Smart Hydroponics Monitoring',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.green[800]?.withAlpha(200),
+                      const SizedBox(height: 48),
+                      Text(
+                        'LeafCloud',
+                        style: theme.textTheme.displayLarge?.copyWith(
+                          color: theme.colorScheme.primary,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 64),
-                    if (_isCheckingConnection || _isConnecting)
-                      const CircularProgressIndicator()
-                    else
-                      ElevatedButton(
-                        onPressed: _handleGetStarted,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green[700],
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Smart Hydroponics Monitoring',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                        ),
+                      ),
+                      const SizedBox(height: 80),
+                      if (_isCheckingConnection || _isConnecting)
+                        const CircularProgressIndicator()
+                      else
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _handleGetStarted,
+                            child: const Text('Get Started'),
                           ),
-                          elevation: 4,
                         ),
-                        child: const Text(
-                          'Get Started',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               Align(
@@ -156,10 +165,10 @@ class _LandingScreenState extends State<LandingScreen> {
                         MaterialPageRoute(builder: (context) => const ConnectionSetupScreen()),
                       );
                     },
-                    icon: const Icon(Icons.settings),
+                    icon: const Icon(Icons.settings_outlined),
                     label: const Text('Connection Settings'),
                     style: TextButton.styleFrom(
-                      foregroundColor: Colors.green[800],
+                      foregroundColor: theme.colorScheme.primary,
                     ),
                   ),
                 ),

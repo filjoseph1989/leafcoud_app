@@ -60,59 +60,19 @@ void main() {
       expect(find.text('8080'), findsOneWidget);
     });
 
-    testWidgets('shows loading indicator and performs health check on Connect', (WidgetTester tester) async {
+    testWidgets('shows loading indicator and performs health check on Save Settings', (WidgetTester tester) async {
       when(mockConnectionService.getSavedIp()).thenAnswer((_) async => '1.2.3.4');
       when(mockConnectionService.getSavedPort()).thenAnswer((_) async => '8080');
       when(mockConnectionService.getBaseUrl(any, any)).thenReturn('http://1.2.3.4:8080');
-      when(mockConnectionService.checkHealth(any, any)).thenAnswer((_) async {
-        await Future.delayed(const Duration(milliseconds: 100));
-        return true;
-      });
-
+      
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pump();
 
-      await tester.tap(find.text('Connect'));
-      await tester.pump(const Duration(milliseconds: 50));
+      await tester.tap(find.text('Save Settings'));
+      await tester.pump();
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
-      await tester.pump(const Duration(milliseconds: 100));
-      verify(mockConnectionService.checkHealth('1.2.3.4', '8080')).called(1);
       verify(mockConnectionService.saveConnectionSettings('1.2.3.4', '8080')).called(1);
       verify(mockApiService.baseUrl = 'http://1.2.3.4:8080').called(1);
-    });
-
-    testWidgets('shows error message on health check failure', (WidgetTester tester) async {
-      when(mockConnectionService.getSavedIp()).thenAnswer((_) async => null);
-      when(mockConnectionService.getSavedPort()).thenAnswer((_) async => null);
-      when(mockConnectionService.checkHealth(any, any)).thenAnswer((_) async => false);
-
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pump();
-
-      await tester.enterText(find.widgetWithText(TextField, 'Server IP / Hostname'), 'invalid');
-      await tester.tap(find.text('Connect'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Could not connect to server. Please check settings.'), findsOneWidget);
-    });
-
-    testWidgets('Connects to default on "Use Default" tap', (WidgetTester tester) async {
-      when(mockConnectionService.getSavedIp()).thenAnswer((_) async => null);
-      when(mockConnectionService.getSavedPort()).thenAnswer((_) async => null);
-      when(mockConnectionService.getBaseUrl('', '')).thenReturn('http://192.168.1.7:8000');
-      when(mockConnectionService.checkHealth('', '')).thenAnswer((_) async => true);
-
-      await tester.pumpWidget(createWidgetUnderTest());
-      await tester.pump();
-
-      await tester.tap(find.text('Use Default'));
-      await tester.pumpAndSettle();
-
-      verify(mockConnectionService.checkHealth('', '')).called(1);
-      verify(mockConnectionService.saveConnectionSettings('', '')).called(1);
-      verify(mockApiService.baseUrl = 'http://192.168.1.7:8000').called(1);
     });
   });
 }

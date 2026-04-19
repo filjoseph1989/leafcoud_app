@@ -27,16 +27,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('LeafCloud Dashboard', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.green[700],
-        foregroundColor: Colors.white,
+        title: Text('LeafCloud', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+        backgroundColor: theme.colorScheme.surface,
+        foregroundColor: theme.colorScheme.onSurface,
         elevation: 0,
+        centerTitle: true,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: Icon(Icons.menu_rounded, color: theme.colorScheme.primary),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_none),
+            icon: Icon(Icons.notifications_none_rounded, color: theme.colorScheme.primary),
             tooltip: 'Alerts',
             onPressed: () {
               Navigator.push(
@@ -48,23 +55,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
       drawer: Drawer(
+        backgroundColor: theme.colorScheme.surface,
         child: Column(
           children: [
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.green[700],
+                color: theme.colorScheme.primary.withOpacity(0.05),
               ),
-              child: const Center(
+              child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.eco, color: Colors.white, size: 48),
-                    SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.eco_rounded, color: theme.colorScheme.primary, size: 40),
+                    ),
+                    const SizedBox(height: 12),
                     Text(
                       'LeafCloud',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        color: theme.colorScheme.primary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -72,87 +86,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.analytics_outlined),
-              title: const Text('Data Gathering'), 
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const DataGatheringScreen()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.tune),
-              title: const Text('Experiment Management'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ExperimentManagementScreen()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Image Gallery'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ImageGalleryScreen()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.history),
-              title: const Text('History'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => HistoryScreen()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text('Logout', style: TextStyle(color: Colors.red)),
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Logout'),
-                    content: const Text('Are you sure you want to logout?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context); // close dialog
-                          Navigator.pop(context); // close drawer
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(builder: (context) => const LandingScreen()),
-                            (route) => false,
-                          );
-                        },
-                        child: const Text('Logout', style: TextStyle(color: Colors.red)),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+            _buildDrawerItem(context, Icons.analytics_outlined, 'Data Gathering', const DataGatheringScreen()),
+            _buildDrawerItem(context, Icons.tune_rounded, 'Experiment Management', const ExperimentManagementScreen()),
+            _buildDrawerItem(context, Icons.photo_library_outlined, 'Image Gallery', const ImageGalleryScreen()),
+            _buildDrawerItem(context, Icons.history_rounded, 'History', HistoryScreen()),
+            const Divider(indent: 20, endIndent: 20),
+            _buildDrawerItem(context, Icons.logout_rounded, 'Logout', null, isDestructive: true),
             const Spacer(),
-            const Divider(),
-            const Padding(
-              padding: EdgeInsets.all(16.0),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
               child: Text(
                 'v1.0.0',
-                style: TextStyle(color: Colors.grey, fontSize: 12),
+                style: theme.textTheme.bodyMedium,
               ),
             ),
           ],
@@ -169,7 +114,56 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Widget _buildDrawerItem(BuildContext context, IconData icon, String title, Widget? screen, {bool isDestructive = false}) {
+    final theme = Theme.of(context);
+    return ListTile(
+      leading: Icon(icon, color: isDestructive ? Colors.red[400] : theme.colorScheme.primary),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: isDestructive ? Colors.red[400] : theme.colorScheme.onSurface,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      onTap: () {
+        Navigator.pop(context);
+        if (isDestructive) {
+          _handleLogout(context);
+        } else if (screen != null) {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
+        }
+      },
+    );
+  }
+
+  void _handleLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => const LandingScreen()),
+                (route) => false,
+              );
+            },
+            child: const Text('Logout', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildBody(SensorDataNotifier notifier) {
+    final theme = Theme.of(context);
     if (notifier.isLoading && notifier.data == null) {
       return const Center(key: ValueKey('loading'), child: CircularProgressIndicator());
     }
@@ -178,30 +172,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
       return Center(
         key: const ValueKey('error'),
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(32.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 60, color: Colors.red),
-              const SizedBox(height: 16),
+              Icon(Icons.cloud_off_rounded, size: 80, color: theme.colorScheme.primary.withOpacity(0.2)),
+              const SizedBox(height: 24),
               Text(
                 'Connection Failed',
-                style: Theme.of(context).textTheme.headlineSmall,
+                style: theme.textTheme.headlineMedium,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               Text(
                 notifier.errorMessage!,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.grey),
+                style: theme.textTheme.bodyMedium,
               ),
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.refresh),
-                onPressed: () => notifier.fetchSensorData(),
-                label: const Text('Retry Connection'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green[700],
-                  foregroundColor: Colors.white,
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.refresh_rounded),
+                  onPressed: () => notifier.fetchSensorData(),
+                  label: const Text('Retry Connection'),
                 ),
               ),
             ],
@@ -218,19 +211,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return RefreshIndicator(
       key: const ValueKey('content'),
       onRefresh: () => notifier.fetchSensorData(),
-      color: Colors.green[700],
+      color: theme.colorScheme.primary,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             _buildRecommendationCard(data),
             const SizedBox(height: 24),
             _buildStatusCard(data),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
             _buildSensorReadings(data),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
             _buildNutrientPredictions(data),
           ],
         ),
@@ -239,121 +232,121 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildRecommendationCard(SensorData data) {
+    final theme = Theme.of(context);
     final recommendation = data.recommendation ?? 'Everything looks great!';
     final health = data.healthStatus;
     Color themeColor = Colors.orange;
 
     if (health == "Optimal") {
-      themeColor = Colors.green;
+      themeColor = theme.colorScheme.primary;
     }
 
-    return Card(
-      elevation: 0,
-      color: themeColor.withAlpha(15),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: themeColor.withAlpha(40)),
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: themeColor.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: themeColor.withOpacity(0.1)),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.lightbulb_outline, color: themeColor),
-                const SizedBox(width: 8),
-                Text(
-                  'Recommendation',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: themeColor),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: themeColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
                 ),
-              ],
+                child: Icon(Icons.lightbulb_rounded, color: themeColor, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Recommendation',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: themeColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            recommendation,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              height: 1.5,
+              color: theme.colorScheme.onSurface.withOpacity(0.8),
             ),
-            const SizedBox(height: 12),
-            Text(
-              recommendation,
-              style: TextStyle(fontSize: 16, height: 1.4, color: Colors.grey[800]),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusCard(SensorData data) {
+    final theme = Theme.of(context);
+    final statusText = data.healthStatus;
+    final isOptimal = statusText == "Optimal";
+    final statusColor = isOptimal ? theme.colorScheme.primary : Colors.orange[700]!;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: statusColor.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                isOptimal ? Icons.check_circle_rounded : Icons.warning_rounded,
+                color: statusColor,
+                size: 28,
+              ),
             ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'System Health',
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                  Text(
+                    statusText,
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      color: statusColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios_rounded, color: theme.colorScheme.primary.withOpacity(0.3), size: 16),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildStatusCard(SensorData data) {
-    final statusText = data.healthStatus;
-    final isOptimal = statusText == "Optimal";
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(10),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: isOptimal ? Colors.green[50] : Colors.orange[50],
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              isOptimal ? Icons.check_circle_outline : Icons.warning_amber_rounded,
-              color: isOptimal ? Colors.green[700] : Colors.orange[700],
-              size: 28,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'System Health',
-                  style: TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w500),
-                ),
-                Text(
-                  statusText,
-                  style: TextStyle(
-                    fontSize: 22,
-                    color: isOptimal ? Colors.green[800] : Colors.orange[800],
-                    fontWeight: FontWeight.bold
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Icon(Icons.chevron_right, color: Colors.grey[400]),
-        ],
-      ),
-    );
-  }
-
   Widget _buildSensorReadings(SensorData data) {
-    final sensors = data.sensors;
-    if (sensors == null) return const SizedBox.shrink();
-
     return _buildInfoSection(
       title: 'Environment Metrics',
-      icon: Icons.thermostat_outlined,
+      icon: Icons.thermostat_rounded,
       children: [
-        _buildGridMetric('EC', '${sensors['ec'] ?? 'N/A'}', 'mS/cm', Icons.bolt),
+        _buildGridMetric('EC', '${data.sensors?['ec'] ?? 'N/A'}', 'mS/cm', Icons.bolt_rounded),
         _buildGridMetric(
           'pH',
-          '${sensors['ph'] ?? 'N/A'}',
+          '${data.sensors?['ph'] ?? 'N/A'}',
           '',
-          Icons.opacity,
+          Icons.opacity_rounded,
           showLiveBadge: data.phUpdateRequested,
         ),
-        _buildGridMetric('Temp', '${sensors['temp_c'] ?? sensors['temp'] ?? 'N/A'}', '°C', Icons.device_thermostat),
+        _buildGridMetric('Temp', '${data.sensors?['temp_c'] ?? data.sensors?['temp'] ?? 'N/A'}', '°C', Icons.thermostat_rounded),
       ],
     );
   }
@@ -364,16 +357,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return _buildInfoSection(
       title: 'Nutrient Analysis',
-      icon: Icons.science_outlined,
+      icon: Icons.science_rounded,
       children: [
-        _buildGridMetric('Nitrogen', '${levels['n'] ?? levels['n_ppm'] ?? levels['Nitrogen'] ?? 'N/A'}', 'ppm', Icons.nature),
-        _buildGridMetric('Phosphorus', '${levels['p'] ?? levels['p_ppm'] ?? levels['Phosphorus'] ?? 'N/A'}', 'ppm', Icons.grass),
-        _buildGridMetric('Potassium', '${levels['k'] ?? levels['k_ppm'] ?? levels['Potassium'] ?? 'N/A'}', 'ppm', Icons.local_florist),
+        _buildGridMetric('Nitrogen', '${levels['n'] ?? levels['n_ppm'] ?? levels['Nitrogen'] ?? 'N/A'}', 'ppm', Icons.nature_rounded),
+        _buildGridMetric('Phosphorus', '${levels['p'] ?? levels['p_ppm'] ?? levels['Phosphorus'] ?? 'N/A'}', 'ppm', Icons.grass_rounded),
+        _buildGridMetric('Potassium', '${levels['k'] ?? levels['k_ppm'] ?? levels['Potassium'] ?? 'N/A'}', 'ppm', Icons.local_florist_rounded),
       ],
     );
   }
 
   Widget _buildInfoSection({required String title, required IconData icon, required List<Widget> children}) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -381,22 +375,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: Row(
             children: [
-              Icon(icon, color: Colors.green[700], size: 22),
-              const SizedBox(width: 8),
               Text(
                 title,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+                style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 20),
         GridView.count(
           crossAxisCount: 3,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 16,
           childAspectRatio: 0.85,
           children: children,
         ),
@@ -405,62 +397,52 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildGridMetric(String label, String value, String unit, IconData icon, {bool showLiveBadge = false}) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: showLiveBadge ? Colors.red[200]! : Colors.grey[200]!),
-        boxShadow: showLiveBadge ? [
-          BoxShadow(color: Colors.red.withAlpha(20), blurRadius: 8, spreadRadius: 1)
-        ] : null,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: showLiveBadge ? Border.all(color: Colors.red[200]!, width: 2) : null,
       ),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           if (showLiveBadge)
             Positioned(
-              top: -8,
-              right: -8,
-              child: TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0.4, end: 1.0),
-                duration: const Duration(milliseconds: 1000),
-                curve: Curves.easeInOut,
-                builder: (context, value, child) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withValues(alpha: value),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Text(
-                      'UPDATING',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 8,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  );
-                },
+              top: -12,
+              right: -4,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Text(
+                  'LIVE',
+                  style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 20, color: showLiveBadge ? Colors.red[600] : Colors.green[600]),
-              const SizedBox(height: 8),
+              Icon(icon, size: 24, color: theme.colorScheme.primary.withOpacity(0.5)),
+              const SizedBox(height: 12),
               FittedBox(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
                       value,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: showLiveBadge ? Colors.red[900] : Colors.black,
-                      ),
+                      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     if (unit.isNotEmpty) ...[
                       const SizedBox(width: 2),
@@ -468,7 +450,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         padding: const EdgeInsets.only(bottom: 2.0),
                         child: Text(
                           unit,
-                          style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                          style: theme.textTheme.bodyMedium?.copyWith(fontSize: 10),
                         ),
                       ),
                     ],
@@ -478,7 +460,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 4),
               Text(
                 label,
-                style: TextStyle(fontSize: 11, color: Colors.grey[600], fontWeight: FontWeight.w500),
+                style: theme.textTheme.bodyMedium?.copyWith(fontSize: 11),
                 textAlign: TextAlign.center,
               ),
             ],
