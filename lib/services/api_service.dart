@@ -2,12 +2,26 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_leafcloud_app/models/sensor_data.dart';
 import 'package:flutter_leafcloud_app/models/image_info.dart';
+import 'package:flutter_leafcloud_app/models/trash_item_info.dart';
 
 class ApiService {
   final http.Client client;
   String baseUrl;
 
   ApiService({required this.client, required this.baseUrl});
+
+  Future<List<TrashItemInfo>> getTrashItems({int skip = 0, int limit = 50}) async {
+    final response = await client.get(
+      Uri.parse('$baseUrl/api/v1/images/trash?skip=$skip&limit=$limit'),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((json) => TrashItemInfo.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load trash items: ${response.statusCode}');
+    }
+  }
 
   Future<SensorData> fetchSensorData() async {
     final response = await client.get(Uri.parse('$baseUrl/app/latest_status/'));
