@@ -46,4 +46,9 @@ class TrashNotifier extends ChangeNotifier {
     _hasMore = true;
     await fetchTrashItems();
   }
+
+  void clearError() {
+    _errorMessage = null;
+    notifyListeners();
+  }
 }

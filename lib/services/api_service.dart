@@ -18,6 +18,8 @@ class ApiService {
     if (response.statusCode == 200) {
       final List<dynamic> data = jsonDecode(response.body);
       return data.map((json) => TrashItemInfo.fromJson(json)).toList();
+    } else if (response.statusCode == 401 || response.statusCode == 403) {
+      throw Exception('Unauthorized access to trash: ${response.statusCode}');
     } else {
       throw Exception('Failed to load trash items: ${response.statusCode}');
     }

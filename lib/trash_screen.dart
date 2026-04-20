@@ -57,6 +57,7 @@ class _TrashScreenState extends State<TrashScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(notifier.errorMessage!)),
               );
+              notifier.clearError();
             });
           }
 
