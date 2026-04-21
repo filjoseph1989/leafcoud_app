@@ -112,5 +112,51 @@ void main() {
       expect(notifier.isLoading, false);
       expect(notifier.errorMessage, contains('Exception: Failed to load trash'));
     });
+
+    test('restoreItem removes item on success', () async {
+      final item = TrashItemInfo(
+        id: 1,
+        filename: 'img1.jpg',
+        reason: 'test',
+        metricValue: 1.0,
+        timestamp: DateTime.now(),
+      );
+      
+      // Inject item into notifier state
+      when(mockApiService.getTrashItems(skip: 0, limit: 20))
+          .thenAnswer((_) async => [item]);
+      await notifier.fetchTrashItems();
+      expect(notifier.items, contains(item));
+
+      when(mockApiService.restoreImage(1)).thenAnswer((_) async {});
+
+      await notifier.restoreItem(1);
+
+      expect(notifier.items, isEmpty);
+      expect(notifier.errorMessage, isNull);
+    });
+
+    test('deleteItem removes item on success', () async {
+      final item = TrashItemInfo(
+        id: 1,
+        filename: 'img1.jpg',
+        reason: 'test',
+        metricValue: 1.0,
+        timestamp: DateTime.now(),
+      );
+      
+      // Inject item into notifier state
+      when(mockApiService.getTrashItems(skip: 0, limit: 20))
+          .thenAnswer((_) async => [item]);
+      await notifier.fetchTrashItems();
+      expect(notifier.items, contains(item));
+
+      when(mockApiService.deleteImage('img1.jpg')).thenAnswer((_) async {});
+
+      await notifier.deleteItem('img1.jpg', 1);
+
+      expect(notifier.items, isEmpty);
+      expect(notifier.errorMessage, isNull);
+    });
   });
 }

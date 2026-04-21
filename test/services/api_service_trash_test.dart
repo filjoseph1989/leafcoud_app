@@ -34,6 +34,52 @@ void main() {
       expect(items[0].filename, 'img1.jpg');
     });
 
+    test('getTrashItems correctly prepends baseUrl to relative image_url', () async {
+      final client = MockClient((request) async {
+        return http.Response(
+          jsonEncode([
+            {
+              'id': 1,
+              'filename': 'img1.jpg',
+              'reason': 'test',
+              'metric_value': 10.0,
+              'timestamp': '2026-04-15T12:00:00Z',
+              'image_url': '/images/trash/1.jpg'
+            }
+          ]),
+          200,
+        );
+      });
+
+      final apiService = ApiService(client: client, baseUrl: 'http://test.com');
+      final items = await apiService.getTrashItems();
+
+      expect(items[0].imageUrl, 'http://test.com/images/trash/1.jpg');
+    });
+
+    test('getTrashItems does not prepend baseUrl if image_url is already absolute', () async {
+      final client = MockClient((request) async {
+        return http.Response(
+          jsonEncode([
+            {
+              'id': 1,
+              'filename': 'img1.jpg',
+              'reason': 'test',
+              'metric_value': 10.0,
+              'timestamp': '2026-04-15T12:00:00Z',
+              'image_url': 'https://external.com/1.jpg'
+            }
+          ]),
+          200,
+        );
+      });
+
+      final apiService = ApiService(client: client, baseUrl: 'http://test.com');
+      final items = await apiService.getTrashItems();
+
+      expect(items[0].imageUrl, 'https://external.com/1.jpg');
+    });
+
     test('getTrashItems sends skip and limit parameters', () async {
       final client = MockClient((request) async {
         expect(request.url.queryParameters['skip'], '10');

@@ -93,10 +93,66 @@ class _TrashScreenState extends State<TrashScreen> {
 
               final item = notifier.items[index];
               return ListTile(
-                leading: const Icon(Icons.image_outlined),
+                leading: item.imageUrl != null
+                    ? SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            item.imageUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image_outlined),
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return const Center(
+                                child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      )
+                    : const Icon(Icons.image_outlined),
                 title: Text(item.filename),
                 subtitle: Text('Reason: ${item.reason}'),
-                trailing: Text('${item.metricValue.toStringAsFixed(1)}'),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.restore_from_trash_rounded, color: Colors.green),
+                      onPressed: () => notifier.restoreItem(item.id),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete_forever_rounded, color: Colors.red),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Delete Permanently?'),
+                            content: const Text('This action cannot be undone.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  notifier.deleteItem(item.filename, item.id);
+                                },
+                                child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               );
             },
           );

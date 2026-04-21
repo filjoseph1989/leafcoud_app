@@ -52,6 +52,96 @@ void main() {
     expect(find.text('Trash'), findsOneWidget);
     expect(find.text('img1.jpg'), findsOneWidget);
     expect(find.text('Reason: low_greenness'), findsOneWidget);
+    expect(find.byIcon(Icons.restore_from_trash_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.delete_forever_rounded), findsOneWidget);
+  });
+
+  testWidgets('TrashScreen restore button calls notifier', (WidgetTester tester) async {
+    final item = TrashItemInfo(
+      id: 1,
+      filename: 'img1.jpg',
+      reason: 'test',
+      metricValue: 1.0,
+      timestamp: DateTime.now(),
+    );
+
+    when(mockApiService.getTrashItems(skip: 0, limit: 20))
+        .thenAnswer((_) async => [item]);
+    when(mockApiService.restoreImage(1)).thenAnswer((_) async {});
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider(
+        create: (_) => TrashNotifier(apiService: mockApiService),
+        child: const MaterialApp(home: TrashScreen()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.restore_from_trash_rounded));
+    await tester.pumpAndSettle();
+
+    verify(mockApiService.restoreImage(1)).called(1);
+    expect(find.text('img1.jpg'), findsNothing);
+  });
+
+  testWidgets('TrashScreen delete button shows confirmation and calls notifier', (WidgetTester tester) async {
+    final item = TrashItemInfo(
+      id: 1,
+      filename: 'img1.jpg',
+      reason: 'test',
+      metricValue: 1.0,
+      timestamp: DateTime.now(),
+    );
+
+    when(mockApiService.getTrashItems(skip: 0, limit: 20))
+        .thenAnswer((_) async => [item]);
+    when(mockApiService.deleteImage('img1.jpg')).thenAnswer((_) async {});
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider(
+        create: (_) => TrashNotifier(apiService: mockApiService),
+        child: const MaterialApp(home: TrashScreen()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.delete_forever_rounded));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Delete Permanently?'), findsOneWidget);
+    
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
+
+    verify(mockApiService.deleteImage('img1.jpg')).called(1);
+    expect(find.text('img1.jpg'), findsNothing);
+  });
+
+  testWidgets('TrashScreen shows network image when imageUrl is provided', (WidgetTester tester) async {
+    final item = TrashItemInfo(
+      id: 1,
+      filename: 'img1.jpg',
+      reason: 'test',
+      metricValue: 1.0,
+      timestamp: DateTime.now(),
+      imageUrl: 'http://test.com/img1.jpg',
+    );
+
+    when(mockApiService.getTrashItems(skip: 0, limit: 20))
+        .thenAnswer((_) async => [item]);
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider(
+        create: (_) => TrashNotifier(apiService: mockApiService),
+        child: const MaterialApp(home: TrashScreen()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Image), findsOneWidget);
   });
 
   testWidgets('TrashScreen shows error Snackbar on failure', (WidgetTester tester) async {

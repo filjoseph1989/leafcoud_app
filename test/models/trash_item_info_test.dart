@@ -10,6 +10,7 @@ void main() {
         'reason': 'low_greenness',
         'metric_value': 34.5,
         'timestamp': '2026-04-15T12:00:00Z',
+        'image_url': '/images/trash/1.jpg',
       };
 
       final trashItem = TrashItemInfo.fromJson(json);
@@ -19,6 +20,7 @@ void main() {
       expect(trashItem.reason, 'low_greenness');
       expect(trashItem.metricValue, 34.5);
       expect(trashItem.timestamp, DateTime.parse('2026-04-15T12:00:00Z'));
+      expect(trashItem.imageUrl, '/images/trash/1.jpg');
     });
 
     test('should correctly convert to JSON', () {
@@ -29,6 +31,7 @@ void main() {
         reason: 'low_greenness',
         metricValue: 34.5,
         timestamp: timestamp,
+        imageUrl: '/images/trash/1.jpg',
       );
 
       final json = trashItem.toJson();
@@ -38,6 +41,7 @@ void main() {
       expect(json['reason'], 'low_greenness');
       expect(json['metric_value'], 34.5);
       expect(json['timestamp'], timestamp.toIso8601String());
+      expect(json['image_url'], '/images/trash/1.jpg');
     });
   });
 }

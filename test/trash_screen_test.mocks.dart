@@ -85,6 +85,15 @@ class MockApiService extends _i1.Mock implements _i4.ApiService {
           as _i6.Future<List<_i7.TrashItemInfo>>);
 
   @override
+  _i6.Future<void> restoreImage(int? logId) =>
+      (super.noSuchMethod(
+            Invocation.method(#restoreImage, [logId]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
   _i6.Future<_i3.SensorData> fetchSensorData() =>
       (super.noSuchMethod(
             Invocation.method(#fetchSensorData, []),

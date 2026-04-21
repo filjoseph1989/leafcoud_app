@@ -47,6 +47,38 @@ class TrashNotifier extends ChangeNotifier {
     await fetchTrashItems();
   }
 
+  Future<void> restoreItem(int logId) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await apiService.restoreImage(logId);
+      _items.removeWhere((item) => item.id == logId);
+    } catch (e) {
+      _errorMessage = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteItem(String filename, int logId) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await apiService.deleteImage(filename);
+      _items.removeWhere((item) => item.id == logId);
+    } catch (e) {
+      _errorMessage = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   void clearError() {
     _errorMessage = null;
     notifyListeners();

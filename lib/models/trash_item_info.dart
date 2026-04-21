@@ -4,6 +4,7 @@ class TrashItemInfo {
   final String reason;
   final double metricValue;
   final DateTime timestamp;
+  final String? imageUrl;
 
   TrashItemInfo({
     required this.id,
@@ -11,6 +12,7 @@ class TrashItemInfo {
     required this.reason,
     required this.metricValue,
     required this.timestamp,
+    this.imageUrl,
   });
 
   factory TrashItemInfo.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class TrashItemInfo {
       reason: json['reason'] as String,
       metricValue: (json['metric_value'] as num).toDouble(),
       timestamp: DateTime.parse(json['timestamp'] as String),
+      imageUrl: json['image_url'] as String?,
     );
   }
 
@@ -30,6 +33,7 @@ class TrashItemInfo {
       'reason': reason,
       'metric_value': metricValue,
       'timestamp': timestamp.toIso8601String(),
+      'image_url': imageUrl,
     };
   }
 }
