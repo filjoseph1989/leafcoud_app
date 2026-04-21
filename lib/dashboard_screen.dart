@@ -191,13 +191,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 style: theme.textTheme.bodyMedium,
               ),
               const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.refresh_rounded),
-                  onPressed: () => notifier.fetchSensorData(),
-                  label: const Text('Retry Connection'),
-                ),
+              Column(
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.refresh_rounded),
+                      onPressed: () => notifier.fetchSensorData(),
+                      label: const Text('Retry Connection'),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) => const LandingScreen()),
+                        (route) => false,
+                      );
+                    },
+                    child: const Text('Back to Landing Page'),
+                  ),
+                ],
               ),
             ],
           ),

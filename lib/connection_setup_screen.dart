@@ -21,6 +21,10 @@ class _ConnectionSetupScreenState extends State<ConnectionSetupScreen> {
   void initState() {
     super.initState();
     _loadSettings();
+    // Dismiss any existing snackbars from previous screens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    });
   }
 
   Future<void> _loadSettings() async {
@@ -36,16 +40,36 @@ class _ConnectionSetupScreenState extends State<ConnectionSetupScreen> {
   }
 
   Future<void> _saveSettings() async {
-    final service = Provider.of<ConnectionService>(context, listen: false);
-    final ip = _ipController.text.trim();
-    final port = _portController.text.trim();
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
-    await service.saveConnectionSettings(ip, port);
-    
-    if (mounted) {
-      // Update ApiService baseUrl globally
-      Provider.of<ApiService>(context, listen: false).baseUrl = service.getBaseUrl(ip, port);
-      Navigator.of(context).pop();
+    try {
+      final service = Provider.of<ConnectionService>(context, listen: false);
+      final ip = _ipController.text.trim();
+      final port = _portController.text.trim();
+
+      await service.saveConnectionSettings(ip, port);
+      
+      if (mounted) {
+        // Update ApiService baseUrl globally
+        Provider.of<ApiService>(context, listen: false).baseUrl = service.getBaseUrl(ip, port);
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Settings saved successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Failed to save settings: $e';
+        _isLoading = false;
+      });
     }
   }
 
@@ -60,6 +84,18 @@ class _ConnectionSetupScreenState extends State<ConnectionSetupScreen> {
           icon: Icon(Icons.arrow_back_ios_new_rounded, color: theme.colorScheme.primary),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              'CLOSE',
+              style: TextStyle(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
       ),
       extendBodyBehindAppBar: true,
       body: Container(
@@ -112,6 +148,30 @@ class _ConnectionSetupScreenState extends State<ConnectionSetupScreen> {
                   ),
                 ),
                 const SizedBox(height: 48),
+                if (_errorMessage != null)
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.only(bottom: 24),
+                    decoration: BoxDecoration(
+                      color: Colors.red[50],
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.red[100]!),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _errorMessage!,
+                            style: TextStyle(color: Colors.red[800], fontSize: 14),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.close, color: Colors.red[800], size: 18),
+                          onPressed: () => setState(() => _errorMessage = null),
+                        ),
+                      ],
+                    ),
+                  ),
                 TextField(
                   controller: _ipController,
                   decoration: const InputDecoration(
@@ -131,8 +191,10 @@ class _ConnectionSetupScreenState extends State<ConnectionSetupScreen> {
                 ),
                 const SizedBox(height: 32),
                 ElevatedButton(
-                  onPressed: () => _saveSettings(),
-                  child: const Text('Save Settings'),
+                  onPressed: _isLoading ? null : _saveSettings,
+                  child: _isLoading 
+                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    : const Text('Save Settings'),
                 ),
                 const SizedBox(height: 48),
                 Container(

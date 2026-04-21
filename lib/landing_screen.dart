@@ -63,17 +63,22 @@ class _LandingScreenState extends State<LandingScreen> {
           MaterialPageRoute(builder: (context) => const LoginScreen()),
         );
       } else {
+        // Clear any existing snackbars to prevent stacking
+        ScaffoldMessenger.of(context).clearSnackBars();
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(result.errorMessage ?? 'Connection failed. Please check your settings.'),
-            backgroundColor: Colors.red[700],
+            backgroundColor: Colors.red[800],
+            duration: const Duration(seconds: 4),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            margin: const EdgeInsets.all(16),
             action: SnackBarAction(
-              label: 'Settings',
+              label: 'DISMISS',
               textColor: Colors.white,
               onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const ConnectionSetupScreen()),
-                );
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
               },
             ),
           ),
