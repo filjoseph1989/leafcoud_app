@@ -5,8 +5,9 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i7;
 
-import 'package:flutter_leafcloud_app/models/image_info.dart' as _i8;
+import 'package:flutter_leafcloud_app/models/image_info.dart' as _i9;
 import 'package:flutter_leafcloud_app/models/sensor_data.dart' as _i3;
+import 'package:flutter_leafcloud_app/models/trash_item_info.dart' as _i8;
 import 'package:flutter_leafcloud_app/services/api_service.dart' as _i5;
 import 'package:flutter_leafcloud_app/services/connection_service.dart' as _i4;
 import 'package:http/http.dart' as _i2;
@@ -78,6 +79,28 @@ class MockApiService extends _i1.Mock implements _i5.ApiService {
   );
 
   @override
+  _i7.Future<List<_i8.TrashItemInfo>> getTrashItems({
+    int? skip = 0,
+    int? limit = 50,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#getTrashItems, [], {#skip: skip, #limit: limit}),
+            returnValue: _i7.Future<List<_i8.TrashItemInfo>>.value(
+              <_i8.TrashItemInfo>[],
+            ),
+          )
+          as _i7.Future<List<_i8.TrashItemInfo>>);
+
+  @override
+  _i7.Future<void> restoreImage(int? logId) =>
+      (super.noSuchMethod(
+            Invocation.method(#restoreImage, [logId]),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
+
+  @override
   _i7.Future<_i3.SensorData> fetchSensorData() =>
       (super.noSuchMethod(
             Invocation.method(#fetchSensorData, []),
@@ -128,17 +151,17 @@ class MockApiService extends _i1.Mock implements _i5.ApiService {
           as _i7.Future<Map<String, dynamic>>);
 
   @override
-  _i7.Future<List<_i8.ImageInfo>> fetchImages({
+  _i7.Future<List<_i9.ImageInfo>> fetchImages({
     int? skip = 0,
     int? limit = 50,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#fetchImages, [], {#skip: skip, #limit: limit}),
-            returnValue: _i7.Future<List<_i8.ImageInfo>>.value(
-              <_i8.ImageInfo>[],
+            returnValue: _i7.Future<List<_i9.ImageInfo>>.value(
+              <_i9.ImageInfo>[],
             ),
           )
-          as _i7.Future<List<_i8.ImageInfo>>);
+          as _i7.Future<List<_i9.ImageInfo>>);
 
   @override
   _i7.Future<void> deleteImage(String? filename) =>

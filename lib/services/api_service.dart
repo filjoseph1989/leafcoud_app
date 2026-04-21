@@ -2,12 +2,55 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_leafcloud_app/models/sensor_data.dart';
 import 'package:flutter_leafcloud_app/models/image_info.dart';
+import 'package:flutter_leafcloud_app/models/trash_item_info.dart';
 
 class ApiService {
   final http.Client client;
   String baseUrl;
 
   ApiService({required this.client, required this.baseUrl});
+
+  Future<List<TrashItemInfo>> getTrashItems({int skip = 0, int limit = 50}) async {
+    final response = await client.get(
+      Uri.parse('$baseUrl/api/v1/images/trash?skip=$skip&limit=$limit'),
+      headers: {
+        'Authorization': 'demo-access-token-xyz-789',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((itemJson) {
+        if (itemJson['image_url'] != null && 
+            (itemJson['image_url'] as String).isNotEmpty &&
+            !(itemJson['image_url'] as String).startsWith('http')) {
+          final normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl.substring(0, baseUrl.length - 1) : baseUrl;
+          final normalizedPath = (itemJson['image_url'] as String).startsWith('/') ? itemJson['image_url'] : '/${itemJson['image_url']}';
+          itemJson['image_url'] = '$normalizedBaseUrl$normalizedPath';
+        }
+        return TrashItemInfo.fromJson(itemJson);
+      }).toList();
+    } else if (response.statusCode == 401 || response.statusCode == 403) {
+      throw Exception('Unauthorized access to trash: ${response.statusCode}');
+    } else {
+      throw Exception('Failed to load trash items: ${response.statusCode}');
+    }
+  }
+
+  Future<void> restoreImage(int logId) async {
+    final response = await client.post(
+      Uri.parse('$baseUrl/api/v1/images/restore'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'demo-access-token-xyz-789',
+      },
+      body: jsonEncode({'log_id': logId}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to restore image: ${response.statusCode}');
+    }
+  }
 
   Future<SensorData> fetchSensorData() async {
     final response = await client.get(Uri.parse('$baseUrl/app/latest_status/'));
@@ -115,7 +158,7 @@ class ApiService {
 
   Future<void> deleteImage(String filename) async {
     final response = await client.delete(
-      Uri.parse('$baseUrl/admin/images/$filename'),
+      Uri.parse('$baseUrl/api/v1/images/$filename'),
       headers: {
         'Authorization': 'demo-access-token-xyz-789',
       },
