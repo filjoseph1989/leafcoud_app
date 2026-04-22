@@ -169,6 +169,82 @@ class ApiService {
     }
   }
 
+  // --- Image Cropping Endpoints ---
+
+  Future<Map<String, dynamic>> getNextImageToCrop() async {
+    final response = await client.get(
+      Uri.parse('$baseUrl/api/v1/images/crop/next'),
+      headers: {
+        'Authorization': 'demo-access-token-xyz-789',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else if (response.statusCode == 404) {
+      throw Exception('No more images to crop.');
+    } else {
+      throw Exception('Failed to fetch next image: ${response.statusCode}');
+    }
+  }
+
+  Future<void> submitCrop({
+    required String relPath,
+    required double centerX,
+    required double centerY,
+    required double displayWidth,
+    required double displayHeight,
+  }) async {
+    final response = await client.post(
+      Uri.parse('$baseUrl/api/v1/images/crop/submit'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'demo-access-token-xyz-789',
+      },
+      body: jsonEncode({
+        'rel_path': relPath,
+        'center_x': centerX,
+        'center_y': centerY,
+        'display_width': displayWidth,
+        'display_height': displayHeight,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to submit crop: ${response.statusCode}');
+    }
+  }
+
+  Future<void> skipImage(String relPath) async {
+    final response = await client.post(
+      Uri.parse('$baseUrl/api/v1/images/crop/skip'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'demo-access-token-xyz-789',
+      },
+      body: jsonEncode({'rel_path': relPath}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to skip image: ${response.statusCode}');
+    }
+  }
+
+  Future<void> markImageDone(String relPath) async {
+    final response = await client.post(
+      Uri.parse('$baseUrl/api/v1/images/crop/mark-done'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'demo-access-token-xyz-789',
+      },
+      body: jsonEncode({'rel_path': relPath}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to mark image as done: ${response.statusCode}');
+    }
+  }
+
   Future<void> restartIot() async {
     final response = await client.post(
       Uri.parse('$baseUrl/control/restart-iot'),
