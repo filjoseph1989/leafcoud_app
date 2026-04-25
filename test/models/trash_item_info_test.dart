@@ -23,6 +23,19 @@ void main() {
       expect(trashItem.imageUrl, '/images/trash/1.jpg');
     });
 
+    test('should handle null metric_value by defaulting to 0.0', () {
+      final json = {
+        'id': 1,
+        'filename': 'test.jpg',
+        'reason': 'test',
+        'metric_value': null,
+        'timestamp': '2026-04-15T12:00:00Z',
+      };
+
+      final trashItem = TrashItemInfo.fromJson(json);
+      expect(trashItem.metricValue, 0.0);
+    });
+
     test('should correctly convert to JSON', () {
       final timestamp = DateTime.parse('2026-04-15T12:00:00Z');
       final trashItem = TrashItemInfo(

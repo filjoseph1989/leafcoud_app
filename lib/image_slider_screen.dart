@@ -34,8 +34,8 @@ class _ImageSliderScreenState extends State<ImageSliderScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Image'),
-        content: const Text('Are you sure you want to delete this image? This action cannot be undone.'),
+        title: const Text('Move to Trash'),
+        content: const Text('Are you sure you want to move this image to the trash? You can restore it later from the Trash screen.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),

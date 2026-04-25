@@ -20,7 +20,7 @@ class TrashItemInfo {
       id: json['id'] as int,
       filename: json['filename'] as String,
       reason: json['reason'] as String,
-      metricValue: (json['metric_value'] as num).toDouble(),
+      metricValue: (json['metric_value'] as num?)?.toDouble() ?? 0.0,
       timestamp: DateTime.parse(json['timestamp'] as String),
       imageUrl: json['image_url'] as String?,
     );
