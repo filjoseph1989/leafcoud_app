@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_leafcloud_app/models/sensor_data.dart';
 import 'package:flutter_leafcloud_app/models/image_info.dart';
 import 'package:flutter_leafcloud_app/models/trash_item_info.dart';
+import 'package:flutter_leafcloud_app/models/trash_review_item.dart';
 
 class ApiService {
   final http.Client client;
@@ -251,6 +253,90 @@ class ApiService {
     if (response.statusCode != 200) {
       throw Exception('Failed to mark image as done: ${response.statusCode}');
     }
+  }
+
+  // --- Trash Review Endpoints ---
+
+  Future<TrashReviewItem> getTrashReviewNext() async {
+    final response = await client.get(
+      Uri.parse('$baseUrl/api/v1/trash/next'),
+      headers: {
+        'Authorization': 'demo-access-token-xyz-789',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      debugPrint('Trash Review Response: $data');
+      return _normalizeTrashReviewItem(data);
+    } else if (response.statusCode == 404) {
+      throw Exception('No more images to review.');
+    } else {
+      throw Exception('Failed to fetch next trash item: ${response.statusCode}');
+    }
+  }
+
+  Future<TrashReviewItem> getTrashReviewScan(int offset) async {
+    final response = await client.get(
+      Uri.parse('$baseUrl/api/v1/trash/scan?offset=$offset'),
+      headers: {
+        'Authorization': 'demo-access-token-xyz-789',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      return _normalizeTrashReviewItem(data);
+    } else {
+      throw Exception('Failed to scan trash item: ${response.statusCode}');
+    }
+  }
+
+  Future<void> markTrashViewed(int id) async {
+    final response = await client.post(
+      Uri.parse('$baseUrl/api/v1/trash/$id/viewed'),
+      headers: {
+        'Authorization': 'demo-access-token-xyz-789',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to mark trash as viewed: ${response.statusCode}');
+    }
+  }
+
+  Future<void> restoreTrash(int id) async {
+    final response = await client.post(
+      Uri.parse('$baseUrl/api/v1/trash/$id/restore'),
+      headers: {
+        'Authorization': 'demo-access-token-xyz-789',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to restore trash item: ${response.statusCode}');
+    }
+  }
+
+  TrashReviewItem _normalizeTrashReviewItem(Map<String, dynamic> data) {
+    final itemData = data['image'] ?? data['metadata'] ?? data['item'] ?? data['data'] ?? data;
+    if (itemData['image_url'] != null &&
+        (itemData['image_url'] as String).isNotEmpty &&
+        !(itemData['image_url'] as String).startsWith('http')) {
+      final normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl.substring(0, baseUrl.length - 1) : baseUrl;
+      var path = itemData['image_url'] as String;
+      
+      // If it's just a filename and doesn't already contain a path separator, 
+      // assume it's in the temp_trash folder as per docs.
+      if (!path.contains('/')) {
+        path = '/temp_trash/$path';
+      } else if (!path.startsWith('/')) {
+        path = '/$path';
+      }
+      
+      itemData['image_url'] = '$normalizedBaseUrl$path';
+    }
+    return TrashReviewItem.fromJson(data);
   }
 
   Future<void> restartIot() async {
