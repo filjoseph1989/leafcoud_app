@@ -7,6 +7,7 @@ import 'package:flutter_leafcloud_app/image_gallery_screen.dart';
 import 'package:flutter_leafcloud_app/experiment_management_screen.dart';
 import 'package:flutter_leafcloud_app/data_gathering_screen.dart';
 import 'package:flutter_leafcloud_app/trash_screen.dart';
+import 'package:flutter_leafcloud_app/image_cropper_screen.dart';
 import 'package:flutter_leafcloud_app/notifiers/sensor_data_notifier.dart';
 import 'package:flutter_leafcloud_app/models/sensor_data.dart';
 
@@ -88,6 +89,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             _buildDrawerItem(context, Icons.analytics_outlined, 'Data Gathering', const DataGatheringScreen()),
+            _buildDrawerItem(context, Icons.crop_rounded, 'Image Cropper', const ImageCropperScreen()),
             _buildDrawerItem(context, Icons.tune_rounded, 'Experiment Management', const ExperimentManagementScreen()),
             _buildDrawerItem(context, Icons.photo_library_outlined, 'Image Gallery', const ImageGalleryScreen()),
             _buildDrawerItem(context, Icons.delete_outline_rounded, 'Trash', const TrashScreen()),

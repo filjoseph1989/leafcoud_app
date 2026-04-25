@@ -180,7 +180,15 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      if (data['image_url'] != null && 
+          (data['image_url'] as String).isNotEmpty &&
+          !(data['image_url'] as String).startsWith('http')) {
+        final normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl.substring(0, baseUrl.length - 1) : baseUrl;
+        final normalizedPath = (data['image_url'] as String).startsWith('/') ? data['image_url'] : '/${data['image_url']}';
+        data['image_url'] = '$normalizedBaseUrl$normalizedPath';
+      }
+      return data;
     } else if (response.statusCode == 404) {
       throw Exception('No more images to crop.');
     } else {
