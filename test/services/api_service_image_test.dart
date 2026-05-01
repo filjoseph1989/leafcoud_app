@@ -77,7 +77,7 @@ void main() {
     test('restoreImage sends a POST request with correct log_ids list', () async {
       final client = MockClient((request) async {
         if (request.method == 'POST' &&
-            request.url.toString() == '$baseUrl/api/v1/images/restore/') {
+            request.url.toString() == '$baseUrl/api/v1/images/restore') {
           final body = jsonDecode(request.body);
           if (body['log_ids'] is List && body['log_ids'][0] == 101) {
             return http.Response('', 200);
