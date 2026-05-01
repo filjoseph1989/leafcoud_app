@@ -106,7 +106,7 @@ class _ImageSliderScreenState extends State<ImageSliderScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${image.bucketLabel ?? 'Reading'}${image.readingId != null ? ' - #${image.readingId}' : ''}',
+                  '${image.bucketLabel ?? "Reading"}${image.readingId != null ? " - #${image.readingId}" : ""}',
                   style: const TextStyle(fontSize: 16, color: Colors.white),
                 ),
                 Text(
@@ -115,13 +115,13 @@ class _ImageSliderScreenState extends State<ImageSliderScreen> {
                 ),
               ],
             ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-                onPressed: () => _confirmDelete(context, image),
-              ),
-            ],
           ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () => _confirmDelete(context, image),
+            backgroundColor: Colors.redAccent,
+            child: const Icon(Icons.delete_outline, color: Colors.white),
+          ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
           body: PageView.builder(
             controller: _pageController,
             itemCount: notifier.images.length,

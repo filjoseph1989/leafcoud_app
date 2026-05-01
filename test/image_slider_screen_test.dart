@@ -52,4 +52,43 @@ void main() {
     // Expect to find "NPK - #123" in the title
     expect(find.text('NPK - #123'), findsOneWidget);
   });
+
+  testWidgets('ImageSliderScreen displays delete FloatingActionButton and shows dialog', (WidgetTester tester) async {
+    final testImage = ImageInfo(
+      filename: 'test.jpg',
+      readingId: 123,
+      timestamp: DateTime(2026, 3, 11, 22, 0, 0),
+      bucketLabel: 'NPK',
+      imageUrl: '/images/test.jpg',
+    );
+
+    when(mockApiService.fetchImages(skip: 0, limit: 20)).thenAnswer((_) async => [testImage]);
+    when(mockApiService.baseUrl).thenReturn('http://localhost:8000');
+
+    await imageManagementNotifier.fetchImages(refresh: true);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ChangeNotifierProvider<ImageManagementNotifier>.value(
+          value: imageManagementNotifier,
+          child: const ImageSliderScreen(initialIndex: 0),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    // Verify FloatingActionButton exists
+    final fabFinder = find.byType(FloatingActionButton);
+    expect(fabFinder, findsOneWidget);
+    expect(find.byIcon(Icons.delete_outline), findsOneWidget);
+
+    // Tap the FAB
+    await tester.tap(fabFinder);
+    await tester.pumpAndSettle();
+
+    // Verify dialog appears
+    expect(find.text('Move to Trash'), findsOneWidget);
+    expect(find.textContaining('Are you sure you want to move this image to the trash?'), findsOneWidget);
+  });
 }
