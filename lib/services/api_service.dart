@@ -14,7 +14,7 @@ class ApiService {
 
   Future<List<TrashItemInfo>> getTrashItems({int skip = 0, int limit = 50}) async {
     final response = await client.get(
-      Uri.parse('$baseUrl/api/v1/images/trash?skip=$skip&limit=$limit'),
+      Uri.parse('$baseUrl/api/v1/images/trash/?skip=$skip&limit=$limit'),
       headers: {
         'Authorization': 'demo-access-token-xyz-789',
       },
@@ -41,7 +41,7 @@ class ApiService {
 
   Future<void> restoreImage(int logId) async {
     final response = await client.post(
-      Uri.parse('$baseUrl/api/v1/images/restore'),
+      Uri.parse('$baseUrl/api/v1/images/restore/'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'demo-access-token-xyz-789',
@@ -175,7 +175,7 @@ class ApiService {
 
   Future<Map<String, dynamic>> getNextImageToCrop() async {
     final response = await client.get(
-      Uri.parse('$baseUrl/api/v1/images/crop/next'),
+      Uri.parse('$baseUrl/api/v1/images/crop/next/'),
       headers: {
         'Authorization': 'demo-access-token-xyz-789',
       },
@@ -206,7 +206,7 @@ class ApiService {
     required double displayHeight,
   }) async {
     final response = await client.post(
-      Uri.parse('$baseUrl/api/v1/images/crop/submit'),
+      Uri.parse('$baseUrl/api/v1/images/crop/submit/'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'demo-access-token-xyz-789',
@@ -227,7 +227,7 @@ class ApiService {
 
   Future<void> skipImage(String relPath) async {
     final response = await client.post(
-      Uri.parse('$baseUrl/api/v1/images/crop/skip'),
+      Uri.parse('$baseUrl/api/v1/images/crop/skip/'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'demo-access-token-xyz-789',
@@ -242,7 +242,7 @@ class ApiService {
 
   Future<void> markImageDone(String relPath) async {
     final response = await client.post(
-      Uri.parse('$baseUrl/api/v1/images/crop/mark-done'),
+      Uri.parse('$baseUrl/api/v1/images/crop/mark-done/'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'demo-access-token-xyz-789',
@@ -259,7 +259,7 @@ class ApiService {
 
   Future<TrashReviewItem> getTrashReviewNext() async {
     final response = await client.get(
-      Uri.parse('$baseUrl/api/v1/trash/next'),
+      Uri.parse('$baseUrl/api/v1/trash/next/'),
       headers: {
         'Authorization': 'demo-access-token-xyz-789',
       },
@@ -278,7 +278,7 @@ class ApiService {
 
   Future<TrashReviewItem> getTrashReviewScan(int offset) async {
     final response = await client.get(
-      Uri.parse('$baseUrl/api/v1/trash/scan?offset=$offset'),
+      Uri.parse('$baseUrl/api/v1/trash/scan/?offset=$offset'),
       headers: {
         'Authorization': 'demo-access-token-xyz-789',
       },
@@ -294,7 +294,7 @@ class ApiService {
 
   Future<void> markTrashViewed(int id) async {
     final response = await client.post(
-      Uri.parse('$baseUrl/api/v1/trash/$id/viewed'),
+      Uri.parse('$baseUrl/api/v1/trash/$id/viewed/'),
       headers: {
         'Authorization': 'demo-access-token-xyz-789',
       },
@@ -307,7 +307,7 @@ class ApiService {
 
   Future<void> restoreTrash(int id) async {
     final response = await client.post(
-      Uri.parse('$baseUrl/api/v1/trash/$id/restore'),
+      Uri.parse('$baseUrl/api/v1/trash/$id/restore/'),
       headers: {
         'Authorization': 'demo-access-token-xyz-789',
       },
