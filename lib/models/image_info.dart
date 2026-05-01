@@ -1,4 +1,5 @@
 class ImageInfo {
+  final int? id;
   final String filename;
   final int? readingId;
   final DateTime? timestamp;
@@ -7,6 +8,7 @@ class ImageInfo {
   final bool isOrphaned;
 
   ImageInfo({
+    this.id,
     required this.filename,
     this.readingId,
     this.timestamp,
@@ -17,6 +19,7 @@ class ImageInfo {
 
   factory ImageInfo.fromJson(Map<String, dynamic> json) {
     return ImageInfo(
+      id: json['id'] as int?,
       filename: json['filename'] as String,
       readingId: json['reading_id'] as int?,
       timestamp: json['timestamp'] != null 
@@ -30,6 +33,7 @@ class ImageInfo {
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'filename': filename,
       'reading_id': readingId,
       'timestamp': timestamp?.toIso8601String(),

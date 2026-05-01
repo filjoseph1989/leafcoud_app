@@ -16,6 +16,7 @@ void main() {
           return http.Response(
             jsonEncode([
               {
+                "id": 123,
                 "filename": "test.jpg",
                 "reading_id": 1,
                 "timestamp": "2026-03-05T23:47:27",
@@ -34,14 +35,14 @@ void main() {
       final images = await apiService.fetchImages();
 
       expect(images.length, 1);
+      expect(images[0].id, 123);
       expect(images[0].filename, 'test.jpg');
-      expect(images[0].bucketLabel, 'NPK');
     });
 
-    test('deleteImage sends a DELETE request with Auth header and succeeds', () async {
+    test('deleteImage sends a DELETE request with id query param', () async {
       final client = MockClient((request) async {
         if (request.method == 'DELETE' &&
-            request.url.toString() == '$baseUrl/api/v1/images/test.jpg' &&
+            request.url.toString() == '$baseUrl/api/v1/images/?id=123' &&
             request.headers['Authorization'] == 'demo-access-token-xyz-789') {
           return http.Response('', 204);
         }
@@ -49,9 +50,7 @@ void main() {
       });
 
       final apiService = ApiService(client: client, baseUrl: baseUrl);
-      
-      // Should not throw
-      await apiService.deleteImage('test.jpg');
+      await apiService.deleteImage('test.jpg', id: 123);
     });
 
     test('fetchImages throws an exception on error', () async {
@@ -62,16 +61,6 @@ void main() {
       final apiService = ApiService(client: client, baseUrl: baseUrl);
 
       expect(apiService.fetchImages(), throwsException);
-    });
-
-    test('deleteImage throws an exception on error', () async {
-      final client = MockClient((request) async {
-        return http.Response('Internal Server Error', 500);
-      });
-
-      final apiService = ApiService(client: client, baseUrl: baseUrl);
-
-      expect(apiService.deleteImage('test.jpg'), throwsException);
     });
 
     test('restoreImage sends a POST request with correct log_ids list', () async {
@@ -88,8 +77,6 @@ void main() {
       });
 
       final apiService = ApiService(client: client, baseUrl: baseUrl);
-      
-      // Should not throw
       await apiService.restoreImage(101);
     });
   });

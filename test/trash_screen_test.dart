@@ -96,7 +96,7 @@ void main() {
 
     when(mockApiService.getTrashItems(skip: 0, limit: 20))
         .thenAnswer((_) async => [item]);
-    when(mockApiService.deleteImage('img1.jpg')).thenAnswer((_) async {});
+    when(mockApiService.deleteImage('img1.jpg', id: 1)).thenAnswer((_) async {});
 
     await tester.pumpWidget(
       ChangeNotifierProvider(
@@ -115,7 +115,7 @@ void main() {
     await tester.tap(find.text('Delete'));
     await tester.pumpAndSettle();
 
-    verify(mockApiService.deleteImage('img1.jpg')).called(1);
+    verify(mockApiService.deleteImage('img1.jpg', id: 1)).called(1);
     expect(find.text('img1.jpg'), findsNothing);
   });
 

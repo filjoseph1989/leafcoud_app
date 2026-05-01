@@ -158,9 +158,9 @@ class ApiService {
     }
   }
 
-  Future<void> deleteImage(String filename) async {
+  Future<void> deleteImage(String filename, {required int id}) async {
     final response = await client.delete(
-      Uri.parse('$baseUrl/api/v1/images/$filename'),
+      Uri.parse('$baseUrl/api/v1/images/?id=$id'),
       headers: {
         'Authorization': 'demo-access-token-xyz-789',
       },
