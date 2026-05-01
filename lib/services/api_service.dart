@@ -46,7 +46,7 @@ class ApiService {
         'Content-Type': 'application/json',
         'Authorization': 'demo-access-token-xyz-789',
       },
-      body: jsonEncode({'log_id': logId}),
+      body: jsonEncode({'log_ids': [logId]}),
     );
 
     if (response.statusCode != 200) {
@@ -147,7 +147,7 @@ class ApiService {
 
   Future<List<ImageInfo>> fetchImages({int skip = 0, int limit = 50}) async {
     final response = await client.get(
-      Uri.parse('$baseUrl/admin/images/?skip=$skip&limit=$limit'),
+      Uri.parse('$baseUrl/api/v1/images/?skip=$skip&limit=$limit'),
     );
 
     if (response.statusCode == 200) {

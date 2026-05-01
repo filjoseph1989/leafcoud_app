@@ -12,7 +12,7 @@ void main() {
     test('fetchImages returns a list of ImageInfo on success', () async {
       final client = MockClient((request) async {
         if (request.method == 'GET' &&
-            request.url.toString() == '$baseUrl/admin/images/?skip=0&limit=50') {
+            request.url.toString() == '$baseUrl/api/v1/images/?skip=0&limit=50') {
           return http.Response(
             jsonEncode([
               {
@@ -41,7 +41,7 @@ void main() {
     test('deleteImage sends a DELETE request with Auth header and succeeds', () async {
       final client = MockClient((request) async {
         if (request.method == 'DELETE' &&
-            request.url.toString() == '$baseUrl/admin/images/test.jpg' &&
+            request.url.toString() == '$baseUrl/api/v1/images/test.jpg' &&
             request.headers['Authorization'] == 'demo-access-token-xyz-789') {
           return http.Response('', 204);
         }
@@ -72,6 +72,25 @@ void main() {
       final apiService = ApiService(client: client, baseUrl: baseUrl);
 
       expect(apiService.deleteImage('test.jpg'), throwsException);
+    });
+
+    test('restoreImage sends a POST request with correct log_ids list', () async {
+      final client = MockClient((request) async {
+        if (request.method == 'POST' &&
+            request.url.toString() == '$baseUrl/api/v1/images/restore') {
+          final body = jsonDecode(request.body);
+          if (body['log_ids'] is List && body['log_ids'][0] == 101) {
+            return http.Response('', 200);
+          }
+          return http.Response('Invalid Payload', 422);
+        }
+        return http.Response('Not Found', 404);
+      });
+
+      final apiService = ApiService(client: client, baseUrl: baseUrl);
+      
+      // Should not throw
+      await apiService.restoreImage(101);
     });
   });
 }
