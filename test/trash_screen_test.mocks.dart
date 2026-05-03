@@ -3,15 +3,16 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i6;
+import 'dart:async' as _i7;
 
-import 'package:flutter_leafcloud_app/models/image_info.dart' as _i8;
+import 'package:flutter_leafcloud_app/models/image_info.dart' as _i9;
 import 'package:flutter_leafcloud_app/models/sensor_data.dart' as _i3;
-import 'package:flutter_leafcloud_app/models/trash_item_info.dart' as _i7;
-import 'package:flutter_leafcloud_app/services/api_service.dart' as _i4;
+import 'package:flutter_leafcloud_app/models/trash_item_info.dart' as _i8;
+import 'package:flutter_leafcloud_app/models/trash_review_item.dart' as _i4;
+import 'package:flutter_leafcloud_app/services/api_service.dart' as _i5;
 import 'package:http/http.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i5;
+import 'package:mockito/src/dummies.dart' as _i6;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -38,10 +39,16 @@ class _FakeSensorData_1 extends _i1.SmartFake implements _i3.SensorData {
     : super(parent, parentInvocation);
 }
 
+class _FakeTrashReviewItem_2 extends _i1.SmartFake
+    implements _i4.TrashReviewItem {
+  _FakeTrashReviewItem_2(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [ApiService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockApiService extends _i1.Mock implements _i4.ApiService {
+class MockApiService extends _i1.Mock implements _i5.ApiService {
   MockApiService() {
     _i1.throwOnMissingStub(this);
   }
@@ -58,7 +65,7 @@ class MockApiService extends _i1.Mock implements _i4.ApiService {
   String get baseUrl =>
       (super.noSuchMethod(
             Invocation.getter(#baseUrl),
-            returnValue: _i5.dummyValue<String>(
+            returnValue: _i6.dummyValue<String>(
               this,
               Invocation.getter(#baseUrl),
             ),
@@ -72,159 +79,252 @@ class MockApiService extends _i1.Mock implements _i4.ApiService {
   );
 
   @override
-  _i6.Future<List<_i7.TrashItemInfo>> getTrashItems({
+  _i7.Future<List<_i8.TrashItemInfo>> getTrashItems({
     int? skip = 0,
     int? limit = 50,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#getTrashItems, [], {#skip: skip, #limit: limit}),
-            returnValue: _i6.Future<List<_i7.TrashItemInfo>>.value(
-              <_i7.TrashItemInfo>[],
+            returnValue: _i7.Future<List<_i8.TrashItemInfo>>.value(
+              <_i8.TrashItemInfo>[],
             ),
           )
-          as _i6.Future<List<_i7.TrashItemInfo>>);
+          as _i7.Future<List<_i8.TrashItemInfo>>);
 
   @override
-  _i6.Future<void> restoreImage(int? logId) =>
+  _i7.Future<void> restoreImage(int? logId) =>
       (super.noSuchMethod(
             Invocation.method(#restoreImage, [logId]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i7.Future<void>);
 
   @override
-  _i6.Future<_i3.SensorData> fetchSensorData() =>
+  _i7.Future<_i3.SensorData> fetchSensorData() =>
       (super.noSuchMethod(
             Invocation.method(#fetchSensorData, []),
-            returnValue: _i6.Future<_i3.SensorData>.value(
+            returnValue: _i7.Future<_i3.SensorData>.value(
               _FakeSensorData_1(this, Invocation.method(#fetchSensorData, [])),
             ),
           )
-          as _i6.Future<_i3.SensorData>);
+          as _i7.Future<_i3.SensorData>);
 
   @override
-  _i6.Future<void> postActiveBucket(String? label) =>
+  _i7.Future<void> postActiveBucket(String? label) =>
       (super.noSuchMethod(
             Invocation.method(#postActiveBucket, [label]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i7.Future<void>);
 
   @override
-  _i6.Future<void> postActiveExperiment(String? experimentId) =>
+  _i7.Future<void> postActiveExperiment(String? experimentId) =>
       (super.noSuchMethod(
             Invocation.method(#postActiveExperiment, [experimentId]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i7.Future<void>);
 
   @override
-  _i6.Future<Map<String, dynamic>> fetchActiveBucketStatus() =>
+  _i7.Future<Map<String, dynamic>> fetchActiveBucketStatus() =>
       (super.noSuchMethod(
             Invocation.method(#fetchActiveBucketStatus, []),
-            returnValue: _i6.Future<Map<String, dynamic>>.value(
+            returnValue: _i7.Future<Map<String, dynamic>>.value(
               <String, dynamic>{},
             ),
           )
-          as _i6.Future<Map<String, dynamic>>);
+          as _i7.Future<Map<String, dynamic>>);
 
   @override
-  _i6.Future<Map<String, dynamic>> fetchExperimentHistory(
+  _i7.Future<Map<String, dynamic>> fetchExperimentHistory(
     String? experimentId,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#fetchExperimentHistory, [experimentId]),
-            returnValue: _i6.Future<Map<String, dynamic>>.value(
+            returnValue: _i7.Future<Map<String, dynamic>>.value(
               <String, dynamic>{},
             ),
           )
-          as _i6.Future<Map<String, dynamic>>);
+          as _i7.Future<Map<String, dynamic>>);
 
   @override
-  _i6.Future<List<_i8.ImageInfo>> fetchImages({
+  _i7.Future<List<_i9.ImageInfo>> fetchImages({
     int? skip = 0,
     int? limit = 50,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#fetchImages, [], {#skip: skip, #limit: limit}),
-            returnValue: _i6.Future<List<_i8.ImageInfo>>.value(
-              <_i8.ImageInfo>[],
+            returnValue: _i7.Future<List<_i9.ImageInfo>>.value(
+              <_i9.ImageInfo>[],
             ),
           )
-          as _i6.Future<List<_i8.ImageInfo>>);
+          as _i7.Future<List<_i9.ImageInfo>>);
 
   @override
-  _i6.Future<void> deleteImage(String? filename) =>
+  _i7.Future<void> deleteImage(String? filename, {required int? id}) =>
       (super.noSuchMethod(
-            Invocation.method(#deleteImage, [filename]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            Invocation.method(#deleteImage, [filename], {#id: id}),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i7.Future<void>);
 
   @override
-  _i6.Future<void> restartIot() =>
+  _i7.Future<Map<String, dynamic>> getNextImageToCrop() =>
+      (super.noSuchMethod(
+            Invocation.method(#getNextImageToCrop, []),
+            returnValue: _i7.Future<Map<String, dynamic>>.value(
+              <String, dynamic>{},
+            ),
+          )
+          as _i7.Future<Map<String, dynamic>>);
+
+  @override
+  _i7.Future<void> submitCrop({
+    required String? relPath,
+    required double? centerX,
+    required double? centerY,
+    required double? displayWidth,
+    required double? displayHeight,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#submitCrop, [], {
+              #relPath: relPath,
+              #centerX: centerX,
+              #centerY: centerY,
+              #displayWidth: displayWidth,
+              #displayHeight: displayHeight,
+            }),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
+
+  @override
+  _i7.Future<void> skipImage(String? relPath) =>
+      (super.noSuchMethod(
+            Invocation.method(#skipImage, [relPath]),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
+
+  @override
+  _i7.Future<void> markImageDone(String? relPath) =>
+      (super.noSuchMethod(
+            Invocation.method(#markImageDone, [relPath]),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
+
+  @override
+  _i7.Future<_i4.TrashReviewItem> getTrashReviewNext() =>
+      (super.noSuchMethod(
+            Invocation.method(#getTrashReviewNext, []),
+            returnValue: _i7.Future<_i4.TrashReviewItem>.value(
+              _FakeTrashReviewItem_2(
+                this,
+                Invocation.method(#getTrashReviewNext, []),
+              ),
+            ),
+          )
+          as _i7.Future<_i4.TrashReviewItem>);
+
+  @override
+  _i7.Future<_i4.TrashReviewItem> getTrashReviewScan(int? offset) =>
+      (super.noSuchMethod(
+            Invocation.method(#getTrashReviewScan, [offset]),
+            returnValue: _i7.Future<_i4.TrashReviewItem>.value(
+              _FakeTrashReviewItem_2(
+                this,
+                Invocation.method(#getTrashReviewScan, [offset]),
+              ),
+            ),
+          )
+          as _i7.Future<_i4.TrashReviewItem>);
+
+  @override
+  _i7.Future<void> markTrashViewed(int? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#markTrashViewed, [id]),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
+
+  @override
+  _i7.Future<void> restoreTrash(int? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#restoreTrash, [id]),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
+          )
+          as _i7.Future<void>);
+
+  @override
+  _i7.Future<void> restartIot() =>
       (super.noSuchMethod(
             Invocation.method(#restartIot, []),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i7.Future<void>);
 
   @override
-  _i6.Future<void> requestPHUpdate() =>
+  _i7.Future<void> requestPHUpdate() =>
       (super.noSuchMethod(
             Invocation.method(#requestPHUpdate, []),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i7.Future<void>);
 
   @override
-  _i6.Future<void> acknowledgePHUpdate() =>
+  _i7.Future<void> acknowledgePHUpdate() =>
       (super.noSuchMethod(
             Invocation.method(#acknowledgePHUpdate, []),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i7.Future<void>);
 
   @override
-  _i6.Future<void> postCalibrateEC(double? value) =>
+  _i7.Future<void> postCalibrateEC(double? value) =>
       (super.noSuchMethod(
             Invocation.method(#postCalibrateEC, [value]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i7.Future<void>);
 
   @override
-  _i6.Future<void> postCalibratePH(double? value) =>
+  _i7.Future<void> postCalibratePH(double? value) =>
       (super.noSuchMethod(
             Invocation.method(#postCalibratePH, [value]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i7.Future<void>);
 
   @override
-  _i6.Future<void> postStopCalibration() =>
+  _i7.Future<void> postStopCalibration() =>
       (super.noSuchMethod(
             Invocation.method(#postStopCalibration, []),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i7.Future<void>);
 
   @override
-  _i6.Future<void> requestCalibration(String? type) =>
+  _i7.Future<void> requestCalibration(String? type) =>
       (super.noSuchMethod(
             Invocation.method(#requestCalibration, [type]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i7.Future<void>.value(),
+            returnValueForMissingStub: _i7.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i7.Future<void>);
 }

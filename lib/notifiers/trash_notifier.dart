@@ -69,7 +69,7 @@ class TrashNotifier extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await apiService.deleteImage(filename);
+      await apiService.deleteImage(filename, id: logId);
       _items.removeWhere((item) => item.id == logId);
     } catch (e) {
       _errorMessage = e.toString();

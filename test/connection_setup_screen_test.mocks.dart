@@ -3,16 +3,17 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i5;
+import 'dart:async' as _i6;
 
-import 'package:flutter_leafcloud_app/models/image_info.dart' as _i9;
+import 'package:flutter_leafcloud_app/models/image_info.dart' as _i10;
 import 'package:flutter_leafcloud_app/models/sensor_data.dart' as _i4;
-import 'package:flutter_leafcloud_app/models/trash_item_info.dart' as _i8;
-import 'package:flutter_leafcloud_app/services/api_service.dart' as _i7;
+import 'package:flutter_leafcloud_app/models/trash_item_info.dart' as _i9;
+import 'package:flutter_leafcloud_app/models/trash_review_item.dart' as _i5;
+import 'package:flutter_leafcloud_app/services/api_service.dart' as _i8;
 import 'package:flutter_leafcloud_app/services/connection_service.dart' as _i3;
 import 'package:http/http.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i6;
+import 'package:mockito/src/dummies.dart' as _i7;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -45,6 +46,12 @@ class _FakeSensorData_2 extends _i1.SmartFake implements _i4.SensorData {
     : super(parent, parentInvocation);
 }
 
+class _FakeTrashReviewItem_3 extends _i1.SmartFake
+    implements _i5.TrashReviewItem {
+  _FakeTrashReviewItem_3(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [ConnectionService].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -62,48 +69,48 @@ class MockConnectionService extends _i1.Mock implements _i3.ConnectionService {
           as _i2.Client);
 
   @override
-  _i5.Future<String?> getSavedIp() =>
+  _i6.Future<String?> getSavedIp() =>
       (super.noSuchMethod(
             Invocation.method(#getSavedIp, []),
-            returnValue: _i5.Future<String?>.value(),
+            returnValue: _i6.Future<String?>.value(),
           )
-          as _i5.Future<String?>);
+          as _i6.Future<String?>);
 
   @override
-  _i5.Future<String?> getSavedPort() =>
+  _i6.Future<String?> getSavedPort() =>
       (super.noSuchMethod(
             Invocation.method(#getSavedPort, []),
-            returnValue: _i5.Future<String?>.value(),
+            returnValue: _i6.Future<String?>.value(),
           )
-          as _i5.Future<String?>);
+          as _i6.Future<String?>);
 
   @override
-  _i5.Future<void> saveConnectionSettings(String? ip, String? port) =>
+  _i6.Future<void> saveConnectionSettings(String? ip, String? port) =>
       (super.noSuchMethod(
             Invocation.method(#saveConnectionSettings, [ip, port]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<_i3.HealthCheckResult> checkHealth(String? ip, String? port) =>
+  _i6.Future<_i3.HealthCheckResult> checkHealth(String? ip, String? port) =>
       (super.noSuchMethod(
             Invocation.method(#checkHealth, [ip, port]),
-            returnValue: _i5.Future<_i3.HealthCheckResult>.value(
+            returnValue: _i6.Future<_i3.HealthCheckResult>.value(
               _FakeHealthCheckResult_1(
                 this,
                 Invocation.method(#checkHealth, [ip, port]),
               ),
             ),
           )
-          as _i5.Future<_i3.HealthCheckResult>);
+          as _i6.Future<_i3.HealthCheckResult>);
 
   @override
   String getBaseUrl(String? ip, String? port) =>
       (super.noSuchMethod(
             Invocation.method(#getBaseUrl, [ip, port]),
-            returnValue: _i6.dummyValue<String>(
+            returnValue: _i7.dummyValue<String>(
               this,
               Invocation.method(#getBaseUrl, [ip, port]),
             ),
@@ -114,7 +121,7 @@ class MockConnectionService extends _i1.Mock implements _i3.ConnectionService {
 /// A class which mocks [ApiService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockApiService extends _i1.Mock implements _i7.ApiService {
+class MockApiService extends _i1.Mock implements _i8.ApiService {
   MockApiService() {
     _i1.throwOnMissingStub(this);
   }
@@ -131,7 +138,7 @@ class MockApiService extends _i1.Mock implements _i7.ApiService {
   String get baseUrl =>
       (super.noSuchMethod(
             Invocation.getter(#baseUrl),
-            returnValue: _i6.dummyValue<String>(
+            returnValue: _i7.dummyValue<String>(
               this,
               Invocation.getter(#baseUrl),
             ),
@@ -145,159 +152,252 @@ class MockApiService extends _i1.Mock implements _i7.ApiService {
   );
 
   @override
-  _i5.Future<List<_i8.TrashItemInfo>> getTrashItems({
+  _i6.Future<List<_i9.TrashItemInfo>> getTrashItems({
     int? skip = 0,
     int? limit = 50,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#getTrashItems, [], {#skip: skip, #limit: limit}),
-            returnValue: _i5.Future<List<_i8.TrashItemInfo>>.value(
-              <_i8.TrashItemInfo>[],
+            returnValue: _i6.Future<List<_i9.TrashItemInfo>>.value(
+              <_i9.TrashItemInfo>[],
             ),
           )
-          as _i5.Future<List<_i8.TrashItemInfo>>);
+          as _i6.Future<List<_i9.TrashItemInfo>>);
 
   @override
-  _i5.Future<void> restoreImage(int? logId) =>
+  _i6.Future<void> restoreImage(int? logId) =>
       (super.noSuchMethod(
             Invocation.method(#restoreImage, [logId]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<_i4.SensorData> fetchSensorData() =>
+  _i6.Future<_i4.SensorData> fetchSensorData() =>
       (super.noSuchMethod(
             Invocation.method(#fetchSensorData, []),
-            returnValue: _i5.Future<_i4.SensorData>.value(
+            returnValue: _i6.Future<_i4.SensorData>.value(
               _FakeSensorData_2(this, Invocation.method(#fetchSensorData, [])),
             ),
           )
-          as _i5.Future<_i4.SensorData>);
+          as _i6.Future<_i4.SensorData>);
 
   @override
-  _i5.Future<void> postActiveBucket(String? label) =>
+  _i6.Future<void> postActiveBucket(String? label) =>
       (super.noSuchMethod(
             Invocation.method(#postActiveBucket, [label]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<void> postActiveExperiment(String? experimentId) =>
+  _i6.Future<void> postActiveExperiment(String? experimentId) =>
       (super.noSuchMethod(
             Invocation.method(#postActiveExperiment, [experimentId]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<Map<String, dynamic>> fetchActiveBucketStatus() =>
+  _i6.Future<Map<String, dynamic>> fetchActiveBucketStatus() =>
       (super.noSuchMethod(
             Invocation.method(#fetchActiveBucketStatus, []),
-            returnValue: _i5.Future<Map<String, dynamic>>.value(
+            returnValue: _i6.Future<Map<String, dynamic>>.value(
               <String, dynamic>{},
             ),
           )
-          as _i5.Future<Map<String, dynamic>>);
+          as _i6.Future<Map<String, dynamic>>);
 
   @override
-  _i5.Future<Map<String, dynamic>> fetchExperimentHistory(
+  _i6.Future<Map<String, dynamic>> fetchExperimentHistory(
     String? experimentId,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#fetchExperimentHistory, [experimentId]),
-            returnValue: _i5.Future<Map<String, dynamic>>.value(
+            returnValue: _i6.Future<Map<String, dynamic>>.value(
               <String, dynamic>{},
             ),
           )
-          as _i5.Future<Map<String, dynamic>>);
+          as _i6.Future<Map<String, dynamic>>);
 
   @override
-  _i5.Future<List<_i9.ImageInfo>> fetchImages({
+  _i6.Future<List<_i10.ImageInfo>> fetchImages({
     int? skip = 0,
     int? limit = 50,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#fetchImages, [], {#skip: skip, #limit: limit}),
-            returnValue: _i5.Future<List<_i9.ImageInfo>>.value(
-              <_i9.ImageInfo>[],
+            returnValue: _i6.Future<List<_i10.ImageInfo>>.value(
+              <_i10.ImageInfo>[],
             ),
           )
-          as _i5.Future<List<_i9.ImageInfo>>);
+          as _i6.Future<List<_i10.ImageInfo>>);
 
   @override
-  _i5.Future<void> deleteImage(String? filename) =>
+  _i6.Future<void> deleteImage(String? filename, {required int? id}) =>
       (super.noSuchMethod(
-            Invocation.method(#deleteImage, [filename]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            Invocation.method(#deleteImage, [filename], {#id: id}),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<void> restartIot() =>
+  _i6.Future<Map<String, dynamic>> getNextImageToCrop() =>
+      (super.noSuchMethod(
+            Invocation.method(#getNextImageToCrop, []),
+            returnValue: _i6.Future<Map<String, dynamic>>.value(
+              <String, dynamic>{},
+            ),
+          )
+          as _i6.Future<Map<String, dynamic>>);
+
+  @override
+  _i6.Future<void> submitCrop({
+    required String? relPath,
+    required double? centerX,
+    required double? centerY,
+    required double? displayWidth,
+    required double? displayHeight,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#submitCrop, [], {
+              #relPath: relPath,
+              #centerX: centerX,
+              #centerY: centerY,
+              #displayWidth: displayWidth,
+              #displayHeight: displayHeight,
+            }),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> skipImage(String? relPath) =>
+      (super.noSuchMethod(
+            Invocation.method(#skipImage, [relPath]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> markImageDone(String? relPath) =>
+      (super.noSuchMethod(
+            Invocation.method(#markImageDone, [relPath]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<_i5.TrashReviewItem> getTrashReviewNext() =>
+      (super.noSuchMethod(
+            Invocation.method(#getTrashReviewNext, []),
+            returnValue: _i6.Future<_i5.TrashReviewItem>.value(
+              _FakeTrashReviewItem_3(
+                this,
+                Invocation.method(#getTrashReviewNext, []),
+              ),
+            ),
+          )
+          as _i6.Future<_i5.TrashReviewItem>);
+
+  @override
+  _i6.Future<_i5.TrashReviewItem> getTrashReviewScan(int? offset) =>
+      (super.noSuchMethod(
+            Invocation.method(#getTrashReviewScan, [offset]),
+            returnValue: _i6.Future<_i5.TrashReviewItem>.value(
+              _FakeTrashReviewItem_3(
+                this,
+                Invocation.method(#getTrashReviewScan, [offset]),
+              ),
+            ),
+          )
+          as _i6.Future<_i5.TrashReviewItem>);
+
+  @override
+  _i6.Future<void> markTrashViewed(int? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#markTrashViewed, [id]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> restoreTrash(int? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#restoreTrash, [id]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> restartIot() =>
       (super.noSuchMethod(
             Invocation.method(#restartIot, []),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<void> requestPHUpdate() =>
+  _i6.Future<void> requestPHUpdate() =>
       (super.noSuchMethod(
             Invocation.method(#requestPHUpdate, []),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<void> acknowledgePHUpdate() =>
+  _i6.Future<void> acknowledgePHUpdate() =>
       (super.noSuchMethod(
             Invocation.method(#acknowledgePHUpdate, []),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<void> postCalibrateEC(double? value) =>
+  _i6.Future<void> postCalibrateEC(double? value) =>
       (super.noSuchMethod(
             Invocation.method(#postCalibrateEC, [value]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<void> postCalibratePH(double? value) =>
+  _i6.Future<void> postCalibratePH(double? value) =>
       (super.noSuchMethod(
             Invocation.method(#postCalibratePH, [value]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<void> postStopCalibration() =>
+  _i6.Future<void> postStopCalibration() =>
       (super.noSuchMethod(
             Invocation.method(#postStopCalibration, []),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<void> requestCalibration(String? type) =>
+  _i6.Future<void> requestCalibration(String? type) =>
       (super.noSuchMethod(
             Invocation.method(#requestCalibration, [type]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 }
