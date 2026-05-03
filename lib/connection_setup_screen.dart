@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_leafcloud_app/services/connection_service.dart';
 import 'package:flutter_leafcloud_app/services/api_service.dart';
-import 'package:flutter_leafcloud_app/login_screen.dart';
 
 class ConnectionSetupScreen extends StatefulWidget {
   const ConnectionSetupScreen({super.key});

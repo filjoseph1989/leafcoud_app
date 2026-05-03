@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:mjpeg_view/mjpeg_view.dart';
-import 'package:flutter_leafcloud_app/notifiers/bucket_control_notifier.dart';
 
 class VideoFeedWidget extends StatelessWidget {
   final String url;

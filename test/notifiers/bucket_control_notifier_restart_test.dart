@@ -14,7 +14,7 @@ void main() {
 
   group('BucketControlNotifier.restartIot', () {
     test('restartIot calls apiService and updates state on success', () async {
-      when(mockApiService.restartIot()).thenAnswer((_) async => null);
+      when(mockApiService.restartIot()).thenAnswer((_) async {});
 
       final future = notifier.restartIot();
       
