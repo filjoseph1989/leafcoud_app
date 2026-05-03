@@ -21,7 +21,7 @@ void main() {
     });
 
     test('setExperimentId calls apiService and updates state', () async {
-      when(mockApiService.postActiveExperiment('EXP-1')).thenAnswer((_) async => null);
+      when(mockApiService.postActiveExperiment('EXP-1')).thenAnswer((_) async {});
 
       await notifier.setExperimentId('EXP-1');
 
@@ -31,7 +31,7 @@ void main() {
     });
 
     test('setActiveBucket calls apiService and updates status', () async {
-      when(mockApiService.postActiveBucket('NPK')).thenAnswer((_) async => null);
+      when(mockApiService.postActiveBucket('NPK')).thenAnswer((_) async {});
       when(mockApiService.fetchActiveBucketStatus()).thenAnswer((_) async => {
         'bucket_id': 'NPK',
         'ph_update_requested': false,

@@ -34,7 +34,7 @@ void main() {
       await notifier.fetchActiveBucketStatus();
       expect(notifier.phUpdateRequested, isFalse);
 
-      when(mockApiService.requestPHUpdate()).thenAnswer((_) async => null);
+      when(mockApiService.requestPHUpdate()).thenAnswer((_) async {});
       when(mockApiService.fetchActiveBucketStatus()).thenAnswer((_) async => {
         'bucket_id': 'None',
         'ph_update_requested': true,
@@ -55,7 +55,7 @@ void main() {
       await notifier.fetchActiveBucketStatus();
       expect(notifier.phUpdateRequested, isTrue);
 
-      when(mockApiService.acknowledgePHUpdate()).thenAnswer((_) async => null);
+      when(mockApiService.acknowledgePHUpdate()).thenAnswer((_) async {});
       when(mockApiService.fetchActiveBucketStatus()).thenAnswer((_) async => {
         'bucket_id': 'None',
         'ph_update_requested': false,
@@ -90,7 +90,7 @@ void main() {
       });
       await notifier.fetchActiveBucketStatus();
       
-      when(mockApiService.acknowledgePHUpdate()).thenAnswer((_) async => null);
+      when(mockApiService.acknowledgePHUpdate()).thenAnswer((_) async {});
       await notifier.stopPHSession();
       verify(mockApiService.acknowledgePHUpdate()).called(1);
 

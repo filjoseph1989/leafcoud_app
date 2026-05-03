@@ -13,14 +13,59 @@ class ImageGalleryScreen extends StatefulWidget {
 
 class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
   final ScrollController _scrollController = ScrollController();
+  bool _isCheckingSession = true;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ImageManagementNotifier>().fetchImages(refresh: true);
-    });
+    _initializeGallery();
+  }
+
+  Future<void> _initializeGallery() async {
+    final notifier = context.read<ImageManagementNotifier>();
+    final savedPage = await notifier.getSavedPage();
+
+    if (!mounted) return;
+
+    if (savedPage != null) {
+      setState(() {
+        _isCheckingSession = false;
+      });
+      _showResumeDialog(savedPage);
+    } else {
+      setState(() {
+        _isCheckingSession = false;
+      });
+      notifier.fetchImages(refresh: true);
+    }
+  }
+
+  void _showResumeDialog(int savedPage) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Continue Session?'),
+        content: Text('Would you like to resume from page $savedPage or restart from the beginning?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.read<ImageManagementNotifier>().fetchImages(refresh: true);
+            },
+            child: const Text('Restart'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.read<ImageManagementNotifier>().fetchImages(resumePage: savedPage);
+            },
+            child: const Text('Resume'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -57,91 +102,93 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
           ),
         ],
       ),
-      body: Consumer<ImageManagementNotifier>(
-        builder: (context, notifier, child) {
-          if (notifier.isLoading && notifier.images.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (notifier.errorMessage != null && notifier.images.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(32.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.cloud_off_rounded, size: 80, color: theme.colorScheme.primary.withOpacity(0.2)),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Load Failed',
-                      style: theme.textTheme.headlineMedium,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      notifier.errorMessage!,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 32),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () => notifier.fetchImages(refresh: true),
-                        child: const Text('Retry'),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-
-          if (notifier.images.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.photo_library_outlined, size: 80, color: theme.colorScheme.primary.withOpacity(0.1)),
-                  const SizedBox(height: 16),
-                  Text('No images found', style: theme.textTheme.bodyLarge),
-                ],
-              ),
-            );
-          }
-
-          final baseUrl = notifier.apiService.baseUrl;
-
-          return GridView.builder(
-            controller: _scrollController,
-            padding: const EdgeInsets.all(20),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.85,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-            ),
-            itemCount: notifier.images.length + (notifier.hasMore ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index == notifier.images.length) {
+      body: _isCheckingSession 
+        ? const Center(child: CircularProgressIndicator())
+        : Consumer<ImageManagementNotifier>(
+            builder: (context, notifier, child) {
+              if (notifier.isLoading && notifier.images.isEmpty) {
                 return const Center(child: CircularProgressIndicator());
               }
 
-              final image = notifier.images[index];
-              return ImageGridItem(
-                image: image,
-                baseUrl: baseUrl,
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => ImageSliderScreen(initialIndex: index),
+              if (notifier.errorMessage != null && notifier.images.isEmpty) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.cloud_off_rounded, size: 80, color: theme.colorScheme.primary.withOpacity(0.2)),
+                        const SizedBox(height: 24),
+                        Text(
+                          'Load Failed',
+                          style: theme.textTheme.headlineMedium,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          notifier.errorMessage!,
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 32),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () => notifier.fetchImages(refresh: true),
+                            child: const Text('Retry'),
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
+                );
+              }
+
+              if (notifier.images.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.photo_library_outlined, size: 80, color: theme.colorScheme.primary.withOpacity(0.1)),
+                      const SizedBox(height: 16),
+                      Text('No images found', style: theme.textTheme.bodyLarge),
+                    ],
+                  ),
+                );
+              }
+
+              final baseUrl = notifier.apiService.baseUrl;
+
+              return GridView.builder(
+                controller: _scrollController,
+                padding: const EdgeInsets.all(20),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.85,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                ),
+                itemCount: notifier.images.length + (notifier.hasMore ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == notifier.images.length) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  final image = notifier.images[index];
+                  return ImageGridItem(
+                    image: image,
+                    baseUrl: baseUrl,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ImageSliderScreen(initialIndex: index),
+                        ),
+                      );
+                    },
                   );
                 },
               );
             },
-          );
-        },
-      ),
+          ),
     );
   }
 }

@@ -211,7 +211,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   const Divider(),
                                   const SizedBox(height: 12),
                                   _buildDataRow(theme, 'EC', '${entry.ec?.toStringAsFixed(2) ?? 'N/A'} mS/cm'),
-                                  _buildDataRow(theme, 'pH', '${entry.ph?.toStringAsFixed(2) ?? 'N/A'}'),
+                                  _buildDataRow(theme, 'pH', entry.ph?.toStringAsFixed(2) ?? 'N/A'),
                                   _buildDataRow(theme, 'Water Temp', '${entry.waterTemp?.toStringAsFixed(1) ?? entry.temp?.toStringAsFixed(1) ?? 'N/A'} °C'),
                                   if (entry.imageUrl != null) ...[
                                     const SizedBox(height: 8),

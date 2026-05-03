@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_leafcloud_app/landing_screen.dart';
-import 'package:flutter_leafcloud_app/connection_setup_screen.dart';
 import 'package:flutter_leafcloud_app/notifiers/sensor_data_notifier.dart';
 import 'package:flutter_leafcloud_app/notifiers/bucket_control_notifier.dart';
 import 'package:flutter_leafcloud_app/notifiers/history_notifier.dart';

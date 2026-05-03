@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'dart:convert';
 import 'package:flutter_leafcloud_app/services/api_service.dart';
-import 'package:flutter_leafcloud_app/models/image_info.dart';
 
 void main() {
   group('ApiService Image Management', () {
