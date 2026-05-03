@@ -85,7 +85,7 @@ void main() {
       await notifier.fetchTrashItems();
       expect(notifier.items, contains(item));
 
-      when(mockApiService.deleteImage('img1.jpg', id: 1)).thenAnswer((_) async => null);
+      when(mockApiService.deleteImage('img1.jpg', id: 1)).thenAnswer((_) async {});
 
       await notifier.deleteItem('img1.jpg', 1);
 

@@ -4,15 +4,18 @@ import 'package:mockito/mockito.dart';
 import 'package:flutter_leafcloud_app/notifiers/image_management_notifier.dart';
 import 'package:flutter_leafcloud_app/services/api_service.dart';
 import 'package:flutter_leafcloud_app/models/image_info.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'image_management_notifier_test.mocks.dart';
 
 @GenerateMocks([ApiService])
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late MockApiService mockApiService;
   late ImageManagementNotifier notifier;
 
   setUp(() {
+    SharedPreferences.setMockInitialValues({});
     mockApiService = MockApiService();
     notifier = ImageManagementNotifier(apiService: mockApiService);
   });
@@ -21,7 +24,6 @@ void main() {
     test('fetchImages updates images and handles pagination', () async {
       final image1 = ImageInfo(id: 1, filename: 'img1.jpg', imageUrl: '/img1.jpg');
       
-      // Page size is 50 in notifier
       when(mockApiService.fetchImages(skip: 0, limit: 50))
           .thenAnswer((_) async => [image1]);
 
@@ -30,6 +32,23 @@ void main() {
       expect(notifier.images.length, 1);
       expect(notifier.images[0].filename, 'img1.jpg');
       expect(notifier.hasMore, false);
+      
+      final savedPage = await notifier.getSavedPage();
+      expect(savedPage, 1);
+    });
+
+    test('fetchImages can resume from a saved page', () async {
+      final image2 = ImageInfo(id: 2, filename: 'img2.jpg', imageUrl: '/img2.jpg');
+      
+      // Page size is 50, so page 1 skip is 50
+      when(mockApiService.fetchImages(skip: 50, limit: 50))
+          .thenAnswer((_) async => [image2]);
+
+      await notifier.fetchImages(resumePage: 1);
+
+      expect(notifier.images.length, 1);
+      expect(notifier.images[0].filename, 'img2.jpg');
+      expect(notifier.currentPage, 2);
     });
 
     test('fetchImages handles errors', () async {
@@ -47,7 +66,7 @@ void main() {
       
       when(mockApiService.fetchImages(skip: 0, limit: 50))
           .thenAnswer((_) async => [image1]);
-      when(mockApiService.deleteImage('img1.jpg', id: 1)).thenAnswer((_) async => null);
+      when(mockApiService.deleteImage('img1.jpg', id: 1)).thenAnswer((_) async {});
 
       await notifier.fetchImages(refresh: true);
       expect(notifier.images.length, 1);
