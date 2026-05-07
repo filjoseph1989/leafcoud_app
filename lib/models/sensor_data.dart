@@ -45,6 +45,24 @@ class SensorData {
     return 'No Data Yet';
   }
 
+  // Tries common key names that the backend CNN model may use for the classification result
+  String? get cnnClassification {
+    if (status is Map) {
+      final m = status as Map;
+      for (final key in ['classification', 'cnn_label', 'cnn_class', 'plant_status', 'leaf_class', 'diagnosis']) {
+        final v = m[key]?.toString();
+        if (v != null && v.isNotEmpty) return v;
+      }
+    }
+    if (predictions != null) {
+      for (final key in ['classification', 'cnn_label', 'cnn_class', 'label']) {
+        final v = predictions![key]?.toString();
+        if (v != null && v.isNotEmpty) return v;
+      }
+    }
+    return null;
+  }
+
   bool get isNoData => sensors == null && status == null;
 
   Map<String, dynamic> toJson() {

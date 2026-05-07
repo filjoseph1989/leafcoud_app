@@ -241,6 +241,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _buildRecommendationCard(data),
             const SizedBox(height: 24),
             _buildStatusCard(data),
+            const SizedBox(height: 16),
+            _buildClassificationBanner(data),
             const SizedBox(height: 32),
             _buildSensorReadings(data),
             const SizedBox(height: 32),
@@ -349,6 +351,89 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Icon(Icons.arrow_forward_ios_rounded, color: theme.colorScheme.primary.withOpacity(0.3), size: 16),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildClassificationBanner(SensorData data) {
+    final label = data.cnnClassification;
+    if (label == null) return const SizedBox.shrink();
+
+    final theme = Theme.of(context);
+    final lowerLabel = label.toLowerCase();
+    final bool isHealthy = lowerLabel.contains('healthy') || lowerLabel.contains('normal') || lowerLabel.contains('optimal');
+    final bool isCritical = lowerLabel.contains('deficiency') || lowerLabel.contains('toxic') || lowerLabel.contains('severe');
+
+    final Color bannerColor = isHealthy
+        ? theme.colorScheme.primary
+        : isCritical
+            ? Colors.red[600]!
+            : Colors.orange[700]!;
+
+    final IconData bannerIcon = isHealthy
+        ? Icons.eco_rounded
+        : isCritical
+            ? Icons.warning_amber_rounded
+            : Icons.info_outline_rounded;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: bannerColor.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: bannerColor.withOpacity(0.25), width: 1.5),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: bannerColor.withOpacity(0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(bannerIcon, color: bannerColor, size: 22),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'CNN Classification',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: bannerColor.withOpacity(0.75),
+                    letterSpacing: 0.8,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: bannerColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: bannerColor.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              'AI',
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: bannerColor,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
