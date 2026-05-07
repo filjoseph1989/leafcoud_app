@@ -238,15 +238,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            _buildNutrientPredictions(data),
+            const SizedBox(height: 32),
             _buildRecommendationCard(data),
             const SizedBox(height: 24),
             _buildStatusCard(data),
-            const SizedBox(height: 16),
-            _buildClassificationBanner(data),
             const SizedBox(height: 32),
             _buildSensorReadings(data),
-            const SizedBox(height: 32),
-            _buildNutrientPredictions(data),
+            const SizedBox(height: 40),
+            _buildFooter(),
           ],
         ),
       ),
@@ -311,11 +311,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final statusText = data.healthStatus;
     final isOptimal = statusText == "Optimal";
     final statusColor = isOptimal ? theme.colorScheme.primary : Colors.orange[700]!;
+    final cnnLabel = data.cnnClassification;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Row(
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
@@ -345,96 +356,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  if (cnnLabel != null) ...[
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Icon(Icons.auto_awesome_rounded, size: 11, color: statusColor.withOpacity(0.7)),
+                        const SizedBox(width: 4),
+                        Text(
+                          'AI: $cnnLabel',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: statusColor.withOpacity(0.8),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios_rounded, color: theme.colorScheme.primary.withOpacity(0.3), size: 16),
           ],
         ),
-      ),
     );
   }
 
-  Widget _buildClassificationBanner(SensorData data) {
-    final label = data.cnnClassification;
-    if (label == null) return const SizedBox.shrink();
-
-    final theme = Theme.of(context);
-    final lowerLabel = label.toLowerCase();
-    final bool isHealthy = lowerLabel.contains('healthy') || lowerLabel.contains('normal') || lowerLabel.contains('optimal');
-    final bool isCritical = lowerLabel.contains('deficiency') || lowerLabel.contains('toxic') || lowerLabel.contains('severe');
-
-    final Color bannerColor = isHealthy
-        ? theme.colorScheme.primary
-        : isCritical
-            ? Colors.red[600]!
-            : Colors.orange[700]!;
-
-    final IconData bannerIcon = isHealthy
-        ? Icons.eco_rounded
-        : isCritical
-            ? Icons.warning_amber_rounded
-            : Icons.info_outline_rounded;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        color: bannerColor.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: bannerColor.withOpacity(0.25), width: 1.5),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: bannerColor.withOpacity(0.12),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(bannerIcon, color: bannerColor, size: 22),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'CNN Classification',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: bannerColor.withOpacity(0.75),
-                    letterSpacing: 0.8,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  label,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: bannerColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: bannerColor.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              'AI',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: bannerColor,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
-              ),
-            ),
-          ),
-        ],
-      ),
+  Widget _buildFooter() {
+    return Column(
+      children: [
+        Divider(color: Colors.grey[200]),
+        const SizedBox(height: 12),
+        Text(
+          'LeafCloud v1.0.0',
+          style: TextStyle(fontSize: 11, color: Colors.grey[400], fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '© 2026 Toraque, Cordero, Gregorio. All rights reserved.',
+          style: TextStyle(fontSize: 10, color: Colors.grey[400]),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 16),
+      ],
     );
   }
 
@@ -694,39 +656,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
             ),
-          Column(
+          SizedBox(
+            width: double.infinity,
+            child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Icon(icon, size: 22, color: theme.colorScheme.primary.withOpacity(0.5)),
-              const SizedBox(height: 8),
-              FittedBox(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      value,
-                      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold, fontSize: 18),
-                    ),
-                    if (unit.isNotEmpty) ...[
-                      const SizedBox(width: 2),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 2.0),
-                        child: Text(
-                          unit,
-                          style: theme.textTheme.bodyMedium?.copyWith(fontSize: 10),
-                        ),
-                      ),
-                    ],
-                  ],
+              const SizedBox(height: 10),
+              Text(
+                value,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  height: 1,
                 ),
+                textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 4),
+              if (unit.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                Text(
+                  unit,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: Colors.grey[500],
+                    fontSize: 10,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+              const SizedBox(height: 6),
               Text(
                 label,
-                style: theme.textTheme.bodyMedium?.copyWith(fontSize: 11),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  fontSize: 11,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
                 textAlign: TextAlign.center,
               ),
             ],
+          ),
           ),
         ],
       ),
