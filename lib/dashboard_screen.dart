@@ -44,6 +44,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         actions: [
           IconButton(
+            icon: Icon(Icons.history_rounded, color: theme.colorScheme.primary),
+            tooltip: 'History',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HistoryScreen()),
+              );
+            },
+          ),
+          IconButton(
             icon: Icon(Icons.notifications_none_rounded, color: theme.colorScheme.primary),
             tooltip: 'Alerts',
             onPressed: () {
@@ -91,7 +101,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             _buildDrawerItem(context, Icons.crop_rounded, 'Image Cropper', const ImageCropperScreen()),
             _buildDrawerItem(context, Icons.photo_library_outlined, 'Image Gallery', const ImageGalleryScreen()),
             _buildDrawerItem(context, Icons.delete_outline_rounded, 'Trash', const TrashScreen()),
-            _buildDrawerItem(context, Icons.history_rounded, 'History', HistoryScreen()),
             const Divider(indent: 20, endIndent: 20),
             _buildDrawerItem(context, Icons.logout_rounded, 'Logout', null, isDestructive: true),
             const Spacer(),
