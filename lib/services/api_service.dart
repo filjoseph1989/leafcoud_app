@@ -159,8 +159,18 @@ class ApiService {
   }
 
   Future<void> deleteImage(String filename, {required int id}) async {
+    final Uri uri;
+
+    if (id == 0) {
+      // reading_id was null (orphaned image) — use filename endpoint
+      final encodedFilename = filename.split('/').map(Uri.encodeComponent).join('/');
+      uri = Uri.parse('$baseUrl/api/v1/images/$encodedFilename');
+    } else {
+      uri = Uri.parse('$baseUrl/api/v1/images/?id=$id');
+    }
+
     final response = await client.delete(
-      Uri.parse('$baseUrl/api/v1/images/?id=$id'),
+      uri,
       headers: {
         'Authorization': 'demo-access-token-xyz-789',
       },

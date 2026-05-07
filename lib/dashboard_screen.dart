@@ -376,16 +376,172 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final levels = data.predictions;
     if (levels == null) return const SizedBox.shrink();
 
-    return _buildInfoSection(
-      title: 'Nutrient Analysis',
-      icon: Icons.science_rounded,
-      aspectRatio: 0.70,
+    final double n = double.tryParse('${levels['n'] ?? levels['n_ppm'] ?? levels['Nitrogen'] ?? 0}') ?? 0;
+    final double p = double.tryParse('${levels['p'] ?? levels['p_ppm'] ?? levels['Phosphorus'] ?? 0}') ?? 0;
+    final double k = double.tryParse('${levels['k'] ?? levels['k_ppm'] ?? levels['Potassium'] ?? 0}') ?? 0;
+    final double total = n + p + k;
+
+    return _buildNpkGaugeSection(n: n, p: p, k: k, total: total);
+  }
+
+  Widget _buildNpkGaugeSection({required double n, required double p, required double k, required double total}) {
+    final theme = Theme.of(context);
+    // Optimal total NPK range ~500–900 ppm; max gauge at 1200 ppm
+    const double maxPpm = 1200;
+    final double fraction = (total / maxPpm).clamp(0.0, 1.0);
+
+    final Color gaugeColor;
+    final String strengthLabel;
+    if (fraction < 0.25) {
+      gaugeColor = Colors.red[400]!;
+      strengthLabel = 'Very Low';
+    } else if (fraction < 0.45) {
+      gaugeColor = Colors.orange[400]!;
+      strengthLabel = 'Low';
+    } else if (fraction < 0.70) {
+      gaugeColor = theme.colorScheme.primary;
+      strengthLabel = 'Optimal';
+    } else if (fraction < 0.90) {
+      gaugeColor = Colors.amber[600]!;
+      strengthLabel = 'High';
+    } else {
+      gaugeColor = Colors.red[400]!;
+      strengthLabel = 'Excess';
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildGridMetric('Nitrogen', '${levels['n'] ?? levels['n_ppm'] ?? levels['Nitrogen'] ?? 'N/A'}', 'ppm', Icons.nature_rounded),
-        _buildGridMetric('Phosphorus', '${levels['p'] ?? levels['p_ppm'] ?? levels['Phosphorus'] ?? 'N/A'}', 'ppm', Icons.grass_rounded),
-        _buildGridMetric('Potassium', '${levels['k'] ?? levels['k_ppm'] ?? levels['Potassium'] ?? 'N/A'}', 'ppm', Icons.local_florist_rounded),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          child: Text(
+            'Nutrient Analysis',
+            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          ),
+        ),
+        const SizedBox(height: 20),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Text(
+                'Total NPK Strength',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                height: 160,
+                width: 160,
+                child: CustomPaint(
+                  painter: _NpkGaugePainter(
+                    fraction: fraction,
+                    gaugeColor: gaugeColor,
+                    trackColor: Colors.grey[200]!,
+                  ),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          total.toStringAsFixed(0),
+                          style: theme.textTheme.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: gaugeColor,
+                          ),
+                        ),
+                        Text(
+                          'ppm',
+                          style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey[500]),
+                        ),
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: gaugeColor.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            strengthLabel,
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: gaugeColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildNpkBreakdown('N', n, Colors.green[700]!),
+                  _buildNpkDivider(),
+                  _buildNpkBreakdown('P', p, Colors.blue[600]!),
+                  _buildNpkDivider(),
+                  _buildNpkBreakdown('K', k, Colors.orange[700]!),
+                ],
+              ),
+            ],
+          ),
+        ),
       ],
     );
+  }
+
+  Widget _buildNpkBreakdown(String label, double value, Color color) {
+    final theme = Theme.of(context);
+    return Column(
+      children: [
+        Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.12),
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: theme.textTheme.labelMedium?.copyWith(
+                color: color,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          value.toStringAsFixed(0),
+          style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        Text(
+          'ppm',
+          style: theme.textTheme.labelSmall?.copyWith(color: Colors.grey[500]),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNpkDivider() {
+    return Container(width: 1, height: 40, color: Colors.grey[200]);
   }
 
   Widget _buildInfoSection({required String title, required IconData icon, required double aspectRatio, required List<Widget> children}) {
@@ -491,4 +647,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
+}
+
+class _NpkGaugePainter extends CustomPainter {
+  final double fraction;
+  final Color gaugeColor;
+  final Color trackColor;
+
+  _NpkGaugePainter({required this.fraction, required this.gaugeColor, required this.trackColor});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const double strokeWidth = 14;
+    const double startAngle = 2.35; // ~135 degrees (bottom-left)
+    const double sweepTotal = 4.71; // ~270 degrees
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = (size.width - strokeWidth) / 2;
+    final rect = Rect.fromCircle(center: center, radius: radius);
+
+    final trackPaint = Paint()
+      ..color = trackColor
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    final gaugePaint = Paint()
+      ..color = gaugeColor
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawArc(rect, startAngle, sweepTotal, false, trackPaint);
+    if (fraction > 0) {
+      canvas.drawArc(rect, startAngle, sweepTotal * fraction, false, gaugePaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_NpkGaugePainter old) =>
+      old.fraction != fraction || old.gaugeColor != gaugeColor;
 }

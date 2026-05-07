@@ -30,54 +30,32 @@ class _ImageSliderScreenState extends State<ImageSliderScreen> {
     super.dispose();
   }
 
-  void _confirmDelete(BuildContext context, ImageInfo image) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Move to Trash'),
-        content: const Text('Are you sure you want to move this image to the trash? You can restore it later from the Trash screen.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              final navigator = Navigator.of(context);
-              final scaffoldMessenger = ScaffoldMessenger.of(context);
-              
-              navigator.pop();
-              try {
-                final notifier = context.read<ImageManagementNotifier>();
-                final imagesCount = notifier.images.length;
-                
-                await notifier.deleteImage(image);
-                
-                if (imagesCount <= 1) {
-                  if (mounted) navigator.pop();
-                } else {
-                  // If we deleted the last one, go to the new last one
-                  if (_currentIndex >= notifier.images.length) {
-                    setState(() {
-                      _currentIndex = notifier.images.length - 1;
-                    });
-                    _pageController.jumpToPage(_currentIndex);
-                  }
-                }
-              } catch (e) {
-                if (mounted) {
-                  scaffoldMessenger.showSnackBar(
-                    SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-                  );
-                }
-              }
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
+  Future<void> _deleteImage(BuildContext context, ImageInfo image) async {
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+    try {
+      final notifier = context.read<ImageManagementNotifier>();
+      final imagesCount = notifier.images.length;
+
+      await notifier.deleteImage(image);
+
+      if (imagesCount <= 1) {
+        if (mounted) navigator.pop();
+      } else {
+        if (_currentIndex >= notifier.images.length) {
+          setState(() {
+            _currentIndex = notifier.images.length - 1;
+          });
+          _pageController.jumpToPage(_currentIndex);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
   }
 
   @override
@@ -117,7 +95,7 @@ class _ImageSliderScreenState extends State<ImageSliderScreen> {
             ),
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () => _confirmDelete(context, image),
+            onPressed: () => _deleteImage(context, image),
             backgroundColor: Colors.redAccent,
             child: const Icon(Icons.delete_outline, color: Colors.white),
           ),
