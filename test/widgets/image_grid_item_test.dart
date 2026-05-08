@@ -71,4 +71,34 @@ void main() {
     // Expect to find "Unknown"
     expect(find.text('Unknown'), findsOneWidget);
   });
+
+  testWidgets('ImageGridItem displays delete icon when orphaned', (WidgetTester tester) async {
+    final testImage = ImageInfo(
+      filename: 'test.jpg',
+      imageUrl: '/images/test.jpg',
+      isOrphaned: true,
+    );
+
+    bool deleted = false;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ImageGridItem(
+            image: testImage,
+            baseUrl: 'http://localhost:8000',
+            onTap: () {},
+            onDelete: () => deleted = true,
+          ),
+        ),
+      ),
+    );
+
+    // Expect to find delete icon
+    expect(find.byIcon(Icons.delete_outline_rounded), findsOneWidget);
+    
+    // Tap delete icon
+    await tester.tap(find.byIcon(Icons.delete_outline_rounded));
+    expect(deleted, isTrue);
+  });
 }

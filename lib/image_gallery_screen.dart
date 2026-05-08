@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide ImageInfo;
 import 'package:provider/provider.dart';
 import 'package:flutter_leafcloud_app/notifiers/image_management_notifier.dart';
+import 'package:flutter_leafcloud_app/models/image_info.dart';
 import 'package:flutter_leafcloud_app/widgets/image_grid_item.dart';
 import 'package:flutter_leafcloud_app/image_slider_screen.dart';
 
@@ -184,11 +185,52 @@ class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
                         ),
                       );
                     },
+                    onDelete: () => _showDeleteConfirmation(context, image, notifier),
                   );
                 },
               );
             },
           ),
     );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, ImageInfo image, ImageManagementNotifier notifier) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Image?'),
+        content: const Text('This orphaned image will be moved to trash.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _deleteImage(context, image, notifier);
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteImage(BuildContext context, ImageInfo image, ImageManagementNotifier notifier) async {
+    try {
+      await notifier.deleteImage(image);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Image moved to trash')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
+    }
   }
 }

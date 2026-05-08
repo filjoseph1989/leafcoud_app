@@ -6,12 +6,14 @@ class ImageGridItem extends StatelessWidget {
   final ImageInfo image;
   final String baseUrl;
   final VoidCallback onTap;
+  final VoidCallback? onDelete;
 
   const ImageGridItem({
     super.key,
     required this.image,
     required this.baseUrl,
     required this.onTap,
+    this.onDelete,
   });
 
   @override
@@ -103,13 +105,23 @@ class ImageGridItem extends StatelessWidget {
                 Positioned(
                   top: 8,
                   right: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
+                  child: GestureDetector(
+                    onTap: onDelete,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(Icons.delete_outline_rounded, color: Colors.red, size: 16),
                     ),
-                    child: const Icon(Icons.warning_rounded, color: Colors.orange, size: 16),
                   ),
                 ),
             ],

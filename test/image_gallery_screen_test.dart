@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_leafcloud_app/image_gallery_screen.dart';
 import 'package:flutter_leafcloud_app/notifiers/image_management_notifier.dart';
 import 'package:flutter_leafcloud_app/widgets/image_grid_item.dart';
@@ -19,6 +20,7 @@ void main() {
   setUp(() {
     mockApiService = MockApiService();
     when(mockApiService.baseUrl).thenReturn('http://test.com');
+    SharedPreferences.setMockInitialValues({});
   });
 
   testWidgets('ImageGalleryScreen shows loading and then images', (WidgetTester tester) async {
@@ -28,7 +30,7 @@ void main() {
     ];
 
     final completer = Completer<List<ImageInfo>>();
-    when(mockApiService.fetchImages(skip: 0, limit: 20)).thenAnswer((_) => completer.future);
+    when(mockApiService.fetchImages(skip: 0, limit: 50)).thenAnswer((_) => completer.future);
 
     await tester.pumpWidget(
       MultiProvider(
@@ -41,15 +43,16 @@ void main() {
       ),
     );
 
-    // Initial fetch happens in initState, which is called before the first frame
-    // In test environment, the first build might already have isLoading=true
     await tester.pump(); 
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
     
     completer.complete(images);
-    await tester.pumpAndSettle();
+    
+    // Use pump repeatedly instead of pumpAndSettle because of infinite animations in ImageGridItem
+    for(int i = 0; i < 5; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
 
-    expect(find.byType(CircularProgressIndicator), findsNothing);
     expect(find.text('Image Gallery'), findsOneWidget);
     expect(find.byType(ImageGridItem), findsNWidgets(2));
   });

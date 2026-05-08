@@ -41,9 +41,24 @@ class _LoginScreenState extends State<LoginScreen> {
             MaterialPageRoute(builder: (context) => const DashboardScreen()),
           );
         }
-      } else {
+      } else if (response.statusCode == 401) {
         setState(() {
-          _errorMessage = 'Error ${response.statusCode}: ${response.body}';
+          _errorMessage = 'Incorrect email or password. Please try again.';
+          _isLoading = false;
+        });
+      } else if (response.statusCode == 404) {
+        setState(() {
+          _errorMessage = 'Account not found. Please check your email.';
+          _isLoading = false;
+        });
+      } else {
+        String msg = 'Login failed. Please try again.';
+        try {
+          final body = json.decode(response.body);
+          if (body['detail'] != null) msg = body['detail'].toString();
+        } catch (_) {}
+        setState(() {
+          _errorMessage = msg;
           _isLoading = false;
         });
       }

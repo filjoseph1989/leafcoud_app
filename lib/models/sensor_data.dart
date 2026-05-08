@@ -2,6 +2,7 @@ class SensorData {
   final DateTime timestamp;
   final String? plantId;
   final String? lettuceImageUrl;
+  final String? imageUrl;
   final Map<String, dynamic>? sensors;
   final Map<String, dynamic>? predictions;
   final dynamic status; // Can be String or Map
@@ -12,6 +13,7 @@ class SensorData {
     required this.timestamp,
     this.plantId,
     this.lettuceImageUrl,
+    this.imageUrl,
     this.sensors,
     this.predictions,
     this.status,
@@ -26,6 +28,7 @@ class SensorData {
           : DateTime.now(),
       plantId: json['plant_id']?.toString(),
       lettuceImageUrl: json['lettuce_image_url']?.toString(),
+      imageUrl: json['image_url']?.toString(),
       sensors: json['sensors'] is Map<String, dynamic> ? json['sensors'] : null,
       predictions: (json['predictions'] ?? json['npk_levels']) is Map<String, dynamic> 
           ? (json['predictions'] ?? json['npk_levels']) 
@@ -63,6 +66,8 @@ class SensorData {
     return null;
   }
 
+  String? get displayImageUrl => imageUrl ?? lettuceImageUrl;
+
   bool get isNoData => sensors == null && status == null;
 
   Map<String, dynamic> toJson() {
@@ -70,6 +75,7 @@ class SensorData {
       'timestamp': timestamp.toIso8601String(),
       'plant_id': plantId,
       'lettuce_image_url': lettuceImageUrl,
+      'image_url': imageUrl,
       'sensors': sensors,
       'predictions': predictions,
       'status': status,

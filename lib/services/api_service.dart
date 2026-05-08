@@ -59,7 +59,25 @@ class ApiService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      // Return SensorData even if it's empty/error-state JSON
+      if (data is Map<String, dynamic>) {
+        final normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl.substring(0, baseUrl.length - 1) : baseUrl;
+        
+        // Normalize image_url
+        if (data['image_url'] != null && 
+            (data['image_url'] as String).isNotEmpty &&
+            !(data['image_url'] as String).startsWith('http')) {
+          final normalizedPath = (data['image_url'] as String).startsWith('/') ? data['image_url'] : '/${data['image_url']}';
+          data['image_url'] = '$normalizedBaseUrl$normalizedPath';
+        }
+        
+        // Normalize lettuce_image_url
+        if (data['lettuce_image_url'] != null && 
+            (data['lettuce_image_url'] as String).isNotEmpty &&
+            !(data['lettuce_image_url'] as String).startsWith('http')) {
+          final normalizedPath = (data['lettuce_image_url'] as String).startsWith('/') ? data['lettuce_image_url'] : '/${data['lettuce_image_url']}';
+          data['lettuce_image_url'] = '$normalizedBaseUrl$normalizedPath';
+        }
+      }
       return SensorData.fromJson(data is Map<String, dynamic> ? data : {});
     } else {
       throw Exception('Failed to load sensor data: ${response.statusCode}');
