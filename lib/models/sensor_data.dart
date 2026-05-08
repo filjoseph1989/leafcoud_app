@@ -2,6 +2,7 @@ class SensorData {
   final DateTime timestamp;
   final String? plantId;
   final String? lettuceImageUrl;
+  final String? imageUrl;
   final Map<String, dynamic>? sensors;
   final Map<String, dynamic>? predictions;
   final dynamic status; // Can be String or Map
@@ -12,6 +13,7 @@ class SensorData {
     required this.timestamp,
     this.plantId,
     this.lettuceImageUrl,
+    this.imageUrl,
     this.sensors,
     this.predictions,
     this.status,
@@ -26,6 +28,7 @@ class SensorData {
           : DateTime.now(),
       plantId: json['plant_id']?.toString(),
       lettuceImageUrl: json['lettuce_image_url']?.toString(),
+      imageUrl: json['image_url']?.toString(),
       sensors: json['sensors'] is Map<String, dynamic> ? json['sensors'] : null,
       predictions: (json['predictions'] ?? json['npk_levels']) is Map<String, dynamic> 
           ? (json['predictions'] ?? json['npk_levels']) 
@@ -45,6 +48,26 @@ class SensorData {
     return 'No Data Yet';
   }
 
+  // Tries common key names that the backend CNN model may use for the classification result
+  String? get cnnClassification {
+    if (status is Map) {
+      final m = status as Map;
+      for (final key in ['classification', 'cnn_label', 'cnn_class', 'plant_status', 'leaf_class', 'diagnosis']) {
+        final v = m[key]?.toString();
+        if (v != null && v.isNotEmpty) return v;
+      }
+    }
+    if (predictions != null) {
+      for (final key in ['classification', 'cnn_label', 'cnn_class', 'label']) {
+        final v = predictions![key]?.toString();
+        if (v != null && v.isNotEmpty) return v;
+      }
+    }
+    return null;
+  }
+
+  String? get displayImageUrl => imageUrl ?? lettuceImageUrl;
+
   bool get isNoData => sensors == null && status == null;
 
   Map<String, dynamic> toJson() {
@@ -52,6 +75,7 @@ class SensorData {
       'timestamp': timestamp.toIso8601String(),
       'plant_id': plantId,
       'lettuce_image_url': lettuceImageUrl,
+      'image_url': imageUrl,
       'sensors': sensors,
       'predictions': predictions,
       'status': status,

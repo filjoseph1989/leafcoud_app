@@ -39,7 +39,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       appBar: AppBar(
-        title: Text('Experiment History', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+        title: Text('History', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
         backgroundColor: theme.colorScheme.surface,
         foregroundColor: theme.colorScheme.onSurface,
         elevation: 0,
@@ -51,39 +51,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _experimentIdController,
-                    decoration: const InputDecoration(
-                      hintText: 'Experiment ID (e.g., EXP-NPK)',
-                      prefixIcon: Icon(Icons.search_rounded),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Container(
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: IconButton(
-                    onPressed: () {
-                      final id = _experimentIdController.text.trim();
-                      if (id.isNotEmpty) {
-                        context.read<HistoryNotifier>().fetchHistory(id);
-                      }
-                    },
-                    icon: const Icon(Icons.play_arrow_rounded),
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
           Expanded(
             child: Consumer<HistoryNotifier>(
               builder: (context, notifier, child) {
@@ -175,16 +142,36 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           ),
                         ),
                       ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildLegendItem(theme.colorScheme.primary, 'EC (mS/cm)'),
+                          const SizedBox(width: 16),
+                          _buildLegendItem(theme.colorScheme.secondary, 'pH'),
+                          const SizedBox(width: 16),
+                          _buildLegendItem(Colors.orange, 'Temp (°C)'),
+                        ],
+                      ),
+                    ),
                     SizedBox(
-                      height: 250,
+                      height: 220,
                       child: Padding(
-                        padding: const EdgeInsets.all(20.0),
+                        padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
                         child: _buildChart(theme, notifier.currentBucketData),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                      child: Text(
+                        'Sensor Readings Log',
+                        style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                       ),
                     ),
                     Expanded(
                       child: ListView.builder(
-                        padding: const EdgeInsets.all(20.0),
+                        padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
                         itemCount: listData.length,
                         itemBuilder: (context, index) {
                           final entry = listData[index];
@@ -300,6 +287,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
           Text(value, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
         ],
       ),
+    );
+  }
+
+  Widget _buildLegendItem(Color color, String label) {
+    return Row(
+      children: [
+        Container(width: 14, height: 4, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(2))),
+        const SizedBox(width: 6),
+        Text(label, style: TextStyle(fontSize: 11, color: Colors.grey[600], fontWeight: FontWeight.w500)),
+      ],
     );
   }
 }

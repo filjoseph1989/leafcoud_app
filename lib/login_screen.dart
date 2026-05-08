@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_leafcloud_app/dashboard_screen.dart';
+import 'package:flutter_leafcloud_app/register_screen.dart';
 import 'package:flutter_leafcloud_app/services/api_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -40,9 +41,24 @@ class _LoginScreenState extends State<LoginScreen> {
             MaterialPageRoute(builder: (context) => const DashboardScreen()),
           );
         }
-      } else {
+      } else if (response.statusCode == 401) {
         setState(() {
-          _errorMessage = 'Error ${response.statusCode}: ${response.body}';
+          _errorMessage = 'Incorrect email or password. Please try again.';
+          _isLoading = false;
+        });
+      } else if (response.statusCode == 404) {
+        setState(() {
+          _errorMessage = 'Account not found. Please check your email.';
+          _isLoading = false;
+        });
+      } else {
+        String msg = 'Login failed. Please try again.';
+        try {
+          final body = json.decode(response.body);
+          if (body['detail'] != null) msg = body['detail'].toString();
+        } catch (_) {}
+        setState(() {
+          _errorMessage = msg;
           _isLoading = false;
         });
       }
@@ -172,7 +188,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 24),
                 TextButton(
                   onPressed: () {
-                    // TODO: Navigate to registration
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                    );
                   },
                   child: Text(
                     'Create an account',
