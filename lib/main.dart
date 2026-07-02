@@ -1,63 +1,104 @@
 import 'package:flutter/material.dart';
+import 'package:leaf_cloud/repositories/auth_repository.dart';
+import 'package:leaf_cloud/repositories/auth_repository_interface.dart';
+import 'package:leaf_cloud/repositories/config_repository.dart';
+import 'package:leaf_cloud/repositories/config_repository_interface.dart';
+import 'package:leaf_cloud/repositories/iot_repository.dart';
+import 'package:leaf_cloud/repositories/iot_repository_interface.dart';
+import 'package:leaf_cloud/repositories/calibration_repository.dart';
+import 'package:leaf_cloud/repositories/calibration_repository_interface.dart';
+import 'package:leaf_cloud/providers/auth_provider.dart';
+import 'package:leaf_cloud/providers/config_provider.dart';
+import 'package:leaf_cloud/providers/iot_provider.dart';
+import 'package:leaf_cloud/providers/alert_provider.dart';
+import 'package:leaf_cloud/providers/calibration_provider.dart';
+import 'package:leaf_cloud/services/discovery_service.dart';
+import 'package:leaf_cloud/services/notification_service.dart';
+import 'package:leaf_cloud/core/auth_client.dart';
+import 'package:leaf_cloud/ui/login_page.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_leafcloud_app/landing_screen.dart';
-import 'package:flutter_leafcloud_app/notifiers/sensor_data_notifier.dart';
-import 'package:flutter_leafcloud_app/notifiers/bucket_control_notifier.dart';
-import 'package:flutter_leafcloud_app/notifiers/history_notifier.dart';
-import 'package:flutter_leafcloud_app/notifiers/image_management_notifier.dart';
-import 'package:flutter_leafcloud_app/notifiers/trash_notifier.dart';
 
-import 'package:flutter_leafcloud_app/services/api_service.dart';
-import 'package:flutter_leafcloud_app/services/connection_service.dart';
-import 'package:flutter_leafcloud_app/theme.dart';
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-void main() {
-  final httpClient = http.Client();
-  final connectionService = ConnectionService(client: httpClient);
-  
-  // Initialize with an empty URL, will be updated in LandingScreen or ConnectionSetupScreen
-  final apiService = ApiService(
-    client: httpClient,
-    baseUrl: '',
-  );
+  // Initialize notification service (wrapped in try-catch to prevent black screen if it fails)
+  try {
+    await NotificationService().init();
+  } catch (e) {
+    debugPrint('Failed to initialize NotificationService: $e');
+  }
+
+  // Start background discovery
+  DiscoveryService().initDiscovery();
 
   runApp(
     MultiProvider(
       providers: [
-        Provider<ConnectionService>.value(value: connectionService),
-        Provider<ApiService>.value(value: apiService),
+        // Repositories
+        Provider<IAuthRepository>(
+          create: (_) => AuthRepository(client: AuthClient()),
+        ),
+        Provider<IConfigRepository>(
+          create: (_) => ConfigRepository(client: AuthClient()),
+        ),
+        Provider<IIotRepository>(
+          create: (_) => IotRepository(client: AuthClient()),
+        ),
+        Provider<ICalibrationRepository>(
+          create: (_) => CalibrationRepository(client: AuthClient()),
+        ),
+        // Providers
         ChangeNotifierProvider(
-          create: (_) => SensorDataNotifier(apiService: apiService),
+          create: (context) => AuthProvider(
+            Provider.of<IAuthRepository>(context, listen: false),
+          ),
         ),
         ChangeNotifierProvider(
-          create: (_) => BucketControlNotifier(apiService: apiService),
+          create: (context) => ConfigProvider(
+            Provider.of<IConfigRepository>(context, listen: false),
+          ),
         ),
         ChangeNotifierProvider(
-          create: (_) => ImageManagementNotifier(apiService: apiService),
+          create: (context) => IotProvider(
+            Provider.of<IIotRepository>(context, listen: false),
+          ),
         ),
         ChangeNotifierProvider(
-          create: (_) => HistoryNotifier(apiService: apiService),
+          create: (context) => CalibrationProvider(
+            Provider.of<ICalibrationRepository>(context, listen: false),
+          ),
         ),
-        ChangeNotifierProvider(
-          create: (_) => TrashNotifier(apiService: apiService),
+        ChangeNotifierProxyProvider<ConfigProvider, AlertProvider>(
+          lazy: false,
+          create: (context) => AlertProvider(
+            Provider.of<IIotRepository>(context, listen: false),
+            Provider.of<ConfigProvider>(context, listen: false),
+          ),
+          update: (context, config, previous) => previous!,
         ),
       ],
-      child: const MyApp(),
+      child: const LoginApp(),
     ),
   );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class LoginApp extends StatelessWidget {
+  const LoginApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'LeafCloud',
+      title: 'LeafCloud Login',
       debugShowCheckedModeBanner: false,
-      theme: LeafCloudTheme.lightTheme,
-      home: const LandingScreen(),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF4E7A43),
+          surface: const Color(0xFFF4F7F4),
+        ),
+        useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFFEDF2ED),
+      ),
+      home: const LoginPage(),
     );
   }
 }
